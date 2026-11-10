@@ -1,0 +1,3682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Jeovent · Cuadrante</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh;font-size:15px}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e 0%,#1a4fa0 100%);display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:360px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.login-logo{text-align:center;margin-bottom:20px;font-size:28px}
+.login-title{font-size:20px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:#6b7280;text-align:center;margin-bottom:24px}
+.login-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.login-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#6b7280}
+.login-input{background:#f9fafb;border:1px solid #d1d5db;border-radius:8px;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .15s;width:100%}
+.login-input:focus{border-color:#1a4fa0;background:#fff}
+.login-btn{width:100%;padding:12px;background:#1a4fa0;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:6px}
+.login-btn:hover{background:#163d80}
+.login-error{color:#dc2626;font-size:13px;text-align:center;margin-top:8px;display:none}
+.login-loading{color:#6b7280;font-size:13px;text-align:center;margin-top:8px;display:none}
+
+/* HEADER */
+header{background:#1a1a2e;border-bottom:3px solid #1a4fa0;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0}
+.logo{font-weight:700;font-size:16px;color:#fff}
+.logo-sub{font-size:10px;color:#94a3b8;font-weight:400;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-badge{font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;transition:background .3s}
+.sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite}
+.sync-dot.error{background:#ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes cuaPulse{0%,100%{background:#fef3c7}50%{background:#fde68a}}
+nav{display:flex;gap:2px}
+.nav-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;transition:all .15s;background:transparent;color:#94a3b8;text-decoration:none;display:inline-flex;align-items:center}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-btn.active{background:#1a4fa0;color:#fff}
+.nav-btn.nav-link-ext{border:1px solid rgba(255,255,255,.15)}
+.subnav{background:#0f1525;border-bottom:1px solid #1f2940;padding:6px 16px;display:flex;gap:2px;align-items:center;flex-shrink:0;overflow-x:auto;flex-wrap:wrap}
+.subnav .nav-btn{padding:6px 12px;font-size:11px}
+.btn-logout{padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-logout:hover{border-color:#ef4444;color:#ef4444}
+
+/* MAIN */
+main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* STAT CARDS */
+.stat-cards{display:flex;gap:10px;padding:10px 20px;background:#fff;border-bottom:1px solid #d1d5db;flex-shrink:0;flex-wrap:wrap}
+.stat-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px;min-width:100px}
+.stat-card .sv{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#1a1a2e}
+.stat-card .sl{font-size:11px;color:#6b7280;margin-top:1px}
+
+/* BTN */
+.btn{padding:6px 14px;border-radius:7px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn-primary{background:#1a4fa0;color:#fff}.btn-primary:hover{background:#163d80}
+.btn-secondary{background:#f9fafb;color:#374151;border:1px solid #d1d5db}.btn-secondary:hover{background:#f3f4f6}
+.btn-success{background:#10b981;color:#fff;border:none}.btn-success:hover{background:#059669}
+
+/* TOOLBAR */
+.toolbar{padding:10px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #d1d5db;background:#fff;flex-shrink:0;flex-wrap:wrap}
+
+/* PERIOD BUTTONS */
+.cua-period-btn{padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Inter',sans-serif;background:transparent;color:#64748b;transition:all .15s}
+.cua-period-btn.active{background:#1a4fa0;color:#fff}
+.cua-period-btn:hover:not(.active){background:#e2e8f0}
+
+/* TABLE */
+.table-wrap{flex:1;overflow:auto;background:#fff}
+#cua-table{border-collapse:collapse;min-width:1800px;width:100%;font-size:11.5px}
+#cua-table th{background:#1a4fa0;color:#fff;position:sticky;top:0;z-index:10;padding:7px 6px;border:1px solid #1e56b0;white-space:nowrap;font-size:11px;font-weight:600;letter-spacing:.4px}
+#cua-table th[id^="th-"]{position:sticky}
+.col-resize{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:15;user-select:none;background:transparent}
+.col-resize:hover,.col-resize.dragging{background:rgba(255,255,255,.45)}
+body.col-resizing,body.col-resizing *{cursor:col-resize !important;user-select:none !important}
+#cua-table td{border:1px solid #e5e7eb;padding:4px 6px;vertical-align:middle}
+#cua-table tbody tr:nth-child(even){background:#f9fafb}
+#cua-table tbody tr:hover{filter:brightness(0.97)}
+#cua-table tbody tr.cua-dirty{outline:2px solid #f59e0b;outline-offset:-2px}
+#cua-table tbody tr.cua-new td{border-top:2px solid #10b981}
+tfoot tr{background:#f8fafc;font-weight:700;font-size:12px;position:sticky;bottom:0}
+tfoot td{border:1px solid #e2e8f0;padding:7px 8px}
+
+/* CELL INPUTS */
+.cua-cell-input{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:11.5px;padding:0;outline:none;color:inherit}
+.cua-cell-input:focus{background:rgba(255,255,255,0.85);border-bottom:2px solid #1a4fa0;border-radius:0}
+.cua-cell-select{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:11px;padding:0;outline:none;cursor:pointer}
+.cua-cell-select:focus{background:#fff}
+.cua-num{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.cua-deuda-pos{color:#ef4444;font-weight:700}
+.cua-deuda-zero{color:#10b981;font-weight:600}
+
+/* ESTADO COLORS */
+tr.cua-estado-fabricada{background:#fff3e0 !important}
+tr.cua-estado-recoger{background:#f1f5f9 !important}
+tr.cua-estado-llevar{background:#f1f5f9 !important}
+tr.cua-estado-instalar{background:#eff6ff !important}
+tr.cua-estado-incidencia{background:#fef2f2 !important}
+tr.cua-estado-terminado{background:#f0fdf4 !important}
+
+/* AUTOCOMPLETE */
+.cua-ac-wrap{position:relative;width:100%}
+.cua-ac-input{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:11.5px;padding:0;outline:none}
+.cua-ac-input:focus{background:rgba(255,255,255,.8);border-bottom:2px solid #1a4fa0}
+.cua-ac-list{position:fixed;z-index:99999;background:#fff;border:1px solid #e2e8f0;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:220px;max-height:200px;overflow-y:auto;display:none}
+.cua-ac-list.open{display:block}
+.cua-ac-item{padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a2e}
+.cua-ac-item:hover,.cua-ac-item.active{background:#eff6ff;color:#1a4fa0}
+
+/* EMPTY STATE */
+#cua-empty{display:none;text-align:center;padding:60px;color:#94a3b8;font-size:13px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:#1a1a2e;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:slideIn .2s ease;opacity:1;transition:opacity .3s}
+.toast-item.error{background:#dc2626}
+.toast-item.success{background:#059669}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#1a4fa0;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  nav .nav-btn{font-size:9px;padding:4px 6px}
+}
+
+/* ADMIN VIEW */
+#view-admin{flex:1;overflow:auto;background:#f0f2f5;padding:20px}
+.admin-wrap{max-width:1000px;margin:0 auto}
+.admin-title{font-size:20px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+.admin-sub{font-size:13px;color:#6b7280;margin-bottom:20px}
+.admin-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:16px;overflow:hidden}
+.admin-h{padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#1a1a2e;background:#f9fafb;display:flex;align-items:center;gap:8px}
+.admin-body{padding:16px}
+.admin-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.admin-label{font-size:12px;color:#374151;font-weight:600;min-width:140px}
+.admin-input{flex:1;min-width:160px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;background:#fff;outline:none}
+.admin-input:focus{border-color:#1a4fa0}
+.admin-input-sm{width:110px;min-width:90px}
+.admin-item{display:flex;gap:6px;align-items:center;padding:6px 8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:6px;flex-wrap:wrap}
+.admin-del{background:none;border:none;cursor:pointer;color:#dc2626;font-size:14px;padding:4px 8px}
+.admin-del:hover{background:#fee2e2;border-radius:4px}
+.admin-chk{width:16px;height:16px;cursor:pointer}
+.admin-color{width:28px;height:28px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;padding:0}
+.btn-danger{background:#dc2626;color:#fff;border:none}.btn-danger:hover{background:#b91c1c}
+.btn-warn{background:#f59e0b;color:#fff;border:none}.btn-warn:hover{background:#d97706}
+</style>
+<script src="acceso.js"></script>
+
+<style>/* JEOVENT-MOBILE-CSS */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .table-wrap, .table-wrap-x { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 800px; }
+  .toolbar, .subnav { flex-wrap: wrap; gap: 6px; padding: 8px; }
+  .modal { width: 96vw !important; max-width: 96vw !important; max-height: 92vh !important; }
+  .modal-wide { width: 96vw !important; max-width: 96vw !important; }
+  .btn { padding: 10px 14px; font-size: 14px; min-height: 38px; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; min-height: 32px; }
+  input, select, textarea { font-size: 16px !important; min-height: 38px; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .stat-cards { overflow-x: auto; padding: 8px; }
+  .stat-card { min-width: 120px; }
+  /* hide sidebar / detail panels on mobile */
+  .csp-side, .client-detail-side { display: none; }
+}
+@media (max-width: 480px) {
+  .nav-btn, .subnav button { font-size: 12px; padding: 6px 8px; }
+  h1, h2 { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<datalist id="cua-instaladores-list"></datalist>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">📅</div>
+    <div class="login-title">Jeovent · Cuadrante</div>
+    <div class="login-sub">Gestión de obras e instalaciones</div>
+    <div class="login-group">
+      <label class="login-label">Usuario</label>
+      <input class="login-input" type="text" id="l-user" placeholder="usuario" autocomplete="username">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Contraseña</label>
+      <input class="login-input" type="password" id="l-pass" placeholder="••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="login-btn">Entrar</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <div class="login-loading" id="login-loading">Verificando...</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <header>
+    <div class="logo"><div>Jeovent</div><div class="logo-sub">Cuadrante de Gestión</div></div>
+    <nav>
+      <a class="nav-btn" href="gestion.html">🏢 Gestión</a>
+      <a class="nav-btn" href="presupuestos.html">📋 Presupuestos</a>
+      <button class="nav-btn active">📅 Cuadrante</button>
+      <a class="nav-btn" href="gastos.html">💸 Gastos</a>
+    </nav>
+    <div class="header-right">
+      <div class="user-badge"><span class="sync-dot" id="sync-dot"></span><span id="user-name">—</span></div>
+      <button class="btn-logout" id="btn-logout">Salir</button>
+    </div>
+  </header>
+  <div class="subnav">
+    <button class="nav-btn active" id="nav-cuadrante">📅 Cuadrante</button>
+    <button class="nav-btn" id="nav-instalacion" style="border-left:3px solid transparent">🔨 Instalación</button>
+    <button class="nav-btn" id="nav-medicion" style="border-left:3px solid transparent">📏 Medición</button>
+    <button class="nav-btn" id="nav-admin">⚙️ Admin</button>
+    <button class="nav-btn" id="nav-archivados">📦 Archivados</button>
+    <button class="nav-btn" id="nav-informe">📊 Informe</button>
+    <button class="nav-btn" id="nav-ajustes">🔧 Ajustes</button>
+  </div>
+
+  <main>
+    <!-- VIEW: CUADRANTE -->
+    <div id="view-cuadrante" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <!-- LOADING -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <div style="font-size:13px;color:#6b7280">Cargando datos...</div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <span id="cua-titulo" style="font-weight:600;font-size:13px;color:#374151">📋 Cuadrante de Gestión</span>
+      <div style="display:flex;gap:3px;background:#f1f5f9;border-radius:8px;padding:3px">
+        <button class="cua-period-btn" data-p="todos" title="Muestra TODAS las filas (sin filtro de fecha) — puede ser lento con muchos años">Todos</button>
+        <button class="cua-period-btn" data-p="semana" title="Filtra por la columna FECHA del cuadrante (semana actual ± con flechas)">Semana</button>
+        <button class="cua-period-btn" data-p="mes" title="Filtra por la columna FECHA del cuadrante (mes actual ± con flechas)">Mes</button>
+        <button class="cua-period-btn" data-p="trimestre" title="Filtra por la columna FECHA del cuadrante (trimestre actual ± con flechas)">Trimestre</button>
+        <button class="cua-period-btn active" data-p="año" title="Filtra por la columna FECHA del cuadrante (año actual ± con flechas)">Año</button>
+        <span style="margin-left:8px;font-size:10px;color:#94a3b8;font-style:italic">Filtra por la columna FECHA</span>
+      </div>
+      <button id="cua-prev" class="btn btn-secondary" style="padding:4px 10px;font-size:15px">‹</button>
+      <span id="cua-period-label" style="font-size:12px;color:#374151;font-weight:600;min-width:150px;text-align:center"></span>
+      <button id="cua-next" class="btn btn-secondary" style="padding:4px 10px;font-size:15px">›</button>
+      <button id="cua-hoy" class="btn btn-secondary" style="font-size:12px">Hoy</button>
+      <input id="cua-search" placeholder="🔍 Buscar cliente / presupuesto..." style="padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;width:230px;outline:none">
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button id="cua-informe" class="btn btn-secondary" style="font-size:12px">📊 Generar informe</button>
+        <button id="cua-import" class="btn btn-secondary" style="font-size:12px">📥 Importar Excel</button>
+        <button id="cua-archive-bulk" class="btn btn-secondary" style="font-size:12px">📦 Archivar masivamente</button>
+        <button id="cua-add-row" class="btn btn-primary" style="font-size:12px">+ Nueva fila</button>
+        <button id="cua-save-all" class="btn btn-success" style="font-size:12px">💾 Guardar cambios</button>
+      </div>
+    </div>
+
+    <!-- KPI BAR -->
+    <div class="stat-cards">
+      <div class="stat-card" style="border-left:4px solid #10b981"><div class="sv" id="cua-kpi-cobrado" style="color:#10b981">0 €</div><div class="sl">Cobrado</div></div>
+      <div class="stat-card" style="border-left:4px solid #ef4444"><div class="sv" id="cua-kpi-deuda" style="color:#ef4444">0 €</div><div class="sl">Total deuda</div></div>
+      <div class="stat-card" style="border-left:4px solid #3b82f6"><div class="sv" id="cua-kpi-total" style="color:#3b82f6">0 €</div><div class="sl">Total facturado</div></div>
+      <div class="stat-card" style="border-left:4px solid #8b5cf6"><div class="sv" id="cua-kpi-base" style="color:#8b5cf6">0 €</div><div class="sl">Base imponible</div></div>
+      <div class="stat-card" style="border-left:4px solid #f59e0b"><div class="sv" id="cua-kpi-instalacion" style="color:#f59e0b">0 €</div><div class="sl">Total instalación</div></div>
+      <div class="stat-card" style="border-left:4px solid #64748b"><div class="sv" id="cua-kpi-num" style="color:#64748b">0</div><div class="sl">Filas</div></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table id="cua-table">
+        <thead>
+          <tr>
+            <th style="width:32px;text-align:center">#</th>
+            <th id="th-cliente" style="min-width:280px;text-align:left">CLIENTES</th>
+            <th id="th-direccion" style="min-width:260px;text-align:left">DIRECCIÓN</th>
+            <th id="th-presupuesto" style="width:85px;text-align:center">PRESUPUESTO</th>
+            <th id="th-fecha" style="width:88px;text-align:center">FECHA</th>
+            <th id="th-obra" style="width:65px;text-align:center">OBRA</th>
+            <th id="th-base" style="width:88px;text-align:right">BASE</th>
+            <th id="th-iva" style="width:78px;text-align:right">IVA</th>
+            <th id="th-total" style="width:88px;text-align:right">TOTAL</th>
+            <th id="th-primer_pago" style="width:88px;text-align:right">1er PAGO</th>
+            <th id="th-segundo_pago" style="width:88px;text-align:right">2º PAGO</th>
+            <th id="th-tercer_pago" style="width:88px;text-align:right">3er PAGO</th>
+            <th id="th-total_instalacion" style="width:88px;text-align:right">TOTAL INST.</th>
+            <th id="th-factura" style="width:78px;text-align:center">FACTURA</th>
+            <th id="th-total_deuda" style="width:98px;text-align:right;background:#b91c1c">TOTAL DEUDA</th>
+            <th id="th-recoge_lleva" style="width:110px;text-align:center">RECOGE/LLEVA</th>
+            <th id="th-pagada" style="width:78px;text-align:center">PAGADA</th>
+            <th id="th-fecha_recogida" style="width:98px;text-align:center">FECHA RECOG/INST</th>
+            <th id="th-estado" style="width:115px;text-align:center">ESTADO</th>
+            <th id="th-observaciones" style="min-width:140px;text-align:left">OBSERVACIONES</th>
+            <th id="th-instaladores" style="width:140px;text-align:center">INSTALADORES</th>
+            <th style="width:48px;text-align:center"></th>
+          </tr>
+        </thead>
+        <tbody id="cua-tbody"></tbody>
+        <tfoot>
+          <tr id="cua-tfoot">
+            <td colspan="6" style="padding:7px 10px;color:#374151">TOTALES</td>
+            <td id="cua-ft-base" class="cua-num" style="color:#8b5cf6"></td>
+            <td id="cua-ft-iva" class="cua-num"></td>
+            <td id="cua-ft-total" class="cua-num" style="color:#3b82f6"></td>
+            <td id="cua-ft-p1" class="cua-num"></td>
+            <td id="cua-ft-p2" class="cua-num"></td>
+            <td id="cua-ft-p3" class="cua-num"></td>
+            <td id="cua-ft-inst" class="cua-num" style="color:#f59e0b"></td>
+            <td></td>
+            <td id="cua-ft-deuda" class="cua-num" style="color:#ef4444"></td>
+            <td colspan="7"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div id="cua-empty">No hay filas para este período</div>
+    </div>
+    </div>
+    <!-- /view-cuadrante -->
+
+    <!-- VIEW: ADMIN -->
+    <div id="view-admin" style="display:none">
+      <div class="admin-wrap">
+        <div class="admin-title">⚙️ Configuración del Cuadrante</div>
+        <div class="admin-sub">Personaliza etiquetas, estados, operarios y opciones. Los cambios se guardan en este navegador.</div>
+
+        <!-- ETIQUETA TÍTULO -->
+        <div class="admin-card">
+          <div class="admin-h">📝 Etiquetas generales</div>
+          <div class="admin-body">
+            <div class="admin-row">
+              <span class="admin-label">Título del panel</span>
+              <input class="admin-input" id="adm-titulo" type="text" placeholder="Cuadrante de Gestión">
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNAS -->
+        <div class="admin-card">
+          <div class="admin-h">📊 Columnas de la tabla</div>
+          <div class="admin-body">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px">Renombra las cabeceras de la tabla. Deja vacío para restaurar el valor por defecto.</div>
+            <div id="adm-columnas"></div>
+          </div>
+        </div>
+
+        <!-- ESTADOS -->
+        <div class="admin-card">
+          <div class="admin-h">🎨 Estados de obra</div>
+          <div class="admin-body">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px">Añade, elimina o edita los estados disponibles. Cada estado puede tener un color de fondo.</div>
+            <div id="adm-estados"></div>
+            <button class="btn btn-primary" id="adm-add-estado" style="margin-top:8px;font-size:12px">+ Añadir estado</button>
+          </div>
+        </div>
+
+        <!-- OPERARIOS -->
+        <div class="admin-card">
+          <div class="admin-h">👷 Operarios</div>
+          <div class="admin-body">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px">Lista de operarios y sus códigos (iniciales). Referencia rápida para el campo OP.</div>
+            <div id="adm-operarios"></div>
+            <button class="btn btn-primary" id="adm-add-operario" style="margin-top:8px;font-size:12px">+ Añadir operario</button>
+          </div>
+        </div>
+
+        <!-- INSTALADORES -->
+        <div class="admin-card">
+          <div class="admin-h">🔧 Instaladores</div>
+          <div class="admin-body">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px">Nombres de instaladores. Aparecen como sugerencias al escribir en la columna INSTALADORES del cuadrante.</div>
+            <div id="adm-instaladores"></div>
+            <button class="btn btn-primary" id="adm-add-instalador" style="margin-top:8px;font-size:12px">+ Añadir instalador</button>
+          </div>
+        </div>
+
+        <!-- DROPDOWNS -->
+        <div class="admin-card">
+          <div class="admin-h">🔽 Opciones de desplegables</div>
+          <div class="admin-body">
+            <div class="admin-row" style="align-items:flex-start">
+              <span class="admin-label">Recoge / Lleva</span>
+              <div style="flex:1;min-width:200px">
+                <div id="adm-rl"></div>
+                <button class="btn btn-secondary" id="adm-add-rl" style="font-size:11px;margin-top:4px">+ Añadir opción</button>
+              </div>
+            </div>
+            <div class="admin-row" style="align-items:flex-start;margin-top:12px">
+              <span class="admin-label">Pagada</span>
+              <div style="flex:1;min-width:200px">
+                <div id="adm-pag"></div>
+                <button class="btn btn-secondary" id="adm-add-pag" style="font-size:11px;margin-top:4px">+ Añadir opción</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESET -->
+        <div class="admin-card">
+          <div class="admin-h">♻️ Reiniciar configuración</div>
+          <div class="admin-body">
+            <div style="font-size:12px;color:#6b7280;margin-bottom:10px">Restaurar todos los valores por defecto. Se perderán tus etiquetas y estados personalizados.</div>
+            <button class="btn btn-danger" id="adm-reset" style="font-size:12px">🔄 Restablecer todo</button>
+          </div>
+        </div>
+
+        <div style="margin:20px 0;text-align:right">
+          <button class="btn btn-success" id="adm-save" style="font-size:13px;padding:8px 18px">💾 Guardar configuración</button>
+        </div>
+      </div>
+    </div>
+    <!-- /view-admin -->
+
+    <!-- VIEW: INFORME -->
+    <div id="view-informe" style="display:none;flex:1;overflow:auto;background:#f0f2f5;padding:20px">
+      <div style="max-width:1200px;margin:0 auto">
+        <h2 style="margin:0 0 16px;font-size:20px;color:#1a4fa0">📊 Informe Cuadrante</h2>
+        <div style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px">
+          <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+            <div>
+              <label style="display:block;font-size:11px;color:#6b7280;margin-bottom:3px">Periodo</label>
+              <select id="inf-periodo" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+                <option value="mes">Mes</option>
+                <option value="trimestre">Trimestre</option>
+                <option value="anyo">Año</option>
+                <option value="custom">Personalizado</option>
+              </select>
+            </div>
+            <div id="inf-mes-wrap">
+              <label style="display:block;font-size:11px;color:#6b7280;margin-bottom:3px">Mes</label>
+              <input type="month" id="inf-mes" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+            </div>
+            <div id="inf-tri-wrap" style="display:none">
+              <label style="display:block;font-size:11px;color:#6b7280;margin-bottom:3px">Trimestre</label>
+              <select id="inf-tri" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+                <option value="1">T1 (Ene-Mar)</option><option value="2">T2 (Abr-Jun)</option>
+                <option value="3">T3 (Jul-Sep)</option><option value="4">T4 (Oct-Dic)</option>
+              </select>
+              <input type="number" id="inf-tri-anyo" min="2020" max="2099" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:80px;margin-left:6px">
+            </div>
+            <div id="inf-anyo-wrap" style="display:none">
+              <label style="display:block;font-size:11px;color:#6b7280;margin-bottom:3px">Año</label>
+              <input type="number" id="inf-anyo" min="2020" max="2099" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100px">
+            </div>
+            <div id="inf-custom-wrap" style="display:none">
+              <label style="display:block;font-size:11px;color:#6b7280;margin-bottom:3px">Desde - Hasta</label>
+              <input type="date" id="inf-desde" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+              <input type="date" id="inf-hasta" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;margin-left:6px">
+            </div>
+            <button id="inf-generar" class="btn btn-primary" style="padding:8px 18px;font-size:13px">Generar informe</button>
+          </div>
+        </div>
+        <div id="inf-resultado" style="display:none">
+          <div class="cua-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px">
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #10b981"><div style="font-size:22px;font-weight:700;color:#10b981" id="inf-cobrado">0 €</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Cobrado</div></div>
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #ef4444"><div style="font-size:22px;font-weight:700;color:#ef4444" id="inf-deuda">0 €</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Total deuda</div></div>
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #3b82f6"><div style="font-size:22px;font-weight:700;color:#3b82f6" id="inf-total">0 €</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Total facturado</div></div>
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #8b5cf6"><div style="font-size:22px;font-weight:700;color:#8b5cf6" id="inf-base">0 €</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Base imponible</div></div>
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #f59e0b"><div style="font-size:22px;font-weight:700;color:#f59e0b" id="inf-inst">0 €</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Total instalación</div></div>
+            <div class="stat-card" style="background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #64748b"><div style="font-size:22px;font-weight:700;color:#64748b" id="inf-num">0</div><div style="font-size:11px;color:#6b7280;margin-top:3px">Filas</div></div>
+          </div>
+          <div style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px">
+            <h3 style="margin:0 0 10px;font-size:14px;color:#374151">Desglose por instalador</h3>
+            <table style="width:100%;font-size:12px;border-collapse:collapse" id="inf-instaladores">
+              <thead><tr style="background:#f3f4f6"><th style="text-align:left;padding:6px 8px">Instalador</th><th style="text-align:right;padding:6px 8px">Filas</th><th style="text-align:right;padding:6px 8px">Total facturado</th><th style="text-align:right;padding:6px 8px">Cobrado</th><th style="text-align:right;padding:6px 8px">Deuda</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <h3 style="margin:0 0 10px;font-size:14px;color:#374151">Desglose por estado</h3>
+            <table style="width:100%;font-size:12px;border-collapse:collapse" id="inf-estados">
+              <thead><tr style="background:#f3f4f6"><th style="text-align:left;padding:6px 8px">Estado</th><th style="text-align:right;padding:6px 8px">Filas</th><th style="text-align:right;padding:6px 8px">Total facturado</th><th style="text-align:right;padding:6px 8px">Cobrado</th><th style="text-align:right;padding:6px 8px">Deuda</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /view-informe -->
+
+    <!-- VIEW: AJUSTES -->
+    <div id="view-ajustes" style="display:none;flex:1;overflow:auto;background:#f0f2f5;padding:20px">
+      <div style="max-width:1400px;margin:0 auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <h2 style="margin:0;font-size:20px;color:#1a4fa0">🔧 Ajustes pendientes</h2>
+          <button id="aju-informe" class="btn btn-secondary" style="font-size:12px" onclick="try{openCuaInformeModal();}catch(e){alert('Error apertura informe: '+e.message);console.error(e);}">📊 Generar informe</button>
+        </div>
+        <p style="color:#6b7280;font-size:13px;margin:0 0 16px">Filas marcadas como "necesitan ajustes" desde Cuadrante o Archivados. Para añadir/quitar marcaje, usa el botón 🔧 en la fila correspondiente.</p>
+        <div id="aju-tbl-wrap" style="background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:auto">
+          <table id="aju-table" style="width:100%;font-size:12px;border-collapse:collapse">
+            <thead style="background:#1a4fa0;color:#fff">
+              <tr>
+                <th style="padding:7px 8px;text-align:left">Cliente</th>
+                <th style="padding:7px 8px;text-align:left">Dirección</th>
+                <th style="padding:7px 8px;text-align:center">Presupuesto</th>
+                <th style="padding:7px 8px;text-align:center">Fecha</th>
+                <th style="padding:7px 8px;text-align:right">Total</th>
+                <th style="padding:7px 8px;text-align:right">Deuda</th>
+                <th style="padding:7px 8px;text-align:center">Estado origen</th>
+                <th style="padding:7px 8px;text-align:left">Observaciones</th>
+                <th style="padding:7px 8px;text-align:center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="aju-tbody"></tbody>
+          </table>
+        </div>
+        <div id="aju-empty" style="display:none;text-align:center;padding:40px;color:#9ca3af">Sin filas en ajustes</div>
+      </div>
+    </div>
+    <!-- /view-ajustes -->
+  </main>
+</div>
+
+<!-- INFORME CUADRANTE MODAL -->
+<div id="cua-inf-overlay" style="display:none;position:fixed;z-index:950;top:0;left:0;width:0;height:0">
+  <div id="cua-inf-popover" style="position:absolute;background:#fff;border:1px solid #d1d5db;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.18);width:580px;max-width:95vw;max-height:80vh;overflow:auto;font-family:'Inter',sans-serif">
+    <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:#f9fafb;border-radius:10px 10px 0 0">
+      <span style="font-size:14px;font-weight:600;color:#1a1a2e">📊 Generar informe — <span id="cua-inf-tab-name" style="color:#1a4fa0">—</span></span>
+      <button id="cua-inf-close" style="background:transparent;border:none;cursor:pointer;font-size:16px;color:#6b7280;padding:4px 8px">&#10005;</button>
+    </div>
+    <div style="padding:14px 16px">
+      <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Per&iacute;odos r&aacute;pidos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="hoy">Hoy</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="ayer">Ayer</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="ultimos7">&Uacute;ltimos 7 d&iacute;as</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="ultimos30">&Uacute;ltimos 30 d&iacute;as</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="mes">Este mes</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="ano">Este a&ntilde;o</button>
+        <button class="btn btn-secondary btn-sm" data-cuainf-preset="todo">Todo</button>
+      </div>
+      <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Rango de fechas</div>
+      <div style="display:flex;gap:10px;margin-bottom:18px">
+        <div style="flex:1"><label style="font-size:11px;color:#6b7280">Desde</label><input type="date" id="cua-inf-desde"></div>
+        <div style="flex:1"><label style="font-size:11px;color:#6b7280">Hasta</label><input type="date" id="cua-inf-hasta"></div>
+      </div>
+      <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>Columnas a incluir</span>
+        <span style="display:flex;gap:8px">
+          <button type="button" id="cua-inf-all" style="background:transparent;border:none;color:#1a4fa0;font-size:11px;cursor:pointer;text-transform:none">Todas</button>
+          <button type="button" id="cua-inf-none" style="background:transparent;border:none;color:#dc2626;font-size:11px;cursor:pointer;text-transform:none">Ninguna</button>
+        </span>
+      </div>
+      <div id="cua-inf-cols" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px 16px;margin-bottom:14px"></div>
+      <div id="cua-inf-summary" style="background:#f0f9ff;border-left:3px solid #1a4fa0;padding:10px 14px;border-radius:6px;font-size:12px;color:#1e3a8a;display:none"></div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;background:#fafafa;border-radius:0 0 10px 10px">
+      <button class="btn btn-secondary" id="cua-inf-cancel">Cancelar</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-success" id="cua-inf-excel">📊 Descargar Excel</button>
+        <button class="btn btn-secondary" id="cua-inf-pdf">📄 Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fab-pdf-input" accept="application/pdf" style="display:none">
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ===== CONFIG ===== */
+var SB_URL='https://jcznbhisnbbszlicsnjt.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impjem5iaGlzbmJic3psaWNzbmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjY1ODcsImV4cCI6MjA5MTQwMjU4N30.jnWZ5UGqqbO05YT-Xl1uiGjuKl3wAb4JPPHQa841xPM';
+
+/* ===== STATE ===== */
+var currentUser=null;
+var facturas=[];
+var presupuestos=[];
+var clientes=[];
+var obras = [];
+var cuaRows=[];
+var cuaLoaded=false;
+var cuaPeriod='año';
+var cuaOffset=0;
+var cuaSortBy='obra';
+var cuaSortDir='asc';
+
+/* ===== UTILS ===== */
+function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function todayEs(){var d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
+function setSyncState(s){if(window._lastSyncState===s)return;window._lastSyncState=s;var d=document.getElementById('sync-dot');d.className='sync-dot'+(s==='syncing'?' syncing':s==='error'?' error':'');}
+function cuaFmtNum(v){var n=parseFloat(v)||0;return n===0?'':n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+function cuaParseNum(s){
+  if(s==null)return 0;
+  if(typeof s==='number')return isFinite(s)?s:0;
+  s=String(s).trim();
+  if(!s)return 0;
+  var hasC=s.indexOf(',')>-1, hasD=s.indexOf('.')>-1;
+  if(hasC&&hasD){
+    /* Ambele: ultima aparitie e separator decimal */
+    if(s.lastIndexOf(',')>s.lastIndexOf('.')){s=s.replace(/\./g,'').replace(',','.');}
+    else{s=s.replace(/,/g,'');}
+  }else if(hasC){
+    /* Doar virgula: e decimal in spaniola */
+    s=s.replace(',','.');
+  }else if(hasD){
+    /* Doar punct: ambiguu. Heuristica: daca exista un singur punct urmat de 1-2 cifre -> decimal. Altfel mii. */
+    var parts=s.split('.');
+    if(!(parts.length===2 && parts[1].length<=2)){
+      s=s.replace(/\./g,'');
+    }
+  }
+  var n=parseFloat(s);
+  return isFinite(n)?n:0;
+}
+function cuaDateVal(s){
+  // FIX format dependent de locale: parse manual ca sa fie identic pe orice Windows
+  if(!s)return'';
+  var str=String(s).trim();
+  // Daca e ISO YYYY-MM-DD din DB → converteste in DD/MM/YYYY
+  var iso=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(iso)return iso[3].padStart(2,'0')+'/'+iso[2].padStart(2,'0')+'/'+iso[1];
+  // Daca e deja dd/mm/yyyy sau dd-mm-yyyy → normalizeaza
+  var m=str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  if(m){
+    var y=m[3];if(y.length===2)y='20'+y;
+    return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+y;
+  }
+  // Fallback: lasa string-ul asa cum e
+  return str;
+}
+function cuaDateIso(s){if(!s)return null;if(s.match(/^\d{4}-\d{2}-\d{2}$/))return s;var p=s.split('/');if(p.length===3)return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');return null;}
+function cuaNumToStr(n){if(!n&&n!==0)return'';var v=parseFloat(n);return isNaN(v)?'':(v===0?'':v.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}));}
+
+function toast(msg,type,dur){
+  var c=document.getElementById('toast');
+  var t=document.createElement('div');
+  t.className='toast-item'+(type?' '+type:'');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){if(c.contains(t))c.removeChild(t);},300);},(dur||2800));
+}
+
+/* ===== SUPABASE ===== */
+function sbFetch(method,table,data,filters){
+  var url=SB_URL+'/rest/v1/'+table+(filters?'?'+filters:'');
+  var opts={method:method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  if(data)opts.body=JSON.stringify(data);
+  return fetch(url,opts).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error(t);});
+    return r.status===204?null:r.json();
+  });
+}
+
+/* sbFetchAll - paginat via Range, ocoleste limita PostgREST de 1000 */
+async function sbFetchAll(table,filters){
+  var pageSize=1000, all=[], offset=0;
+  while(true){
+    var url=SB_URL+'/rest/v1/'+table+(filters?'?'+filters:'?select=*');
+    var r=await fetch(url,{
+      method:'GET',
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+SB_KEY,
+        'Range-Unit':'items',
+        'Range':offset+'-'+(offset+pageSize-1)
+      }
+    });
+    if(!r.ok){var t=await r.text();throw new Error(t);}
+    var page=await r.json();
+    if(!Array.isArray(page)||!page.length)break;
+    all=all.concat(page);
+    if(page.length<pageSize)break;
+    offset+=pageSize;
+    if(offset>200000)break;
+  }
+  return all;
+}
+
+/* ===== AUTH ===== */
+async function sha256(str){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doLogin(){
+  var user=document.getElementById('l-user').value.trim();
+  var pass=document.getElementById('l-pass').value;
+  if(!user||!pass){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent='Completa todos los campos';return;}
+  document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
+  try{
+    var hash=await sha256(pass);
+    var res=await sbFetch('GET','usuarios',null,'username=eq.'+encodeURIComponent(user)+'&password_hash=eq.'+hash+'&select=id,username,nombre,rol');
+    if(!res||!res.length){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent='Usuario o contraseña incorrectos';document.getElementById('login-loading').style.display='none';return;}
+    currentUser=res[0];
+    try{localStorage.setItem('jeovent_user',JSON.stringify(currentUser));}catch(e){}
+    document.getElementById('user-name').textContent=currentUser.nombre||currentUser.username;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    await loadData();
+  }catch(e){
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-error').textContent='Error: '+e.message;
+    document.getElementById('login-loading').style.display='none';
+  }
+}
+
+function doLogout(){
+  try{localStorage.removeItem('jeovent_user');sessionStorage.removeItem('jeovent_user');}catch(e){}
+  currentUser=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('l-pass').value='';
+}
+
+/* ===== LOAD DATA ===== */
+async function loadData(){
+  document.getElementById('loading-overlay').style.display='flex';
+  setSyncState('syncing');
+  try{
+    var cRes=await sbFetchAll('clientes','select=id,nombre,cif');
+    clientes=cRes||[];
+    var fRes=await sbFetchAll('facturas','order=saved_at.desc&select=*');
+    facturas=(fRes||[]).map(function(f){
+      // Normalizar campos DB → JS
+      f.clienteNombre=(clientes.find(function(c){return c.id===f.cliente_id;})||{}).nombre||f.cliente_nombre||f.clienteNombre||'';
+      if(f.iva_amt!==undefined&&f.ivaAmt===undefined)f.ivaAmt=f.iva_amt;
+      if(f.iva_p!==undefined&&f.ivaP===undefined)f.ivaP=f.iva_p;
+      if(f.is_abo!==undefined&&f.isAbo===undefined)f.isAbo=f.is_abo;
+      if(f.presupuesto_num!==undefined&&f.presupuestoNum===undefined)f.presupuestoNum=f.presupuesto_num;
+      return f;
+    });
+    // Cargar presupuestos (para filas en cuadrante sin factura aún).
+    // Intentamos con varios "order by" porque la BD puede tener distintos
+    // nombres de columna (saved_at, created_at, fecha) o ninguno.
+    presupuestos=[];
+    // Load obras (used by obra autocomplete + PDF view)
+    obras=[];
+    try{
+      var oRes=await sbFetchAll('obras','select=id,num,presupuesto_num,cliente_nombre,pdf_url,pdf_name,estado');
+      obras=oRes||[];
+    }catch(eO){console.warn('obras no disponible:',eO);}
+    var presOrders=['saved_at.desc','created_at.desc','fecha.desc',''];
+    for(var oi=0;oi<presOrders.length;oi++){
+      var qOrd=presOrders[oi]?'order='+presOrders[oi]+'&select=*':'select=*';
+      try{
+        var pRes=await sbFetchAll('presupuestos',qOrd);
+        presupuestos=(pRes||[]).map(function(p){
+          p.clienteNombre=(clientes.find(function(c){return c.id===p.cliente_id;})||{}).nombre||p.cliente_nombre||'';
+          return p;
+        });
+        if(oi>0)console.log('presupuestos cargados con order='+(presOrders[oi]||'(none)'));
+        break; /* éxito → salir del bucle */
+      }catch(ex){
+        if(oi===presOrders.length-1){console.warn('presupuestos no disponible (todos los orders fallaron):',ex);}
+      }
+    }
+    await cuaLoad();
+    setSyncState('ok');
+    renderCuadrante();
+    /* Si venimos de "Aceptar presupuesto" en P.html, abrir y resaltar la fila */
+    try{ cuaFocusFromUrl(); }catch(eF){console.warn('focus url',eF);}
+  }catch(e){
+    setSyncState('error');
+    toast('Error cargando datos: '+e.message,'error');
+  }finally{
+    document.getElementById('loading-overlay').style.display='none';
+  }
+}
+
+/* ===== AUTO-FOCUS desde URL (?focus_pre=<presupuesto_id>&focus_num=<num>) ===== */
+function cuaFocusFromUrl(){
+  var qs=new URLSearchParams(window.location.search||'');
+  var focusPre=qs.get('focus_pre');
+  var focusNum=qs.get('focus_num');
+  if(!focusPre&&!focusNum)return;
+  /* Buscar la fila por _presId, o por número de presupuesto si _presId no coincide */
+  var match=null;
+  if(focusPre){match=cuaRows.find(function(r){return r._presId===focusPre;});}
+  if(!match&&focusNum){match=cuaRows.find(function(r){return(r.presupuesto||'').toString()===focusNum;});}
+  if(!match){
+    /* Fallback: la fila puede estar guardada como "huérfana" (sólo en cuadrante);
+       buscar por presupuesto_num en _dbId rows */
+    match=cuaRows.find(function(r){return r._dbId&&(r.presupuesto||'')===focusNum;});
+  }
+  if(!match){
+    toast('Presupuesto añadido a cuadrante. Buscando fila...','success');
+    setTimeout(function(){
+      /* Reintentar tras un breve delay para dar tiempo a sync */
+      var m2=cuaRows.find(function(r){return r._presId===focusPre||(r.presupuesto||'')===focusNum;});
+      if(m2)cuaFocusRow(m2);
+    },800);
+    return;
+  }
+  cuaFocusRow(match);
+}
+function cuaFocusRow(row){
+  if(!row)return;
+  /* Marcar visualmente como nueva si aún no se ha guardado */
+  if(!row._new&&!row._dbId)row._new=true;
+
+  /* IMPORTANTE: el cuadrante filtra por semana/mes/etc. Si la fecha del
+     presupuesto no cae en el rango actual, la fila NO aparece en la tabla.
+     Solución: cambiar la vista a "año" (cubre cualquier fecha de 12 meses)
+     y centrarla en el año de la fila. */
+  var rowDate=null;
+  try{
+    var iso=cuaDateIso(row.fecha||'');
+    if(iso)rowDate=new Date(iso);
+  }catch(eD){}
+  if(!rowDate||isNaN(rowDate.getTime()))rowDate=new Date();
+  /* Cambiar a vista anual centrada en el año de la fila */
+  var thisYear=new Date().getFullYear();
+  cuaPeriod='año';
+  cuaOffset=rowDate.getFullYear()-thisYear;
+  /* Reflejar el cambio en los botones de período */
+  document.querySelectorAll('[data-p]').forEach(function(b){
+    b.classList.toggle('active', b.dataset.p===cuaPeriod);
+  });
+
+  renderCuadrante();
+
+  setTimeout(function(){
+    var tr=document.querySelector('tr[data-rid="'+row._id+'"]');
+    if(!tr){
+      /* Último recurso: limpiar búsqueda y reintentar */
+      var sb=document.getElementById('cua-search');
+      if(sb&&sb.value){sb.value='';renderCuadrante();
+        setTimeout(function(){
+          var tr2=document.querySelector('tr[data-rid="'+row._id+'"]');
+          if(tr2)_highlightAndFocus(tr2);
+          else toast('Fila creada en cuadrante (búscala por cliente)','success');
+        },120);
+      }else{
+        toast('Fila creada en cuadrante ✓ (cambia el filtro de fecha si no la ves)','success');
+      }
+      return;
+    }
+    _highlightAndFocus(tr);
+    /* Limpiar URL para que recargas no repitan el focus */
+    try{
+      var url=new URL(window.location.href);
+      url.searchParams.delete('focus_pre');
+      url.searchParams.delete('focus_num');
+      window.history.replaceState({},'',url.toString());
+    }catch(eu){}
+  },150);
+}
+function _highlightAndFocus(tr){
+  tr.style.animation='cuaPulse 1.6s ease-in-out 3';
+  tr.style.outline='2px solid #f59e0b';
+  tr.style.outlineOffset='-2px';
+  tr.scrollIntoView({behavior:'smooth',block:'center'});
+  var firstInp=tr.querySelector('input[data-f="direccion"]');
+  if(firstInp){setTimeout(function(){firstInp.focus();firstInp.select&&firstInp.select();},400);}
+  toast('Fila lista para editar — pulsa "Guardar cambios" cuando termines','success');
+}
+
+/* ===== FACTURA HELPERS ===== */
+function calcCobrado(fac){return(fac.pagos||[]).reduce(function(s,p){return s+(+p.importe||0);},0);}
+function calcPendiente(fac){return Math.max(0,Math.abs(fac.total||0)-calcCobrado(fac));}
+function calcPagoStatus(fac){
+  var total=Math.abs(+fac.total||0);
+  var cob=calcCobrado(fac);
+  if(cob<=0)return'PENDIENTE';
+  if(cob>=total-0.01){var u=fac.pagos&&fac.pagos[fac.pagos.length-1];return u?u.metodo:'PAGADO';}
+  return'PARCIAL';
+}
+
+/* ===== CONFIG SYSTEM ===== */
+var CFG_KEY='jeovent_cuadrante_cfg_v1';
+var CFG_DEFAULT={
+  titulo:'Cuadrante de Gestión',
+  columnas:{
+    cliente:'CLIENTES',direccion:'DIRECCIÓN',operarios:'OP.',presupuesto:'PRESUPUESTO',fecha:'FECHA',
+    obra:'OBRA',base:'BASE',iva:'IVA',total:'TOTAL',
+    primer_pago:'1er PAGO',segundo_pago:'2º PAGO',tercer_pago:'3er PAGO',
+    total_instalacion:'TOTAL INST.',factura:'FACTURA',total_deuda:'TOTAL DEUDA',
+    recoge_lleva:'RECOGE/LLEVA',pagada:'PAGADA',fecha_recogida:'FECHA RECOG/INST',
+    estado:'ESTADO',observaciones:'OBSERVACIONES'
+  },
+  estados:[
+    {v:'fabricada',label:'🟠 Obra fabricada',color:'#fff3e0'},
+    {v:'recoger',label:'⬜ Por recoger',color:'#f1f5f9'},
+    {v:'llevar',label:'⬜ Por llevar',color:'#f1f5f9'},
+    {v:'instalar',label:'🔵 Por instalar',color:'#eff6ff'},
+    {v:'incidencia',label:'🔴 Incidencia',color:'#fef2f2'},
+    {v:'terminado',label:'✅ Terminado',color:'#f0fdf4'},
+    {v:'archivado',label:'📦 Archivado',color:'#e2e8f0'}
+  ],
+  operarios:[],
+  instaladores:[],
+  dropdowns:{
+    recoge_lleva:['RECOGE','LLEVAMOS','INSTALAMOS'],
+    pagada:['PAGADA','PARCIAL','FINANCIADO']
+  }
+};
+var CFG=null;
+
+function deepMerge(target, source){
+  if(source===null||typeof source!=='object')return target;
+  var out=Array.isArray(target)?target.slice():Object.assign({},target);
+  Object.keys(source).forEach(function(k){
+    var sv=source[k];
+    var tv=out[k];
+    if(Array.isArray(sv))out[k]=sv.slice();
+    else if(sv&&typeof sv==='object'&&tv&&typeof tv==='object'&&!Array.isArray(tv))out[k]=deepMerge(tv,sv);
+    else out[k]=sv;
+  });
+  return out;
+}
+
+function loadConfig(){
+  try{
+    var raw=localStorage.getItem(CFG_KEY);
+    if(!raw){CFG=deepMerge({},CFG_DEFAULT);return CFG;}
+    var parsed=JSON.parse(raw);
+    CFG=deepMerge(deepMerge({},CFG_DEFAULT),parsed);
+    // Garantizar estado 'archivado' (auto-migración para CFG viejos)
+    if(!CFG.estados)CFG.estados=[];
+    if(!CFG.estados.some(function(e){return e&&e.v==='archivado';})){
+      CFG.estados.push({v:'archivado',label:'📦 Archivado',color:'#e2e8f0'});
+    }
+    // Garantizar columna direccion
+    if(!CFG.columnas)CFG.columnas={};
+    if(!CFG.columnas.direccion)CFG.columnas.direccion='DIRECCIÓN';
+    // Garantizar optiunea FINANCIADO in dropdown-ul Pagada (auto-migrare CFG vechi)
+    if(!CFG.dropdowns)CFG.dropdowns={};
+    if(!Array.isArray(CFG.dropdowns.pagada))CFG.dropdowns.pagada=['PAGADA','PARCIAL','FINANCIADO'];
+    if(CFG.dropdowns.pagada.indexOf('FINANCIADO')<0)CFG.dropdowns.pagada.push('FINANCIADO');
+    return CFG;
+  }catch(e){CFG=deepMerge({},CFG_DEFAULT);return CFG;}
+}
+function saveConfig(){try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}try{refreshInstaladoresDatalist();}catch(_){ }}
+function resetConfig(){try{localStorage.removeItem(CFG_KEY);}catch(e){}CFG=deepMerge({},CFG_DEFAULT);}
+
+function applyConfig(){
+  // Title
+  var t=document.getElementById('cua-titulo');
+  if(t)t.textContent='📋 '+(CFG.titulo||'Cuadrante de Gestión');
+  // Column headers
+  Object.keys(CFG.columnas||{}).forEach(function(k){
+    var th=document.getElementById('th-'+k);
+    if(th)th.textContent=CFG.columnas[k];
+  });
+  // Dynamic estado CSS
+  var styleTag=document.getElementById('dynamic-estado-css');
+  if(!styleTag){styleTag=document.createElement('style');styleTag.id='dynamic-estado-css';document.head.appendChild(styleTag);}
+  var css='';
+  (CFG.estados||[]).forEach(function(e){
+    if(e.v&&e.color)css+='tr.cua-estado-'+e.v.replace(/[^a-z0-9_]/gi,'_')+'{background:'+e.color+' !important}\n';
+  });
+  styleTag.textContent=css;
+}
+
+/* ===== CUADRANTE ESTADOS (driven by CFG) ===== */
+function cuaEstadoList(){
+  var list=[{v:'',label:'— Sin estado —',cls:''}];
+  (CFG&&CFG.estados||[]).forEach(function(e){
+    list.push({v:e.v,label:e.label,cls:'cua-estado-'+(e.v||'').replace(/[^a-z0-9_]/gi,'_')});
+  });
+  return list;
+}
+function cuaEstadoCls(v){var e=cuaEstadoList().find(function(x){return x.v===v;});return e?e.cls:'';}
+function cuaEstadoOpts(sel){return cuaEstadoList().map(function(e){return'<option value="'+e.v+'"'+(sel===e.v?' selected':'')+'>'+e.label+'</option>';}).join('');}
+function cuaDropdownOpts(which, sel){
+  var arr=(CFG&&CFG.dropdowns&&CFG.dropdowns[which])||[];
+  var opts='<option value=""></option>';
+  arr.forEach(function(v){opts+='<option value="'+esc(v)+'"'+(sel===v?' selected':'')+'>'+esc(v)+'</option>';});
+  return opts;
+}
+
+/* ===== PERIOD ===== */
+function cuaGetRange(){
+  var now=new Date(),y=now.getFullYear(),m=now.getMonth(),d=now.getDate(),s,e;
+  if(cuaPeriod==='todos'){
+    // Range f. larg ca sa includa tot
+    s=new Date(1970,0,1);e=new Date(2100,11,31);
+  }else if(cuaPeriod==='semana'){
+    var dow=now.getDay();
+    var mon=new Date(y,m,d-(dow===0?6:dow-1));
+    mon.setDate(mon.getDate()+cuaOffset*7);
+    var sun=new Date(mon);sun.setDate(sun.getDate()+6);
+    s=mon;e=sun;
+  }else if(cuaPeriod==='mes'){
+    var fm=new Date(y,m+cuaOffset,1);
+    s=fm;e=new Date(fm.getFullYear(),fm.getMonth()+1,0);
+  }else if(cuaPeriod==='trimestre'){
+    var q=Math.floor(m/3)+cuaOffset;
+    var qy=y+Math.floor(q/4),qm=((q%4)+4)%4;
+    s=new Date(qy,qm*3,1);e=new Date(qy,qm*3+3,0);
+  }else{
+    s=new Date(y+cuaOffset,0,1);e=new Date(y+cuaOffset,11,31);
+  }
+  return{start:s,end:e};
+}
+function cuaFmtLabel(r){
+  var d2={day:'2-digit',month:'short'};
+  if(cuaPeriod==='todos')return 'Todos los registros';
+  if(cuaPeriod==='semana')return r.start.toLocaleDateString('es-ES',d2)+' – '+r.end.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+  if(cuaPeriod==='mes')return r.start.toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  if(cuaPeriod==='trimestre')return'T'+(Math.floor(r.start.getMonth()/3)+1)+' '+r.start.getFullYear();
+  return r.start.getFullYear().toString();
+}
+
+/* ===== SORT ===== */
+function cuaSortRows(rows){
+  var col=cuaSortBy||'obra';
+  var dir=cuaSortDir==='desc'?-1:1;
+  var numericCols=['base','iva','total','primer_pago','segundo_pago','tercer_pago','total_instalacion','total_deuda','obra','presupuesto','factura'];
+  var dateCols=['fecha','fecha_recogida'];
+  return rows.slice().sort(function(a,b){
+    // Random nou randul nesalvat ramane mereu jos
+    if(a._new&&!b._new)return 1;
+    if(b._new&&!a._new)return -1;
+    var av=a[col]==null?'':a[col];
+    var bv=b[col]==null?'':b[col];
+    var emptyA=String(av).trim()==='';
+    var emptyB=String(bv).trim()==='';
+    // Goale mereu la sfarsit
+    if(emptyA&&!emptyB)return 1;
+    if(!emptyA&&emptyB)return -1;
+    if(emptyA&&emptyB)return 0;
+    if(numericCols.indexOf(col)>=0){
+      var an=parseFloat(String(av).replace(/\./g,'').replace(',','.'));
+      var bn=parseFloat(String(bv).replace(/\./g,'').replace(',','.'));
+      // Daca nu sunt numerice, fallback string compare (ex obra="A1")
+      if(isNaN(an)||isNaN(bn))return String(av).localeCompare(String(bv),'es',{numeric:true})*dir;
+      return (an-bn)*dir;
+    }
+    if(dateCols.indexOf(col)>=0){
+      var ad=(typeof cuaDateIso==='function'?cuaDateIso(av):'')||'';
+      var bd=(typeof cuaDateIso==='function'?cuaDateIso(bv):'')||'';
+      return String(ad).localeCompare(String(bd))*dir;
+    }
+    return String(av).localeCompare(String(bv),'es',{numeric:true})*dir;
+  });
+}
+
+function cuaUpdateSortIndicators(){
+  var ths=document.querySelectorAll('#cua-table thead th[id^="th-"]');
+  ths.forEach(function(th){
+    var col=th.id.replace('th-','');
+    var origText=th.dataset.origText||(th.dataset.origText=th.textContent.replace(/[▲▼]\s*$/,'').trim());
+    if(col===cuaSortBy){
+      th.textContent=origText+' '+(cuaSortDir==='desc'?'▼':'▲');
+      th.style.background='#103368';
+    }else{
+      th.textContent=origText;
+      th.style.background='';
+    }
+  });
+}
+
+/* ===== ROW FROM FACTURA ===== */
+function cuaRowFromFac(fac){
+  var cob=calcCobrado(fac);
+  var deuda=calcPendiente(fac);
+  var pagSt=calcPagoStatus(fac);
+  var pagada=pagSt==='EFECTIVO'||pagSt==='TRANSFERENCIA'||pagSt==='TARJETA'||pagSt==='FINANCIACION'||pagSt==='PAGADO'?'PAGADA':(pagSt==='PARCIAL'?'PARCIAL':'');
+  var p1=fac.pagos&&fac.pagos[0]?fac.pagos[0].importe:null;
+  var p2=fac.pagos&&fac.pagos[1]?fac.pagos[1].importe:null;
+  var p3=fac.pagos&&fac.pagos[2]?fac.pagos[2].importe:null;
+  return{
+    _id:'fac_'+fac.id,_new:false,_dirty:false,_del:false,_facId:fac.id,_presId:null,_dbId:null,_obraId:null,_obraPdfUrl:null,_pdfUrl:fac.pdf_url||null,
+    cliente:fac.clienteNombre||'',direccion:'',operarios:'',instaladores:'',
+    presupuesto:fac.presupuestoNum||'',fecha:fac.fecha||'',obra:'',
+    base:cuaNumToStr(fac.base),iva:cuaNumToStr(fac.ivaAmt),total:cuaNumToStr(fac.total),
+    primer_pago:cuaNumToStr(p1),segundo_pago:cuaNumToStr(p2),tercer_pago:cuaNumToStr(p3),
+    total_instalacion:'',factura:fac.num||'',total_deuda:cuaNumToStr(deuda),
+    recoge_lleva:'',pagada:pagada,fecha_recogida:'',estado:'',observaciones:'',ajuste:false
+  };
+}
+
+/* ===== ROW FROM PRESUPUESTO (sin factura aún) ===== */
+function cuaRowFromPres(pres){
+  return{
+    _id:'pres_'+pres.id,_new:false,_dirty:false,_del:false,_facId:null,_presId:pres.id,_dbId:null,_obraId:null,_obraPdfUrl:null,_pdfUrl:pres.pdf_url||null,
+    cliente:pres.clienteNombre||'',direccion:'',operarios:'',instaladores:'',
+    presupuesto:pres.num||'',fecha:pres.fecha||'',obra:'',
+    base:cuaNumToStr(pres.base||pres.valor),
+    iva:cuaNumToStr(pres.iva_amt||pres.ivaAmt),
+    total:cuaNumToStr(pres.total||pres.valor),
+    primer_pago:'',segundo_pago:'',tercer_pago:'',
+    total_instalacion:'',factura:'Sin factura',total_deuda:'',
+    recoge_lleva:'',pagada:'',fecha_recogida:'',estado:'',observaciones:pres.obs||'',ajuste:false
+  };
+}
+
+/* ===== LOAD CUADRANTE ===== */
+async function cuaLoad(){
+  var savedByFac={},savedByPres={},savedByPresNum={},savedOcultos={pres:{},fac:{}},savedOrphan=[];
+  var allSaved=[];
+  try{
+    var data=await sbFetchAll('cuadrante','select=*');
+    allSaved=data||[];
+  }catch(ex){console.warn('cuadrante table missing or empty',ex);}
+  allSaved.forEach(function(r){
+    /* Marcaje "_oculto" para esconder filas derivadas de fac/pres que el usuario borro */
+    if(r.estado==='_oculto'){
+      if(r.factura_id)savedOcultos.fac[r.factura_id]=r;
+      if(r.presupuesto_id)savedOcultos.pres[r.presupuesto_id]=r;
+      return;
+    }
+    if(r.factura_id)savedByFac[r.factura_id]=r;
+    else if(r.presupuesto_id)savedByPres[r.presupuesto_id]=r;
+    else savedOrphan.push(r);
+    /* Lookup de respaldo por numero de presupuesto (cuando link por id falla) */
+    if(r.presupuesto)savedByPresNum[String(r.presupuesto).trim()]=r;
+  });
+  var FIELD_LIST=['direccion','operarios','instaladores','obra','presupuesto','factura','recoge_lleva','estado','observaciones','fecha_recogida','total_instalacion','total_deuda','pagada','base','iva','total','primer_pago','segundo_pago','tercer_pago','fecha','cliente','ajuste','fabricacion_id','fabricacion_pdf_url','fabricacion_pdf_name','in_instalacion','in_medicion'];
+  var NUM_FIELDS={base:1,iva:1,total:1,primer_pago:1,segundo_pago:1,tercer_pago:1,total_instalacion:1,total_deuda:1};
+  var DATE_FIELDS={fecha:1,fecha_recogida:1};
+  var BOOL_FIELDS={ajuste:1,in_instalacion:1,in_medicion:1};
+  var consumedDbIds={};
+  function mergeSaved(base, saved){
+    if(!saved)return base;
+    FIELD_LIST.forEach(function(f){
+      var v=saved[f];
+      if(v===null||v===undefined)return;
+      if(BOOL_FIELDS[f]){
+        base[f]=(v===true||v==='true'||v==='t'||v===1||v==='1');
+        return;
+      }
+      if(v==='')return;
+      if(NUM_FIELDS[f]){
+        /* Format spaniol consistent in afisare (5.611,27) */
+        var n=cuaParseNum(v);
+        base[f]=cuaNumToStr(n);
+      }else if(DATE_FIELDS[f]){
+        /* Convert ISO YYYY-MM-DD din DB in DD/MM/YYYY pentru input */
+        var ds=String(v);
+        if(ds.match(/^\d{4}-\d{2}-\d{2}/)){
+          var p=ds.slice(0,10).split('-');
+          base[f]=p[2]+'/'+p[1]+'/'+p[0];
+        }else base[f]=ds;
+      }else base[f]=String(v);
+    });
+    base._dbId=saved.id;
+    consumedDbIds[saved.id]=true;
+    return base;
+  }
+  // Facturas: NU mai derivam automat randuri pentru facturi noi.
+  // Aratam doar facturile care au deja un rând salvat in DB (adica editate candva).
+  // Facturile noi nu mai apar automat in cuadrante.
+  var rows=facturas.map(function(fac){
+    if(savedOcultos.fac[fac.id])return null;
+    var saved=savedByFac[fac.id];
+    if(!saved && fac.num){saved=savedByPresNum[String(fac.num).trim()];}
+    if(!saved)return null; // <-- sare peste facturile fara rând salvat
+    return mergeSaved(cuaRowFromFac(fac), saved);
+  }).filter(function(r){return r;});
+  // Presupuestos aceptados sin factura enlazada
+  var presConFactura={};
+  facturas.forEach(function(f){if(f.presupuestoNum)presConFactura[f.presupuestoNum]=true;});
+  (presupuestos||[]).forEach(function(p){
+    // Mostrar solo ACEPTADO/ACEPTADA que no esté ya enlazado
+    var estado=(p.estado||'').toUpperCase();
+    if(estado!=='ACEPTADO'&&estado!=='ACEPTADA')return;
+    if(presConFactura[p.num])return;
+    if(savedOcultos.pres[p.id])return;
+    var saved=savedByPres[p.id];
+    if(!saved && p.num){saved=savedByPresNum[String(p.num).trim()];}
+    // FIX C5: daca saved a fost deja consumat de o factura, NU mai facem rand duplicat
+    if(saved && consumedDbIds[saved.id]) return;
+    rows.push(mergeSaved(cuaRowFromPres(p), saved));
+  });
+  // Filas manuales (sin factura ni presupuesto asociado, y que NO se hayan ya consumido como "respaldo por num")
+  savedOrphan.forEach(function(r){
+    if(consumedDbIds[r.id])return;
+    var _obM = r.obra ? (obras||[]).find(function(ob){return String(ob.num||'').toLowerCase()===String(r.obra||'').toLowerCase();}) : null;
+    var base={_id:'m_'+r.id,_new:false,_dirty:false,_del:false,_facId:null,_presId:null,_dbId:r.id,_obraId:_obM?_obM.id:null,_obraPdfUrl:_obM?(_obM.pdf_url||null):null,
+      cliente:'',direccion:'',operarios:'',instaladores:'',presupuesto:'',fecha:'',obra:'',base:'',iva:'',total:'',
+      primer_pago:'',segundo_pago:'',tercer_pago:'',total_instalacion:'',factura:'',total_deuda:'',
+      recoge_lleva:'',pagada:'',fecha_recogida:'',estado:'',observaciones:'',ajuste:false,fabricacion_id:null,fabricacion_pdf_url:null,fabricacion_pdf_name:null,in_instalacion:false,in_medicion:false};
+    rows.push(mergeSaved(base, r));
+  });
+  // FIX RACE CONDITION: pastreaza randurile pe care utilizatorul le edita (nesalvate).
+  // Daca cuaRows are randuri _new (adaugate dar nu salvate) sau _dirty (edituri nesalvate),
+  // le aplicam peste datele proaspete din DB.
+  try {
+    var oldRows = Array.isArray(cuaRows) ? cuaRows : [];
+    var newRows = oldRows.filter(function(r){return r && r._new && !r._del && !r._saving;});
+    var dirtyRows = oldRows.filter(function(r){return r && r._dirty && !r._del && r._dbId && !r._saving;});
+    // 1) Pentru randurile _dirty cu _dbId, suprascrie cele din DB cu varianta locala
+    if(dirtyRows.length){
+      var byDbId = {};
+      dirtyRows.forEach(function(d){ byDbId[d._dbId] = d; });
+      rows = rows.map(function(r){
+        if(r && r._dbId && byDbId[r._dbId]){
+          var keep = byDbId[r._dbId];
+          // Marcheaza explicit ca dirty ca sa stim ca e nesalvat
+          keep._dirty = true;
+          return keep;
+        }
+        return r;
+      });
+    }
+    // 2) Pune randurile _new la final (nu exista in DB)
+    cuaRows = rows.concat(newRows);
+  } catch(e){
+    console.warn('[cuaLoad] preserve drafts failed:', e);
+    cuaRows = rows;
+  }
+  // DEDUPLICARE: elimina randurile cu acelasi _dbId (cauza duplicaturilor in tabel)
+  var seenDbId = {};
+  cuaRows = cuaRows.filter(function(r){
+    if(!r) return false;
+    if(!r._dbId) return true; // randuri fara _dbId sunt unice prin natura lor (_new sau derived)
+    if(seenDbId[r._dbId]){
+      console.warn('[cuaLoad] DUPLICATE _dbId removed:', r._dbId);
+      return false;
+    }
+    seenDbId[r._dbId] = true;
+    return true;
+  });
+  cuaLoaded=true;
+}
+
+/* ===== FILTER ===== */
+function cuaFilterRows(){
+  var range=cuaGetRange();
+  var q=(document.getElementById('cua-search').value||'').toLowerCase().trim();
+  var s=new Date(range.start);s.setHours(0,0,0,0);
+  var e=new Date(range.end);e.setHours(23,59,59,999);
+  var inArch=(cuaView==='archivados');
+  var inInst=(cuaView==='instalacion');
+  var inMed=(cuaView==='medicion');
+  return cuaRows.filter(function(r){
+    if(r._del)return false;
+    var isArch=(r.estado||'')==='archivado';
+    if(inArch){if(!isArch)return false;}else{if(isArch)return false;}
+    if(inInst){if(!r.in_instalacion)return false;}
+    if(inMed){if(!r.in_medicion)return false;}
+    // 'todos' bypass-uieste filtrul de data
+    if(cuaPeriod!=='todos'){
+      var isoDate=cuaDateIso(r.fecha);
+      var fd=isoDate?new Date(isoDate):null;
+      if(fd){fd.setHours(12,0,0,0);if(fd<s||fd>e)return false;}
+      else if(!r._new)return false;
+    }
+    if(q){
+      var hay=(r.cliente||'').toLowerCase()+(r.direccion||'').toLowerCase()+(r.presupuesto||'').toLowerCase()+(r.obra||'').toLowerCase()+(r.observaciones||'').toLowerCase();
+      if(hay.indexOf(q)<0)return false;
+    }
+    return true;
+  });
+}
+
+/* ===== ROW HTML ===== */
+function cuaRowHTML(row,idx){
+  // Lookup obra fresh each render — prinde si cazurile cand obra a fost tastata manual,
+  // sau cand obras a fost incarcat dupa cuaRows
+  if(row.obra && !row._obraPdfUrl){
+    try{
+      var _obMatch = (typeof obras!=='undefined'?obras:[]).find(function(o){
+        return String(o.num||'').toLowerCase()===String(row.obra||'').toLowerCase();
+      });
+      if(_obMatch){
+        row._obraId = _obMatch.id||null;
+        row._obraPdfUrl = _obMatch.pdf_url||null;
+      }
+    }catch(_){}
+  }
+  // Daca obra e goala, sterge cache-ul ca sa nu apara butonul fara legatura
+  if(!row.obra){row._obraId=null;row._obraPdfUrl=null;}
+  var deuda=cuaParseNum(row.total_deuda||'');
+  var deudaClass=deuda>0?'cua-deuda-pos':'cua-deuda-zero';
+  var estadoCls=cuaEstadoCls(row.estado||'');
+  var rowCls=[estadoCls,row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');
+  var safeId='cua-ac-'+row._id.replace(/[^a-z0-9_]/gi,'_');
+  var acHtml='<div class="cua-ac-wrap"><input class="cua-ac-input cua-cell-input" data-f="cliente" value="'+esc(row.cliente||'')+'" placeholder="Buscar cliente..." autocomplete="off"><div class="cua-ac-list" id="'+safeId+'"></div></div>';
+  return'<tr class="'+rowCls+'" data-rid="'+esc(row._id)+'">'
+    +'<td style="text-align:center;color:#94a3b8;font-size:11px;padding:4px 2px">'+(idx+1)+'</td>'
+    +'<td style="min-width:280px;padding:3px 4px">'+acHtml+'</td>'
+    +'<td style="min-width:260px;padding:3px 4px"><input class="cua-cell-input" style="text-align:left;width:100%" data-f="direccion" value="'+esc(row.direccion||'')+'" maxlength="200" placeholder="Dirección de la obra..."></td>'
+    +'<td style="text-align:center;padding:2px 4px;position:relative"><div class="cua-ac-wrap"><input class="cua-cell-input cua-pres-ac" style="text-align:center;width:100%" data-f="presupuesto" value="'+esc(row.presupuesto||'')+'" placeholder="Nº..." maxlength="20" autocomplete="off">'+(row._presId?'<button class="cua-pdf-btn" data-pdf="pres" data-rid="'+esc(row._id)+'" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:13px;padding:0 2px;color:#1a4fa0" title="Ver presupuesto">📄</button>':'')+'<div class="cua-ac-list" id="cua-pres-'+row._id.replace(/[^a-z0-9_]/gi,'_')+'"></div></div></td>'
+    +'<td style="text-align:center"><input class="cua-cell-input" style="text-align:center" data-f="fecha" value="'+esc(cuaDateVal(row.fecha||''))+'" placeholder="dd/mm/aaaa" maxlength="10"></td>'
+    +'<td style="text-align:center;padding:2px 4px;position:relative"><div class="cua-ac-wrap"><input class="cua-cell-input cua-obra-ac" style="text-align:center;width:100%;padding-right:18px" data-f="obra" value="'+esc(row.obra||'')+'" placeholder="Nº..." maxlength="20" autocomplete="off">'+(row._obraPdfUrl?'<button class="cua-pdf-btn" data-pdf="obra" data-rid="'+esc(row._id)+'" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:13px;padding:0 2px;color:#1a4fa0" title="Ver obra PDF">📄</button>':'')+'<div class="cua-ac-list" id="cua-obra-'+row._id.replace(/[^a-z0-9_]/gi,'_')+'"></div></div></td>'
+    
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="base" value="'+esc(row.base||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="iva" value="'+esc(row.iva||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right;font-weight:600" data-f="total" value="'+esc(row.total||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="primer_pago" value="'+esc(row.primer_pago||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="segundo_pago" value="'+esc(row.segundo_pago||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="tercer_pago" value="'+esc(row.tercer_pago||'')+'" maxlength="15"></td>'
+    +'<td class="cua-num"><input class="cua-cell-input" style="text-align:right" data-f="total_instalacion" value="'+esc(row.total_instalacion||'')+'" maxlength="15"></td>'
+    +'<td style="text-align:center;padding:2px 4px;position:relative"><div class="cua-ac-wrap"><input class="cua-cell-input cua-fac-ac" style="text-align:center;width:100%" data-f="factura" value="'+esc(row.factura||'')+'" placeholder="Nº..." maxlength="10" autocomplete="off">'+(row._facId?'<button class="cua-pdf-btn" data-pdf="fac" data-rid="'+esc(row._id)+'" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:13px;padding:0 2px;color:#1a4fa0" title="Ver factura">📄</button>':'')+'<div class="cua-ac-list" id="cua-fac-'+row._id.replace(/[^a-z0-9_]/gi,'_')+'"></div></div></td>'
+    +'<td class="cua-num '+deudaClass+'"><input class="cua-cell-input" style="text-align:right;font-weight:700;color:inherit" data-f="total_deuda" value="'+esc(row.total_deuda||'')+'" maxlength="15"></td>'
+    +'<td style="text-align:center"><select class="cua-cell-select" data-f="recoge_lleva">'+cuaDropdownOpts('recoge_lleva',row.recoge_lleva||'')+'</select></td>'
+    +'<td style="text-align:center"><select class="cua-cell-select" data-f="pagada">'+cuaDropdownOpts('pagada',row.pagada||'')+'</select></td>'
+    +'<td style="text-align:center"><input class="cua-cell-input" style="text-align:center" data-f="fecha_recogida" value="'+esc(cuaDateVal(row.fecha_recogida||''))+'" placeholder="dd/mm/aaaa" maxlength="10"></td>'
+    +'<td style="padding:2px 4px"><select class="cua-cell-select" data-f="estado" style="font-size:11px;width:100%">'+cuaEstadoOpts(row.estado||'')+'</select></td>'
+    +'<td><input class="cua-cell-input" data-f="observaciones" value="'+esc(row.observaciones||'')+'" maxlength="300"></td>'
+    +'<td style="text-align:center;padding:2px 4px"><input class="cua-cell-input" list="cua-instaladores-list" style="text-align:left;width:100%" data-f="instaladores" value="'+esc(row.instaladores||'')+'" maxlength="80" placeholder=""></td>'
+    +'<td style="text-align:center;white-space:nowrap">'
+      +'<button class="cua-aju-btn" data-rid="'+esc(row._id)+'" style="border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;'+(row.ajuste?'color:#f59e0b':'color:#cbd5e1')+'" title="'+(row.ajuste?'Quitar de Ajustes':'Marcar para Ajustes')+'">🔧</button>'
+      +'<button class="cua-inst-btn" data-rid="'+esc(row._id)+'" style="border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;color:'+(row.in_instalacion?'#1a4fa0':'#cbd5e1')+'" title="'+(row.in_instalacion?'Quitar de Instalación':'Enviar a Instalación')+'">🔨</button>'
+      +'<button class="cua-med-btn" data-rid="'+esc(row._id)+'" style="border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;color:'+(row.in_medicion?'#059669':'#cbd5e1')+'" title="'+(row.in_medicion?'Quitar de Medición':'Enviar a Medición')+'">📏</button>'
+      +'<button class="cua-fab-btn" data-rid="'+esc(row._id)+'" style="border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;color:'+(row.fabricacion_pdf_url?'#059669':'#cbd5e1')+'" title="'+(row.fabricacion_pdf_url?'Ver / reemplazar PDF fabricación':'Subir PDF de fabricación')+'">🏭</button>'
+      +'<button class="cua-del-btn" data-rid="'+esc(row._id)+'" style="border:none;background:none;cursor:pointer;color:#ef4444;font-size:14px;padding:2px 4px" title="Quitar fila">🗑️</button>'
+    +'</td>'
+    +'</tr>';
+}
+
+/* ===== INFORME CUADRANTE (Instalacion / Medicion) ===== */
+var CUA_INF_COLS = [
+  {k:'cliente',         label:'Cliente'},
+  {k:'direccion',       label:'Direcci\u00f3n'},
+  {k:'presupuesto',     label:'Presupuesto'},
+  {k:'fecha',           label:'Fecha'},
+  {k:'obra',            label:'Obra'},
+  {k:'instaladores',    label:'Instaladores'},
+  {k:'base',            label:'Base'},
+  {k:'iva',             label:'IVA'},
+  {k:'total',           label:'Total'},
+  {k:'primer_pago',     label:'1er pago'},
+  {k:'segundo_pago',    label:'2\u00ba pago'},
+  {k:'tercer_pago',     label:'3er pago'},
+  {k:'total_instalacion',label:'Total instalaci\u00f3n'},
+  {k:'factura',         label:'Factura'},
+  {k:'total_deuda',     label:'Total deuda'},
+  {k:'recoge_lleva',    label:'Recoge / Lleva'},
+  {k:'pagada',          label:'Pagada'},
+  {k:'fecha_recogida',  label:'Fecha recogida/instalaci\u00f3n'},
+  {k:'estado',          label:'Estado'},
+  {k:'observaciones',   label:'Observaciones'}
+];
+var CUA_INF_DEFAULT_COLS = ['cliente','direccion','fecha','presupuesto','instaladores','total','estado','observaciones'];
+/* Culorile coloanelor matching cuadrante */
+var CUA_INF_COL_COLORS = {
+  cliente:        {hdr:'1A4FA0', fg:'FFFFFF'},
+  direccion:      {hdr:'1A4FA0', fg:'FFFFFF'},
+  presupuesto:    {hdr:'1A4FA0', fg:'FFFFFF'},
+  fecha:          {hdr:'1A4FA0', fg:'FFFFFF'},
+  obra:           {hdr:'1A4FA0', fg:'FFFFFF'},
+  instaladores:   {hdr:'1A4FA0', fg:'FFFFFF'},
+  base:           {hdr:'8B5CF6', fg:'FFFFFF'},
+  iva:            {hdr:'A78BFA', fg:'FFFFFF'},
+  total:          {hdr:'3B82F6', fg:'FFFFFF'},
+  primer_pago:    {hdr:'10B981', fg:'FFFFFF'},
+  segundo_pago:   {hdr:'10B981', fg:'FFFFFF'},
+  tercer_pago:    {hdr:'10B981', fg:'FFFFFF'},
+  total_instalacion:{hdr:'F59E0B', fg:'FFFFFF'},
+  factura:        {hdr:'1A4FA0', fg:'FFFFFF'},
+  total_deuda:    {hdr:'B91C1C', fg:'FFFFFF'},
+  recoge_lleva:   {hdr:'64748B', fg:'FFFFFF'},
+  pagada:         {hdr:'059669', fg:'FFFFFF'},
+  fecha_recogida: {hdr:'1A4FA0', fg:'FFFFFF'},
+  estado:         {hdr:'7C3AED', fg:'FFFFFF'},
+  observaciones:  {hdr:'1A4FA0', fg:'FFFFFF'}
+};
+/* Culori pe rand functie de estado (light tints) */
+var CUA_INF_ESTADO_COLORS = {
+  'fabricada':   'FFF3E0',
+  'recoger':     'F1F5F9',
+  'llevar':      'F1F5F9',
+  'instalar':    'EFF6FF',
+  'incidencia':  'FEF2F2',
+  'terminado':   'F0FDF4',
+  'archivado':   'E2E8F0'
+};
+function _hexToRGB(h){return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+
+
+function _cuaInfCfgKey(){
+  var m={cuadrante:'general',instalacion:'instalacion',medicion:'medicion',archivados:'archivados',ajustes:'ajustes'};
+  return 'jeovent_cua_'+(m[cuaView]||'general')+'_informe_v1';
+}
+function _cuaInfLoadCfg(){
+  try{var raw=localStorage.getItem(_cuaInfCfgKey());if(!raw)return null;return JSON.parse(raw);}catch(_){return null;}
+}
+function _cuaInfSaveCfg(cfg){try{localStorage.setItem(_cuaInfCfgKey(),JSON.stringify(cfg));}catch(_){}}
+
+function _isoToday(off){var d=new Date();if(off)d.setDate(d.getDate()+off);var dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0');return d.getFullYear()+'-'+mm+'-'+dd;}
+function _esD(iso){if(!iso)return '';var p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
+function openCuaInformeModal(){
+  console.log('[INFORME] openCuaInformeModal called, cuaView=',cuaView);
+  var ov=document.getElementById('cua-inf-overlay');
+  if(!ov){alert('Modal HTML lipseste! Verifica daca cua-inf-overlay e in pagina');return;}
+  // Determina numele tabului curent pentru titlu si filtrare
+  var tabNames={cuadrante:'Cuadrante general',instalacion:'Instalación',medicion:'Medición',archivados:'Archivados',ajustes:'Ajustes'};
+  var tnEl=document.getElementById('cua-inf-tab-name');
+  if(tnEl)tnEl.textContent = tabNames[cuaView]||'Cuadrante';
+  // Render checkbox-uri pentru coloane
+  var cfg=_cuaInfLoadCfg()||{from:_isoToday(-30),to:_isoToday(0),cols:CUA_INF_DEFAULT_COLS.slice()};
+  var host=document.getElementById('cua-inf-cols');
+  host.innerHTML=CUA_INF_COLS.map(function(c){
+    var checked=cfg.cols.indexOf(c.k)>=0?'checked':'';
+    return '<label style="display:flex;align-items:center;gap:7px;font-size:13px;color:#374151;cursor:pointer;padding:4px 0">'
+      +'<input type="checkbox" data-col="'+c.k+'" '+checked+' style="width:16px;height:16px;cursor:pointer">'
+      +esc(c.label)+'</label>';
+  }).join('');
+  document.getElementById('cua-inf-desde').value=cfg.from||_isoToday(-30);
+  document.getElementById('cua-inf-hasta').value=cfg.to||_isoToday(0);
+  // Pozitioneaza popover langa butonul care a deschis (cua-informe sau aju-informe)
+  var ov=document.getElementById('cua-inf-overlay');
+  var pop=document.getElementById('cua-inf-popover');
+  ov.style.display='block';ov.style.width='100vw';ov.style.height='100vh';
+  var btn=document.getElementById('cua-informe');
+  if(!btn||btn.offsetParent===null)btn=document.getElementById('aju-informe');
+  if(btn&&pop){
+    var r=btn.getBoundingClientRect();
+    var pw=pop.offsetWidth||580;
+    var ph=pop.offsetHeight||500;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    // Pozitioneaza sub buton, aliniat la dreapta lui daca posibil
+    var top=r.bottom+8;
+    var left=Math.min(Math.max(8,r.right-pw), vw-pw-8);
+    if(top+ph>vh-8){top=Math.max(8,r.top-ph-8);} // daca nu incape jos, pune sus
+    pop.style.top=top+'px';
+    pop.style.left=left+'px';
+  }
+  _cuaInfUpdateSummary();
+}
+function closeCuaInformeModal(){var ov=document.getElementById('cua-inf-overlay');if(ov){ov.style.display='none';ov.style.width='0';ov.style.height='0';}}
+
+function _cuaInfApplyPreset(name){
+  var d=document.getElementById('cua-inf-desde'),h=document.getElementById('cua-inf-hasta');
+  var t=new Date(),y=t.getFullYear(),m=t.getMonth(),dd=t.getDate();
+  function set(from,to){var p=function(n){return String(n).padStart(2,'0');};
+    d.value=from.getFullYear()+'-'+p(from.getMonth()+1)+'-'+p(from.getDate());
+    h.value=to.getFullYear()+'-'+p(to.getMonth()+1)+'-'+p(to.getDate());
+  }
+  if(name==='hoy')set(t,t);
+  else if(name==='ayer'){var ay=new Date(y,m,dd-1);set(ay,ay);}
+  else if(name==='ultimos7')set(new Date(y,m,dd-6),t);
+  else if(name==='ultimos30')set(new Date(y,m,dd-29),t);
+  else if(name==='mes')set(new Date(y,m,1),new Date(y,m+1,0));
+  else if(name==='ano')set(new Date(y,0,1),new Date(y,11,31));
+  else if(name==='todo'){d.value='2020-01-01';h.value=_isoToday(365);}
+  _cuaInfUpdateSummary();
+}
+
+function _cuaInfGetSelectedCols(){
+  var out=[];
+  document.querySelectorAll('#cua-inf-cols input[type=checkbox]:checked').forEach(function(c){out.push(c.dataset.col);});
+  return out;
+}
+
+function _cuaInfFilteredRows(){
+  var d=document.getElementById('cua-inf-desde').value;
+  var h=document.getElementById('cua-inf-hasta').value;
+  var fromD=d?new Date(d):null;
+  var toD=h?new Date(h):null;
+  if(toD)toD.setHours(23,59,59,999);
+  function esDt(s){if(!s)return null;var p=String(s).split('/');if(p.length===3)return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));var d2=new Date(s);return isNaN(d2)?null:d2;}
+  return cuaRows.filter(function(r){
+    if(r._del)return false;
+    var isArch=(String(r.estado||'').toLowerCase()==='archivado');
+    // Filtrare per sub-tab
+    if(cuaView==='instalacion'){if(!r.in_instalacion)return false;if(isArch)return false;}
+    else if(cuaView==='medicion'){if(!r.in_medicion)return false;if(isArch)return false;}
+    else if(cuaView==='archivados'){if(!isArch)return false;}
+    else if(cuaView==='ajustes'){if(!r.ajuste)return false;}
+    else{if(isArch)return false;} // cuadrante principal: tot ce nu e archivado
+    if(fromD||toD){
+      var fdate=esDt(r.fecha);
+      if(!fdate)return false;
+      if(fromD&&fdate<fromD)return false;
+      if(toD&&fdate>toD)return false;
+    }
+    return true;
+  });
+}
+
+function _cuaInfUpdateSummary(){
+  var n=_cuaInfFilteredRows().length;
+  var cn=_cuaInfGetSelectedCols().length;
+  var d=document.getElementById('cua-inf-desde').value;
+  var h=document.getElementById('cua-inf-hasta').value;
+  var s=document.getElementById('cua-inf-summary');
+  s.style.display='block';
+  s.innerHTML='&#128203; <b>'+_esD(d)+'</b> &mdash; <b>'+_esD(h)+'</b> &nbsp;·&nbsp; <b>'+n+'</b> fila'+(n===1?'':'s')+' &nbsp;·&nbsp; <b>'+cn+'</b> columna'+(cn===1?'':'s');
+}
+
+function _cuaInfSaveCurrentCfg(){
+  _cuaInfSaveCfg({
+    from:document.getElementById('cua-inf-desde').value,
+    to:document.getElementById('cua-inf-hasta').value,
+    cols:_cuaInfGetSelectedCols()
+  });
+}
+
+function _parseNumLoose(v){if(v==null||v==='')return 0;var s=String(v).replace(/\./g,'').replace(/,/g,'.');var n=parseFloat(s);return isNaN(n)?0:n;}
+
+function exportCuaInformeExcel(){
+  try{
+    if(typeof XLSX==='undefined'){alert('XLSX no disponible');return;}
+    _cuaInfSaveCurrentCfg();
+    var rows=_cuaInfFilteredRows();
+    var cols=_cuaInfGetSelectedCols();
+    if(!cols.length){alert('Selecciona al menos una columna');return;}
+    if(!rows.length){alert('No hay filas en el per\u00edodo seleccionado');return;}
+    var tabNameMap={cuadrante:'Cuadrante',instalacion:'Instalacion',medicion:'Medicion',archivados:'Archivados',ajustes:'Ajustes'};
+    var tabName=tabNameMap[cuaView]||'Cuadrante';
+    var d=document.getElementById('cua-inf-desde').value;
+    var h=document.getElementById('cua-inf-hasta').value;
+    var aoa=[];
+    aoa.push(['JEOVENT - Informe Cuadrante '+tabName]);
+    aoa.push(['Per\u00edodo:', _esD(d)+' - '+_esD(h)]);
+    aoa.push(['Generado:', new Date().toLocaleString('es-ES')]);
+    aoa.push(['Filas:', rows.length]);
+    aoa.push([]);
+    var headers=cols.map(function(k){var c=CUA_INF_COLS.find(function(x){return x.k===k;});return c?c.label:k;});
+    aoa.push(headers);
+    rows.forEach(function(r){
+      var line=cols.map(function(k){
+        var v=r[k];
+        if(['base','iva','total','primer_pago','segundo_pago','tercer_pago','total_instalacion','total_deuda'].indexOf(k)>=0){
+          return _parseNumLoose(v);
+        }
+        return v||'';
+      });
+      aoa.push(line);
+    });
+    var ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols']=cols.map(function(){return{wch:18};});
+    
+    /* Stilizare titlu */
+    var titleStyle={font:{bold:true,sz:14,color:{rgb:'1A4FA0'}}};
+    if(ws['A1'])ws['A1'].s=titleStyle;
+    
+    /* Stilizare HEADER row (rand 6 = index 5, dar in xlsx e 'A6' etc.) */
+    var headerRowIdx=6; // zero-based 5, dar in addresing A1, e A6
+    cols.forEach(function(k,i){
+      var col=String.fromCharCode(65+i); // A, B, C...
+      if(i>=26){col=String.fromCharCode(65+Math.floor(i/26)-1)+String.fromCharCode(65+(i%26));}
+      var addr=col+headerRowIdx;
+      var cm=CUA_INF_COL_COLORS[k]||{hdr:'1A4FA0',fg:'FFFFFF'};
+      if(ws[addr]){
+        ws[addr].s={
+          fill:{patternType:'solid',fgColor:{rgb:cm.hdr}},
+          font:{bold:true,color:{rgb:cm.fg},sz:11},
+          alignment:{horizontal:'center',vertical:'center'},
+          border:{top:{style:'thin',color:{rgb:'D1D5DB'}},bottom:{style:'thin',color:{rgb:'D1D5DB'}},left:{style:'thin',color:{rgb:'D1D5DB'}},right:{style:'thin',color:{rgb:'D1D5DB'}}}
+        };
+      }
+    });
+    
+    /* Culori pe randuri functie de estado (daca avem coloana estado in selectie) */
+    var estadoColIdx=cols.indexOf('estado');
+    rows.forEach(function(r,ri){
+      var rowNum=headerRowIdx+1+ri; // primul rand de date
+      var estVal=String(r.estado||'').toLowerCase();
+      var bg=CUA_INF_ESTADO_COLORS[estVal];
+      if(bg){
+        cols.forEach(function(k,ci){
+          var col=String.fromCharCode(65+ci);
+          if(ci>=26){col=String.fromCharCode(65+Math.floor(ci/26)-1)+String.fromCharCode(65+(ci%26));}
+          var addr=col+rowNum;
+          if(ws[addr]){
+            ws[addr].s=ws[addr].s||{};
+            ws[addr].s.fill={patternType:'solid',fgColor:{rgb:bg}};
+          }
+        });
+      }
+    });
+    
+    var wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,tabName);
+    var fname='Jeovent_Cuadrante_'+tabName+'_'+_esD(d).replace(/\//g,'-')+'_'+_esD(h).replace(/\//g,'-')+'.xlsx';
+    XLSX.writeFile(wb,fname);
+    toast('Excel descargado: '+fname,'success',3000);
+    closeCuaInformeModal();
+  }catch(e){console.error(e);alert('Error Excel: '+e.message);}
+}
+
+function exportCuaInformePDF(){
+  try{
+    if(!window.jspdf||!window.jspdf.jsPDF){alert('jsPDF no disponible');return;}
+    _cuaInfSaveCurrentCfg();
+    var rows=_cuaInfFilteredRows();
+    var cols=_cuaInfGetSelectedCols();
+    if(!cols.length){alert('Selecciona al menos una columna');return;}
+    if(!rows.length){alert('No hay filas en el per\u00edodo seleccionado');return;}
+    var tabNameMap={cuadrante:'Cuadrante',instalacion:'Instalacion',medicion:'Medicion',archivados:'Archivados',ajustes:'Ajustes'};
+    var tabName=tabNameMap[cuaView]||'Cuadrante';
+    var d=document.getElementById('cua-inf-desde').value;
+    var h=document.getElementById('cua-inf-hasta').value;
+    var J=window.jspdf.jsPDF;
+    var doc=new J({unit:'mm',format:'a4',orientation:'landscape'});
+    var pageW=doc.internal.pageSize.getWidth();
+    var pageH=doc.internal.pageSize.getHeight();
+    doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(26,79,160);
+    doc.text('Jeovent \u00b7 Cuadrante '+tabName, 14, 15);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100);
+    doc.text('Per\u00edodo: '+_esD(d)+' \u2014 '+_esD(h)+'   |   '+rows.length+' filas   |   Generado: '+new Date().toLocaleString('es-ES'), 14, 21);
+    doc.setTextColor(30);
+    var headers=cols.map(function(k){var c=CUA_INF_COLS.find(function(x){return x.k===k;});return c?c.label:k;});
+    var availW=pageW-20;
+    var colW=availW/cols.length;
+    var x0=10, y=28, rowH=6.5;
+    
+    function drawHeader(){
+      doc.setFont('helvetica','bold');doc.setFontSize(8);
+      cols.forEach(function(k,i){
+        var cm=CUA_INF_COL_COLORS[k]||{hdr:'1A4FA0',fg:'FFFFFF'};
+        var rgb=_hexToRGB(cm.hdr);
+        doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+        doc.rect(x0+i*colW,y,colW,rowH+1,'F');
+        var fg=_hexToRGB(cm.fg);doc.setTextColor(fg[0],fg[1],fg[2]);
+        doc.text(String(headers[i]).substring(0,Math.floor(colW/1.6)),x0+i*colW+1.5,y+5);
+      });
+      y+=rowH+1;
+      doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(30);
+    }
+    drawHeader();
+    
+    rows.forEach(function(r,idx){
+      if(y>pageH-12){doc.addPage();y=15;drawHeader();}
+      // Background functie de estado
+      var estVal=String(r.estado||'').toLowerCase();
+      var bgEst=CUA_INF_ESTADO_COLORS[estVal];
+      if(bgEst){
+        var rgb=_hexToRGB(bgEst);
+        doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+        doc.rect(x0,y,availW,rowH,'F');
+      }else if(idx%2===0){
+        doc.setFillColor(245,247,250);doc.rect(x0,y,availW,rowH,'F');
+      }
+      doc.setTextColor(30);
+      cols.forEach(function(k,i){
+        var v=r[k]||'';
+        var s=String(v).substring(0,Math.floor(colW/1.4));
+        doc.text(s,x0+i*colW+1.5,y+4.5);
+      });
+      y+=rowH;
+    });
+    
+    var total=doc.internal.getNumberOfPages();
+    for(var pp=1;pp<=total;pp++){
+      doc.setPage(pp);doc.setFontSize(7);doc.setTextColor(150);
+      doc.text('P\u00e1gina '+pp+' de '+total, pageW-15, pageH-5, {align:'right'});
+    }
+    var fname='Jeovent_Cuadrante_'+tabName+'_'+_esD(d).replace(/\//g,'-')+'_'+_esD(h).replace(/\//g,'-')+'.pdf';
+    doc.save(fname);
+    toast('PDF descargado: '+fname,'success',3000);
+    closeCuaInformeModal();
+  }catch(e){console.error(e);alert('Error PDF: '+e.message);}
+}
+
+/* ===== UPLOAD PDF FABRICACION ===== */
+async function cuaUploadFabricacionPdf(row,tr){
+  if(!row._dbId){
+    toast('Primero guarda la fila (botón "Guardar cambios") y vuelve a intentarlo','info',4500);
+    return;
+  }
+  var input=document.getElementById('fab-pdf-input');
+  input.onchange=async function(){
+    var file=input.files[0];
+    input.value='';
+    if(!file)return;
+    if(file.type!=='application/pdf'&&!(file.name||'').toLowerCase().endsWith('.pdf')){
+      toast('Solo PDF por favor','error');return;
+    }
+    try{
+      setSyncState('syncing');
+      var safe=file.name.replace(/[^a-zA-Z0-9._\-]/g,'_').slice(-60);
+      var fileName=Date.now()+'_'+safe;
+      var putUrl=SB_URL+'/storage/v1/object/fabricaciones-pdf/'+encodeURIComponent(fileName);
+      var resp=await fetch(putUrl,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/pdf','x-upsert':'true'},body:file});
+      if(!resp.ok){var t=await resp.text();throw new Error(t);}
+      var pubUrl=SB_URL+'/storage/v1/object/public/fabricaciones-pdf/'+encodeURIComponent(fileName);
+      row.fabricacion_pdf_url=pubUrl;
+      row.fabricacion_pdf_name=file.name;
+      await sbFetch('PATCH','cuadrante',{fabricacion_pdf_url:pubUrl,fabricacion_pdf_name:file.name},'id=eq.'+row._dbId);
+      setSyncState('ok');
+      toast('PDF fabricación subido ✓');
+      var btn=tr.querySelector('.cua-fab-btn');
+      if(btn){btn.style.color='#059669';btn.title='Ver / reemplazar PDF fabricación';}
+    }catch(e){
+      console.error('Upload fabricacion PDF',e);
+      toast('Error subiendo PDF: '+(e.message||e),'error');
+      setSyncState('error');
+    }
+  };
+  input.click();
+}
+
+/* ===== AUTOCOMPLETE ===== */
+function cuaBindAutocomplete(tr,row){
+  var input=tr.querySelector('input[data-f="cliente"]');
+  if(!input)return;
+  var safeId='cua-ac-'+row._id.replace(/[^a-z0-9_]/gi,'_');
+  var list=document.getElementById(safeId);
+  if(!list)return;
+  var acIdx=-1;
+  function positionList(){var rect=input.getBoundingClientRect();list.style.top=(rect.bottom+2)+'px';list.style.left=rect.left+'px';list.style.width=Math.max(220,rect.width)+'px';}
+  function markDirty(){row._dirty=true;tr.className=[cuaEstadoCls(row.estado||''),row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');}
+  function closeSug(){list.classList.remove('open');acIdx=-1;}
+  function showSug(q){
+    if(!q){closeSug();return;}
+    var res=clientes.filter(function(c){return c.nombre&&c.nombre.toLowerCase().indexOf(q.toLowerCase())>=0;}).slice(0,8);
+    if(!res.length){closeSug();return;}
+    if(list.parentElement!==document.body)document.body.appendChild(list);
+    list.innerHTML=res.map(function(c,i){return'<div class="cua-ac-item" data-val="'+esc(c.nombre)+'" data-i="'+i+'">'+esc(c.nombre)+'</div>';}).join('');
+    positionList();
+    list.classList.add('open');
+    acIdx=-1;
+    list.querySelectorAll('.cua-ac-item').forEach(function(item){
+      item.addEventListener('mousedown',function(ev){
+        ev.preventDefault();input.value=this.dataset.val;row.cliente=this.dataset.val;markDirty();closeSug();cuaUpdateKPIs(cuaFilterRows());
+      });
+    });
+  }
+  input.addEventListener('input',function(){showSug(this.value);});
+  input.addEventListener('focus',function(){if(this.value)showSug(this.value);});
+  input.addEventListener('blur',function(){setTimeout(closeSug,200);row.cliente=input.value;markDirty();});
+  input.addEventListener('keydown',function(ev){
+    var items=list.querySelectorAll('.cua-ac-item');
+    if(ev.key==='ArrowDown'){ev.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='ArrowUp'){ev.preventDefault();acIdx=Math.max(acIdx-1,0);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='Enter'&&acIdx>=0){ev.preventDefault();var it=items[acIdx];if(it){input.value=it.dataset.val;row.cliente=it.dataset.val;markDirty();closeSug();}}
+    else if(ev.key==='Escape'){closeSug();}
+  });
+}
+
+/* ===== AUTOCOMPLETE PRESUPUESTO ===== */
+function cuaBindPresAutocomplete(tr,row){
+  var input=tr.querySelector('input.cua-pres-ac');
+  if(!input)return;
+  var safeId='cua-pres-'+row._id.replace(/[^a-z0-9_]/gi,'_');
+  var list=document.getElementById(safeId);
+  if(!list)return;
+  var acIdx=-1;
+  function positionList(){var rect=input.getBoundingClientRect();list.style.top=(rect.bottom+2)+'px';list.style.left=rect.left+'px';list.style.width=Math.max(280,rect.width*2)+'px';}
+  function markDirty(){row._dirty=true;tr.className=[cuaEstadoCls(row.estado||''),row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');}
+  function closeSug(){list.classList.remove('open');acIdx=-1;}
+  function fmtMoney(n){try{return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});}catch(_){return String(n||0);}}
+  function showSug(q){
+    if(!q){closeSug();return;}
+    var qq=q.toLowerCase();
+    var res=(typeof presupuestos!=='undefined'?presupuestos:[]).filter(function(p){
+      return p.num&&String(p.num).toLowerCase().indexOf(qq)>=0;
+    }).slice(0,12);
+    if(!res.length){closeSug();return;}
+    if(list.parentElement!==document.body)document.body.appendChild(list);
+    list.innerHTML=res.map(function(p){
+      var lbl='<b>'+esc(p.num)+'</b>'
+        +(p.clienteNombre?' &middot; <span style="color:#6b7280">'+esc(p.clienteNombre)+'</span>':'')
+        +(p.valor?' &middot; <span style="color:#1a4fa0">'+fmtMoney(p.valor)+' €</span>':'');
+      return '<div class="cua-ac-item" data-num="'+esc(p.num)+'" data-id="'+esc(p.id||'')+'" data-cli="'+esc(p.clienteNombre||'')+'" data-val="'+esc(p.valor||'')+'">'+lbl+'</div>';
+    }).join('');
+    positionList();
+    list.classList.add('open');
+    acIdx=-1;
+    list.querySelectorAll('.cua-ac-item').forEach(function(item){
+      item.addEventListener('mousedown',function(ev){
+        ev.preventDefault();
+        _selectPres(this);
+      });
+    });
+  }
+  function _selectPres(item){
+    input.value=item.dataset.num;
+    row.presupuesto=item.dataset.num;
+    if(item.dataset.id)row._presId=item.dataset.id;
+    // Daca cliente e gol, completeaza-l
+    if(!row.cliente&&item.dataset.cli){
+      row.cliente=item.dataset.cli;
+      var cliInp=tr.querySelector('input[data-f="cliente"]');
+      if(cliInp)cliInp.value=item.dataset.cli;
+    }
+    markDirty();closeSug();cuaUpdateKPIs(cuaFilterRows());
+    toast('Presupuesto vinculado: '+item.dataset.num,'success',2000);
+  }
+  input.addEventListener('input',function(){showSug(this.value);});
+  input.addEventListener('focus',function(){if(this.value)showSug(this.value);});
+  input.addEventListener('blur',function(){setTimeout(closeSug,200);row.presupuesto=input.value;markDirty();});
+  input.addEventListener('keydown',function(ev){
+    var items=list.querySelectorAll('.cua-ac-item');
+    if(ev.key==='ArrowDown'){ev.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='ArrowUp'){ev.preventDefault();acIdx=Math.max(acIdx-1,0);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='Enter'&&acIdx>=0){ev.preventDefault();var it=items[acIdx];if(it)_selectPres(it);}
+    else if(ev.key==='Escape'){closeSug();}
+  });
+}
+
+/* ===== AUTOCOMPLETE FACTURA ===== */
+function cuaBindFacAutocomplete(tr,row){
+  var input=tr.querySelector('input.cua-fac-ac');
+  if(!input)return;
+  var safeId='cua-fac-'+row._id.replace(/[^a-z0-9_]/gi,'_');
+  var list=document.getElementById(safeId);
+  if(!list)return;
+  var acIdx=-1;
+  function positionList(){var rect=input.getBoundingClientRect();list.style.top=(rect.bottom+2)+'px';list.style.left=rect.left+'px';list.style.width=Math.max(280,rect.width*2.5)+'px';}
+  function markDirty(){row._dirty=true;tr.className=[cuaEstadoCls(row.estado||''),row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');}
+  function closeSug(){list.classList.remove('open');acIdx=-1;}
+  function fmtMoney(n){try{return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});}catch(_){return String(n||0);}}
+  function showSug(q){
+    if(!q){closeSug();return;}
+    var qq=q.toLowerCase();
+    var res=(typeof facturas!=='undefined'?facturas:[]).filter(function(f){
+      return f.num&&String(f.num).toLowerCase().indexOf(qq)>=0;
+    }).slice(0,12);
+    if(!res.length){closeSug();return;}
+    if(list.parentElement!==document.body)document.body.appendChild(list);
+    list.innerHTML=res.map(function(f){
+      var cliN=f.clienteNombre||f.cliente_nombre||'';
+      var lbl='<b>'+esc(f.num)+'</b>'
+        +(cliN?' &middot; <span style="color:#6b7280">'+esc(cliN)+'</span>':'')
+        +(f.total?' &middot; <span style="color:#1a4fa0">'+fmtMoney(f.total)+' €</span>':'');
+      return '<div class="cua-ac-item" data-num="'+esc(f.num)+'" data-id="'+esc(f.id||'')+'" data-cli="'+esc(cliN)+'" data-tot="'+esc(f.total||'')+'">'+lbl+'</div>';
+    }).join('');
+    positionList();
+    list.classList.add('open');
+    acIdx=-1;
+    list.querySelectorAll('.cua-ac-item').forEach(function(item){
+      item.addEventListener('mousedown',function(ev){
+        ev.preventDefault();
+        _selectFac(this);
+      });
+    });
+  }
+  function _selectFac(item){
+    input.value=item.dataset.num;
+    row.factura=item.dataset.num;
+    if(item.dataset.id)row._facId=item.dataset.id;
+    if(!row.cliente&&item.dataset.cli){
+      row.cliente=item.dataset.cli;
+      var cliInp=tr.querySelector('input[data-f="cliente"]');
+      if(cliInp)cliInp.value=item.dataset.cli;
+    }
+    markDirty();closeSug();cuaUpdateKPIs(cuaFilterRows());
+    toast('Factura vinculada: '+item.dataset.num,'success',2000);
+  }
+  input.addEventListener('input',function(){showSug(this.value);});
+  input.addEventListener('focus',function(){if(this.value)showSug(this.value);});
+  input.addEventListener('blur',function(){setTimeout(closeSug,200);row.factura=input.value;markDirty();});
+  input.addEventListener('keydown',function(ev){
+    var items=list.querySelectorAll('.cua-ac-item');
+    if(ev.key==='ArrowDown'){ev.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='ArrowUp'){ev.preventDefault();acIdx=Math.max(acIdx-1,0);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='Enter'&&acIdx>=0){ev.preventDefault();var it=items[acIdx];if(it)_selectFac(it);}
+    else if(ev.key==='Escape'){closeSug();}
+  });
+}
+
+/* ===== BIND ROW ===== */
+function cuaRecalcDeuda(row,tr){
+  var total=cuaParseNum(row.total||'');
+  var p1=cuaParseNum(row.primer_pago||'');
+  var p2=cuaParseNum(row.segundo_pago||'');
+  var p3=cuaParseNum(row.tercer_pago||'');
+  var deuda=total-p1-p2-p3;
+  if(deuda<0)deuda=0;
+  var newStr=cuaNumToStr(deuda);
+  row.total_deuda=newStr;
+  var deudaInp=tr&&tr.querySelector('input[data-f="total_deuda"]');
+  if(deudaInp&&document.activeElement!==deudaInp)deudaInp.value=newStr;
+  if(tr){
+    var td=deudaInp&&deudaInp.parentNode;
+    if(td){
+      td.classList.remove('cua-deuda-pos','cua-deuda-zero');
+      td.classList.add(deuda>0?'cua-deuda-pos':'cua-deuda-zero');
+    }
+  }
+}
+/* ===== AUTOCOMPLETE OBRA ===== */
+function cuaBindObraAutocomplete(tr,row){
+  var input=tr.querySelector('input.cua-obra-ac');
+  if(!input)return;
+  var safeId='cua-obra-'+row._id.replace(/[^a-z0-9_]/gi,'_');
+  var list=document.getElementById(safeId);
+  if(!list)return;
+  var acIdx=-1;
+  function positionList(){var rect=input.getBoundingClientRect();list.style.top=(rect.bottom+2)+'px';list.style.left=rect.left+'px';list.style.width=Math.max(280,rect.width*4)+'px';}
+  function markDirty(){row._dirty=true;tr.className=[cuaEstadoCls(row.estado||''),row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');}
+  function closeSug(){list.classList.remove('open');acIdx=-1;}
+  function showSug(q){
+    if(!q){closeSug();return;}
+    var qq=q.toLowerCase();
+    var res=(typeof obras!=='undefined'?obras:[]).filter(function(ob){
+      return ob.num&&String(ob.num).toLowerCase().indexOf(qq)>=0;
+    }).slice(0,12);
+    if(!res.length){closeSug();return;}
+    if(list.parentElement!==document.body)document.body.appendChild(list);
+    list.innerHTML=res.map(function(ob){
+      var lbl='<b>'+esc(ob.num)+'</b>'
+        +(ob.cliente_nombre?' &middot; <span style="color:#6b7280">'+esc(ob.cliente_nombre)+'</span>':'')
+        +(ob.presupuesto_num?' &middot; <span style="color:#1a4fa0">P-'+esc(ob.presupuesto_num)+'</span>':'')
+        +(ob.pdf_url?' <span style="color:#059669">📄</span>':'');
+      return '<div class="cua-ac-item" data-num="'+esc(ob.num)+'" data-id="'+esc(ob.id||'')+'" data-pdf="'+esc(ob.pdf_url||'')+'">'+lbl+'</div>';
+    }).join('');
+    positionList();
+    list.classList.add('open');
+    acIdx=-1;
+    list.querySelectorAll('.cua-ac-item').forEach(function(item){
+      item.addEventListener('mousedown',function(ev){
+        ev.preventDefault();
+        _selectObra(this);
+      });
+    });
+  }
+  function _selectObra(item){
+    input.value=item.dataset.num;
+    row.obra=item.dataset.num;
+    if(item.dataset.id)row._obraId=item.dataset.id;
+    row._obraPdfUrl=item.dataset.pdf||null;
+    markDirty();closeSug();
+    // Re-render this single row to show the PDF button
+    try{
+      var freshTr=document.querySelector('tr[data-rid="'+row._id+'"]');
+      if(freshTr){
+        var rows=Array.from(document.querySelectorAll('#cua-table tbody tr'));
+        var idx=rows.indexOf(freshTr);
+        var html=cuaRowHTML(row,idx);
+        freshTr.outerHTML=html;
+        var newTr=document.querySelector('tr[data-rid="'+row._id+'"]');
+        if(newTr)cuaBindRow(newTr,row._id);
+      }
+    }catch(eR){console.warn('row re-render failed',eR);}
+    toast('Obra vinculada: '+item.dataset.num+(row._obraPdfUrl?' 📄':''),'success',2000);
+  }
+  input.addEventListener('input',function(){showSug(this.value);});
+  input.addEventListener('focus',function(){if(this.value)showSug(this.value);});
+  input.addEventListener('blur',function(){
+    setTimeout(closeSug,200);
+    var newVal=input.value;
+    if(newVal!==row.obra){
+      row.obra=newVal;
+      // Reseteaza cache si re-lookup
+      row._obraId=null;
+      row._obraPdfUrl=null;
+      if(newVal){
+        var _m=(typeof obras!=='undefined'?obras:[]).find(function(o){
+          return String(o.num||'').toLowerCase()===String(newVal||'').toLowerCase();
+        });
+        if(_m){row._obraId=_m.id||null;row._obraPdfUrl=_m.pdf_url||null;}
+      }
+      // Re-render acest tr ca sa apara/dispara butonul PDF
+      try{
+        var freshTr=document.querySelector('tr[data-rid="'+row._id+'"]');
+        if(freshTr){
+          var rows=Array.from(document.querySelectorAll('#cua-table tbody tr'));
+          var idx=rows.indexOf(freshTr);
+          var html=cuaRowHTML(row,idx);
+          freshTr.outerHTML=html;
+          var newTr=document.querySelector('tr[data-rid="'+row._id+'"]');
+          if(newTr)cuaBindRow(newTr,row._id);
+        }
+      }catch(_){}
+    }
+    markDirty();
+  });
+  input.addEventListener('keydown',function(ev){
+    var items=list.querySelectorAll('.cua-ac-item');
+    if(ev.key==='ArrowDown'){ev.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='ArrowUp'){ev.preventDefault();acIdx=Math.max(acIdx-1,0);items.forEach(function(x,i){x.classList.toggle('active',i===acIdx);});}
+    else if(ev.key==='Enter'&&acIdx>=0){ev.preventDefault();var it=items[acIdx];if(it)_selectObra(it);}
+    else if(ev.key==='Escape'){closeSug();}
+  });
+}
+
+function cuaBindRow(tr,rid){
+  var row=cuaRows.find(function(r){return r._id===rid;});
+  if(!row)return;
+  cuaBindAutocomplete(tr,row);
+  cuaBindPresAutocomplete(tr,row);
+  cuaBindFacAutocomplete(tr,row);
+  cuaBindObraAutocomplete(tr,row);
+  // Recalculare initiala — total_deuda nu mai depinde de un input din primer_pago.
+  // Trateaza pagos goale ca 0. Daca total e gol, lasa total_deuda gol.
+  try {
+    var _hasTotal = cuaParseNum(row.total||'') > 0;
+    if(_hasTotal) cuaRecalcDeuda(row, tr);
+  } catch(_){}
+  var DEUDA_TRIGGERS={total:1,primer_pago:1,segundo_pago:1,tercer_pago:1};
+  tr.querySelectorAll('.cua-cell-input[data-f]:not([data-f="cliente"]):not([data-f="presupuesto"]):not([data-f="factura"]),.cua-cell-select').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var f=this.dataset.f;
+      var prev=row[f];
+      row[f]=this.value;
+      row._dirty=true;
+      if(DEUDA_TRIGGERS[f])cuaRecalcDeuda(row,tr);
+      tr.className=[cuaEstadoCls(row.estado||''),row._new?'cua-new':'',row._dirty?'cua-dirty':''].filter(Boolean).join(' ');
+      // Si cambia entre archivado y no archivado, re-render para que la fila desaparezca/aparezca
+      if(f==='estado' && ((prev==='archivado')!==(this.value==='archivado'))){
+        renderCuadrante();return;
+      }
+      cuaUpdateKPIs(cuaFilterRows());
+    });
+    inp.addEventListener('input',function(){
+      row[this.dataset.f]=this.value;
+      row._dirty=true;
+      if(DEUDA_TRIGGERS[this.dataset.f])cuaRecalcDeuda(row,tr);
+      cuaUpdateKPIsDebounced(cuaFilterRows());
+    });
+  });
+  var delBtn=tr.querySelector('.cua-del-btn');
+  if(delBtn)delBtn.addEventListener('click',async function(ev){
+    ev.preventDefault();ev.stopPropagation();
+    if(!row._new&&!confirm('¿Quitar esta fila del cuadrante? Esta acción se aplica inmediatamente.'))return;
+    /* Marca y oculta visualmente al instante */
+    row._del=true;
+    tr.style.transition='opacity .15s';
+    tr.style.opacity='0.4';
+    delBtn.disabled=true;
+    setSyncState('syncing');
+    try{
+      if(row._dbId){
+        /* Ya existe en DB: borrar definitivamente */
+        await sbFetch('DELETE','cuadrante',null,'id=eq.'+row._dbId);
+      }else if(row._facId||row._presId){
+        /* Fila derivada de factura/presupuesto: crear sentinel oculto para que NO reaparezca */
+        var sentinel={
+          factura_id:row._facId||null,
+          presupuesto_id:row._presId||null,
+          presupuesto:row.presupuesto||null,
+          estado:'_oculto'
+        };
+        var attempt=0,sentinelOk=false;
+        while(attempt<5&&!sentinelOk){
+          attempt++;
+          try{
+            await sbFetch('POST','cuadrante',sentinel);
+            sentinelOk=true;
+          }catch(exS){
+            var msgS=(exS&&exS.message)||'';
+            /* Drop columnas problematicas (UUID o inexistentes) y reintentar */
+            if(/22P02/.test(msgS)||/invalid input syntax for type uuid/i.test(msgS)){
+              if(sentinel.factura_id!=null){delete sentinel.factura_id;continue;}
+              if(sentinel.presupuesto_id!=null){delete sentinel.presupuesto_id;continue;}
+            }
+            var mm=msgS.match(/find the '([^']+)' column/i)||msgS.match(/column [^"]*"([^"]+)"/i);
+            if(mm&&mm[1]&&sentinel.hasOwnProperty(mm[1])){delete sentinel[mm[1]];continue;}
+            throw exS;
+          }
+        }
+        if(!sentinelOk)throw new Error('No se pudo guardar el marcador de fila oculta');
+      }
+      /* OK: quitar de array y DOM */
+      var ix=cuaRows.indexOf(row);if(ix>-1)cuaRows.splice(ix,1);
+      tr.remove();
+      setSyncState('ok');
+      toast('Fila eliminada ✓','success');
+    }catch(exDel){
+      /* Restaurar la fila si fall\u00f3 */
+      row._del=false;
+      tr.style.opacity='1';
+      delBtn.disabled=false;
+      setSyncState('error');
+      var em=(exDel&&exDel.message)||'desconocido';
+      if(em.length>180)em=em.slice(0,180)+'...';
+      toast('Error al eliminar: '+em,'error');
+      console.error('cuadrante delete FAIL',exDel);
+    }
+    cuaUpdateKPIs(cuaFilterRows());
+  });
+  var pdfBtns=tr.querySelectorAll('.cua-pdf-btn');
+  pdfBtns.forEach(function(b){
+    b.addEventListener('click',function(ev){
+      ev.preventDefault();ev.stopPropagation();
+      var kind=this.dataset.pdf;
+      if(kind==='pres'){
+        if(row._pdfUrl){window.open(row._pdfUrl,'_blank');}
+        else if(row._presId){window.open('presupuestos.html?openPre='+encodeURIComponent(row._presId),'_blank');}
+        else{toast('No hay PDF asociado','error');}
+      }else if(kind==='fac'){
+        if(row._pdfUrl){window.open(row._pdfUrl,'_blank');}
+        else if(row._facId){window.open('gestion.html?openFac='+encodeURIComponent(row._facId)+'&action=pdf','_blank');}
+        else{toast('No hay PDF asociado','error');}
+      }else if(kind==='obra'){
+        if(row._obraPdfUrl){window.open(row._obraPdfUrl,'_blank');}
+        else{toast('No hay PDF asociado a esta obra','error');}
+      }
+    });
+  });
+  /* Buton FABRICACION (🏭) - upload/view PDF fabricacion per rând */
+  var fabBtn=tr.querySelector('.cua-fab-btn');
+  if(fabBtn)fabBtn.addEventListener('click',function(ev){
+    ev.preventDefault();ev.stopPropagation();
+    if(row.fabricacion_pdf_url){
+      var rep=confirm('PDF existente:\n'+(row.fabricacion_pdf_name||'(sin nombre)')+'\n\nOK = Abrir PDF\nCancel = Subir uno nuevo (reemplazar)');
+      if(rep){window.open(row.fabricacion_pdf_url,'_blank');return;}
+    }
+    cuaUploadFabricacionPdf(row,tr);
+  });
+  /* Buton INSTALACION (BUG FIX: salveaza imediat, gestioneaza randuri fara _dbId) */
+  var instBtn=tr.querySelector('.cua-inst-btn');
+  if(instBtn)instBtn.addEventListener('click',async function(ev){
+    ev.preventDefault();ev.stopPropagation();
+    var prev = row.in_instalacion;
+    row.in_instalacion = !prev;
+    instBtn.style.color = row.in_instalacion?'#1a4fa0':'#cbd5e1';
+    instBtn.title = row.in_instalacion?'Quitar de Instalación':'Enviar a Instalación';
+    setSyncState('syncing');
+    try{
+      if(row._dbId){
+        await sbFetch('PATCH','cuadrante',{in_instalacion:row.in_instalacion},'id=eq.'+row._dbId);
+      }else{
+        // Randul NU exista in DB inca → fac full save (POST)
+        var res = await cuaSaveOne(row);
+        if(!res.ok) throw (res.err || new Error('Save fail (sin _dbId)'));
+      }
+      row._dirty = false;
+      setSyncState('ok');
+      toast(row.in_instalacion?'\u2705 Enviado a Instalación':'Quitado de Instalación','success',2000);
+      if(cuaView==='instalacion' && !row.in_instalacion){tr.style.transition='opacity .15s';tr.style.opacity='0.4';}
+    }catch(e){
+      console.error('[inst] toggle FAIL',e);
+      toast('Error: '+(e.message||e),'error');
+      setSyncState('error');
+      row.in_instalacion = prev;
+      instBtn.style.color = prev?'#1a4fa0':'#cbd5e1';
+      instBtn.title = prev?'Quitar de Instalación':'Enviar a Instalación';
+    }
+  });
+
+  /* Buton MEDICION (BUG FIX: idem) */
+  var medBtn=tr.querySelector('.cua-med-btn');
+  if(medBtn)medBtn.addEventListener('click',async function(ev){
+    ev.preventDefault();ev.stopPropagation();
+    var prev = row.in_medicion;
+    row.in_medicion = !prev;
+    medBtn.style.color = row.in_medicion?'#059669':'#cbd5e1';
+    medBtn.title = row.in_medicion?'Quitar de Medición':'Enviar a Medición';
+    setSyncState('syncing');
+    try{
+      if(row._dbId){
+        await sbFetch('PATCH','cuadrante',{in_medicion:row.in_medicion},'id=eq.'+row._dbId);
+      }else{
+        var res = await cuaSaveOne(row);
+        if(!res.ok) throw (res.err || new Error('Save fail (sin _dbId)'));
+      }
+      row._dirty = false;
+      setSyncState('ok');
+      toast(row.in_medicion?'\u2705 Enviado a Medición':'Quitado de Medición','success',2000);
+      if(cuaView==='medicion' && !row.in_medicion){tr.style.transition='opacity .15s';tr.style.opacity='0.4';}
+    }catch(e){
+      console.error('[med] toggle FAIL',e);
+      toast('Error: '+(e.message||e),'error');
+      setSyncState('error');
+      row.in_medicion = prev;
+      medBtn.style.color = prev?'#059669':'#cbd5e1';
+      medBtn.title = prev?'Quitar de Medición':'Enviar a Medición';
+    }
+  });
+
+  /* Buton AJUSTES (🔧) */
+  var ajuBtn=tr.querySelector('.cua-aju-btn');
+  if(ajuBtn)ajuBtn.addEventListener('click',async function(ev){
+    ev.preventDefault();ev.stopPropagation();
+    row.ajuste=!row.ajuste;
+    /* Actualizam vizual butonul */
+    ajuBtn.style.color=row.ajuste?'#f59e0b':'#cbd5e1';
+    ajuBtn.title=row.ajuste?'Quitar de Ajustes':'Marcar para Ajustes';
+    /* Persistam imediat */
+    setSyncState('syncing');
+    try{
+      var res=await cuaSaveOne(row);
+      if(res.ok){
+        setSyncState('ok');
+        toast(row.ajuste?'Marcada para Ajustes ✓':'Quitada de Ajustes','success');
+      }else{
+        setSyncState('error');
+        var em=(res.err&&res.err.message)||'desconocido';
+        toast('Error: '+em.slice(0,150),'error');
+        /* Revert */
+        row.ajuste=!row.ajuste;
+        ajuBtn.style.color=row.ajuste?'#f59e0b':'#cbd5e1';
+        ajuBtn.title=row.ajuste?'Quitar de Ajustes':'Marcar para Ajustes';
+      }
+    }catch(exA){
+      setSyncState('error');
+      console.error('aju toggle FAIL',exA);
+      row.ajuste=!row.ajuste;
+      ajuBtn.style.color=row.ajuste?'#f59e0b':'#cbd5e1';
+    }
+  });
+}
+
+/* ===== KPIS ===== */
+function cuaUpdateKPIs(rows){
+  var totBase=0,totIva=0,totTotal=0,totP1=0,totP2=0,totP3=0,totInst=0,totDeuda=0,totCobrado=0;
+  rows.forEach(function(r){
+    totBase+=cuaParseNum(r.base);totIva+=cuaParseNum(r.iva);totTotal+=cuaParseNum(r.total);
+    totP1+=cuaParseNum(r.primer_pago);totP2+=cuaParseNum(r.segundo_pago);totP3+=cuaParseNum(r.tercer_pago);
+    totInst+=cuaParseNum(r.total_instalacion);totDeuda+=cuaParseNum(r.total_deuda);
+    if(r.pagada==='PAGADA')totCobrado+=cuaParseNum(r.total);
+  });
+  document.getElementById('cua-kpi-cobrado').textContent=cuaFmtNum(totCobrado)||'0 €';
+  document.getElementById('cua-kpi-deuda').textContent=cuaFmtNum(totDeuda)||'0 €';
+  document.getElementById('cua-kpi-total').textContent=cuaFmtNum(totTotal)||'0 €';
+  document.getElementById('cua-kpi-base').textContent=cuaFmtNum(totBase)||'0 €';
+  document.getElementById('cua-kpi-instalacion').textContent=cuaFmtNum(totInst)||'0 €';
+  document.getElementById('cua-kpi-num').textContent=rows.length;
+  document.getElementById('cua-ft-base').textContent=cuaFmtNum(totBase);
+  document.getElementById('cua-ft-iva').textContent=cuaFmtNum(totIva);
+  document.getElementById('cua-ft-total').textContent=cuaFmtNum(totTotal);
+  document.getElementById('cua-ft-p1').textContent=cuaFmtNum(totP1);
+  document.getElementById('cua-ft-p2').textContent=cuaFmtNum(totP2);
+  document.getElementById('cua-ft-p3').textContent=cuaFmtNum(totP3);
+  document.getElementById('cua-ft-inst').textContent=cuaFmtNum(totInst);
+  document.getElementById('cua-ft-deuda').textContent=cuaFmtNum(totDeuda);
+}
+
+/* ===== RENDER TABLE ===== */
+
+/* FIX M7: KPI update debouncat — nu mai recalculeaza pe fiecare keystroke */
+var _kpiDebounceTimer = null;
+function cuaUpdateKPIsDebounced(rows){
+  if(_kpiDebounceTimer) clearTimeout(_kpiDebounceTimer);
+  _kpiDebounceTimer = setTimeout(function(){
+    try{ cuaUpdateKPIs(rows); }catch(_){}
+  }, 250);
+}
+
+function cuaRenderTable(){
+  var filtered=cuaFilterRows();
+  filtered=cuaSortRows(filtered);
+  cuaUpdateSortIndicators();
+  var tbody=document.getElementById('cua-tbody');
+  // FIX: elimina .cua-ac-list orfane din body (lasate de re-randari anterioare)
+  try{ document.body.querySelectorAll('.cua-ac-list').forEach(function(n){
+    if(n.parentElement === document.body) n.remove();
+  }); }catch(_){}
+  tbody.innerHTML='';
+  document.getElementById('cua-empty').style.display=filtered.length?'none':'block';
+  filtered.forEach(function(row,idx){
+    var tmp=document.createElement('tbody');
+    tmp.innerHTML=cuaRowHTML(row,idx);
+    var tr=tmp.querySelector('tr');
+    tbody.appendChild(tr);
+    cuaBindRow(tr,row._id);
+  });
+  cuaUpdateKPIs(filtered);
+}
+
+function renderCuadrante(){
+  var range=cuaGetRange();
+  document.getElementById('cua-period-label').textContent=cuaFmtLabel(range);
+  cuaRenderTable();
+}
+
+/* ===== SAVE ALL =====
+   Estrategia robusta:
+   - Construye payload con TODAS las columnas conocidas
+   - Si Supabase devuelve "could not find the 'X' column", elimina X y reintenta
+   - Repite hasta 8 veces (max columnas que pueden faltar en una BD vieja)
+   - Si falla por otro motivo, muestra el error real (no más "errores genéricos") */
+async function cuaSaveOne(r){
+  r._saving = true; // FIX M8: guard pt race conditions
+  var payload={
+    factura_id:r._facId||null,
+    presupuesto_id:r._presId||null,
+    cliente:r.cliente||null,direccion:r.direccion||null,operarios:r.operarios||null,instaladores:r.instaladores||null,
+    presupuesto:r.presupuesto||null,fecha:cuaDateIso(r.fecha)||null,
+    obra:r.obra||null,
+    base:cuaParseNum(r.base)||null,iva:cuaParseNum(r.iva)||null,total:cuaParseNum(r.total)||null,
+    primer_pago:cuaParseNum(r.primer_pago)||null,segundo_pago:cuaParseNum(r.segundo_pago)||null,
+    tercer_pago:cuaParseNum(r.tercer_pago)||null,
+    total_instalacion:cuaParseNum(r.total_instalacion)||null,
+    factura:r.factura||null,total_deuda:cuaParseNum(r.total_deuda)||null,
+    recoge_lleva:r.recoge_lleva||null,pagada:r.pagada||null,
+    fecha_recogida:cuaDateIso(r.fecha_recogida)||null,
+    estado:r.estado||null,observaciones:r.observaciones||null,
+    ajuste:r.ajuste===true,
+    fabricacion_id:r.fabricacion_id||null,
+    fabricacion_pdf_url:r.fabricacion_pdf_url||null,
+    fabricacion_pdf_name:r.fabricacion_pdf_name||null,
+    in_instalacion:r.in_instalacion===true,
+    in_medicion:r.in_medicion===true
+  };
+  var attempt=0;
+  var lastErr=null;
+  while(attempt<10){
+    attempt++;
+    try{
+      if(r._dbId){
+        await sbFetch('PATCH','cuadrante',payload,'id=eq.'+r._dbId);
+      }else{
+        var res=await sbFetch('POST','cuadrante',payload);
+        if(res&&res[0])r._dbId=res[0].id;
+        r._new=false;
+      }
+      r._dirty=false;
+      r._saving=false;
+      return {ok:true};
+    }catch(ex){
+      lastErr=ex;
+      var msg=(ex&&ex.message)||'';
+      /* Detectar columna inexistente: PostgREST PGRST204 o mensaje "could not find the 'X' column" */
+      var m=msg.match(/find the '([^']+)' column/i)||msg.match(/column [^"]*"([^"]+)"/i)||msg.match(/column ([\w_]+) of/i);
+      if(m && m[1] && payload.hasOwnProperty(m[1])){
+        console.warn('cuadrante save: dropping missing column "'+m[1]+'" and retrying');
+        delete payload[m[1]];
+        continue;
+      }
+      /* Detectar error 22P02 invalid UUID: pres/fac id no es UUID. Quitar links y reintentar. */
+      if(/22P02/.test(msg)||/invalid input syntax for type uuid/i.test(msg)){
+        var dropped=false;
+        if(payload.factura_id!=null){console.warn('cuadrante save: dropping factura_id (col is UUID, value is text). Aplicati supabase_setup_v3.sql.');delete payload.factura_id;dropped=true;}
+        if(payload.presupuesto_id!=null){console.warn('cuadrante save: dropping presupuesto_id (col is UUID, value is text). Aplicati supabase_setup_v3.sql.');delete payload.presupuesto_id;dropped=true;}
+        if(dropped){continue;}
+      }
+      /* Otra cosa: aborta */
+      break;
+    }
+  }
+  r._saving=false;
+  return {ok:false, err:lastErr};
+}
+
+async function cuaSaveAll(){
+  var toSave=cuaRows.filter(function(r){return(r._dirty||r._new)&&!r._del;});
+  var toDelete=cuaRows.filter(function(r){return r._del&&r._dbId;});
+  if(!toSave.length&&!toDelete.length){toast('No hay cambios pendientes');return;}
+  var errors=0;
+  var firstErr=null;
+  setSyncState('syncing');
+  for(var i=0;i<toSave.length;i++){
+    var r=toSave[i];
+    var res=await cuaSaveOne(r);
+    if(!res.ok){
+      errors++;
+      if(!firstErr)firstErr=res.err;
+      console.error('cuadrante save FAIL row',r._id,res.err);
+    }
+  }
+  for(var j=0;j<toDelete.length;j++){
+    try{
+      await sbFetch('DELETE','cuadrante',null,'id=eq.'+toDelete[j]._dbId);
+      var ix=cuaRows.indexOf(toDelete[j]);if(ix>-1)cuaRows.splice(ix,1);
+    }catch(ex){errors++;if(!firstErr)firstErr=ex;console.error('cuadrante delete FAIL',ex);}
+  }
+  setSyncState(errors?'error':'ok');
+  if(errors){
+    var emsg=(firstErr&&firstErr.message)||'desconocido';
+    /* Truncar mensaje para que el toast no sea gigantesco */
+    if(emsg.length>180)emsg=emsg.slice(0,180)+'...';
+    toast('Error al guardar ('+errors+'): '+emsg,'error');
+  }else{
+    toast('Cuadrante guardado ✓','success');
+  }
+  cuaRenderTable();
+}
+
+/* ===== ADD ROW ===== */
+function cuaAddRow(){
+  var newRow={
+    _id:'new_'+uid(),_new:true,_dirty:false,_del:false,_facId:null,_presId:null,_dbId:null,_obraId:null,_obraPdfUrl:null,
+    cliente:'',direccion:'',operarios:'',instaladores:'',presupuesto:'',fecha:todayEs(),obra:'',
+    base:'',iva:'',total:'',primer_pago:'',segundo_pago:'',tercer_pago:'',
+    total_instalacion:'',factura:'',total_deuda:'',
+    recoge_lleva:'',pagada:'',fecha_recogida:'',estado:'',observaciones:'',ajuste:false,
+    fabricacion_id:null,fabricacion_pdf_url:null,fabricacion_pdf_name:null,
+    /* Default flags pe baza tabului curent */
+    in_instalacion:(cuaView==='instalacion'),
+    in_medicion:(cuaView==='medicion')
+  };
+  cuaRows.unshift(newRow);
+  cuaRenderTable();
+  var firstInput=document.querySelector('#cua-tbody tr:first-child .cua-ac-input');
+  if(firstInput)firstInput.focus();
+}
+
+/* ===== VIEW SWITCH ===== */
+var cuaView='cuadrante';
+function switchView(v){
+  cuaView=v;
+  var nc=document.getElementById('nav-cuadrante');
+  var nI=document.getElementById('nav-instalacion');
+  var nM=document.getElementById('nav-medicion');
+  var na=document.getElementById('nav-admin');
+  var nx=document.getElementById('nav-archivados');
+  var ni=document.getElementById('nav-informe');
+  var nj=document.getElementById('nav-ajustes');
+  var vc=document.getElementById('view-cuadrante');
+  var va=document.getElementById('view-admin');
+  var vi=document.getElementById('view-informe');
+  var vj=document.getElementById('view-ajustes');
+  if(!vc||!va)return;
+  [nc,nI,nM,na,nx,ni,nj].forEach(function(b){if(b)b.classList.remove('active');});
+  /* Hide all views */
+  vc.style.display='none';va.style.display='none';
+  if(vi)vi.style.display='none';if(vj)vj.style.display='none';
+  if(v==='admin'){
+    va.style.display='block';
+    if(na)na.classList.add('active');
+    renderAdmin();
+  }else if(v==='archivados'){
+    vc.style.display='flex';
+    if(nx)nx.classList.add('active');
+    renderCuadrante();
+  }else if(v==='instalacion'){
+    vc.style.display='flex';
+    if(nI)nI.classList.add('active');
+    renderCuadrante();
+  }else if(v==='medicion'){
+    vc.style.display='flex';
+    if(nM)nM.classList.add('active');
+    renderCuadrante();
+  }else if(v==='informe'){
+    if(vi)vi.style.display='block';
+    if(ni)ni.classList.add('active');
+    if(typeof infInit==='function')infInit();
+  }else if(v==='ajustes'){
+    if(vj)vj.style.display='block';
+    if(nj)nj.classList.add('active');
+    if(typeof ajuRender==='function')ajuRender();
+  }else{
+    vc.style.display='flex';
+    if(nc)nc.classList.add('active');
+    renderCuadrante();
+  }
+}
+
+/* ===== ADMIN RENDER ===== */
+function renderAdmin(){
+  // Titulo
+  var t=document.getElementById('adm-titulo');if(t)t.value=CFG.titulo||'';
+  // Columnas
+  var colsHost=document.getElementById('adm-columnas');
+  if(colsHost){
+    var keys=Object.keys(CFG_DEFAULT.columnas);
+    colsHost.innerHTML=keys.map(function(k){
+      var def=CFG_DEFAULT.columnas[k];
+      var cur=(CFG.columnas||{})[k]||def;
+      return'<div class="admin-row"><span class="admin-label">'+esc(def)+' ('+esc(k)+')</span>'
+        +'<input class="admin-input" data-colkey="'+esc(k)+'" type="text" placeholder="'+esc(def)+'" value="'+esc(cur)+'">'
+        +'</div>';
+    }).join('');
+  }
+  renderAdminEstados();
+  renderAdminOperarios();
+  renderAdminInstaladores();
+  renderAdminDropdowns();
+}
+
+function renderAdminEstados(){
+  var host=document.getElementById('adm-estados');
+  if(!host)return;
+  host.innerHTML=(CFG.estados||[]).map(function(e,i){
+    return'<div class="admin-item" data-estado-idx="'+i+'">'
+      +'<input class="admin-input admin-input-sm" data-ef="v" type="text" placeholder="id" value="'+esc(e.v||'')+'" style="max-width:120px">'
+      +'<input class="admin-input" data-ef="label" type="text" placeholder="etiqueta" value="'+esc(e.label||'')+'" style="flex:1;min-width:140px">'
+      +'<input class="admin-color" data-ef="color" type="color" value="'+esc(e.color||'#ffffff')+'">'
+      +'<button class="admin-del" data-del-estado="'+i+'" title="Eliminar">🗑️</button>'
+      +'</div>';
+  }).join('');
+}
+
+function renderAdminOperarios(){
+  var host=document.getElementById('adm-operarios');
+  if(!host)return;
+  host.innerHTML=(CFG.operarios||[]).map(function(o,i){
+    return'<div class="admin-item" data-op-idx="'+i+'">'
+      +'<input class="admin-input admin-input-sm" data-of="codigo" type="text" placeholder="Iniciales" value="'+esc(o.codigo||'')+'" maxlength="4">'
+      +'<input class="admin-input" data-of="nombre" type="text" placeholder="Nombre completo" value="'+esc(o.nombre||'')+'" style="flex:1;min-width:160px">'
+      +'<button class="admin-del" data-del-operario="'+i+'" title="Eliminar">🗑️</button>'
+      +'</div>';
+  }).join('');
+}
+
+function renderAdminInstaladores(){
+  var host=document.getElementById('adm-instaladores');
+  if(!host)return;
+  var list=CFG.instaladores||[];
+  host.innerHTML=list.map(function(nom,i){
+    return '<div class="admin-item" data-ins-idx="'+i+'">'
+      +'<input class="admin-input" data-insf="nombre" type="text" placeholder="Nombre del instalador" value="'+esc(nom||'')+'" style="flex:1;min-width:180px">'
+      +'<button class="admin-del" data-del-instalador="'+i+'" title="Eliminar">🗑️</button>'
+      +'</div>';
+  }).join('');
+}
+
+function refreshInstaladoresDatalist(){
+  var dl=document.getElementById('cua-instaladores-list');
+  if(!dl)return;
+  var names=(CFG&&CFG.instaladores)?CFG.instaladores.filter(function(n){return n&&String(n).trim();}):[];
+  // plus combinatiile uzuale de 2 instaladores (util daca ai des mai multi)
+  var all=names.slice();
+  for(var i=0;i<names.length;i++)for(var j=i+1;j<names.length;j++){
+    all.push(names[i]+' + '+names[j]);
+  }
+  dl.innerHTML=all.map(function(n){return '<option value="'+esc(n)+'"></option>';}).join('');
+}
+
+function renderAdminDropdowns(){
+  ['rl','pag'].forEach(function(key){
+    var host=document.getElementById('adm-'+key);
+    if(!host)return;
+    var field=key==='rl'?'recoge_lleva':'pagada';
+    var arr=(CFG.dropdowns||{})[field]||[];
+    host.innerHTML=arr.map(function(v,i){
+      return'<div class="admin-item" data-dd-idx="'+i+'" data-dd-field="'+field+'">'
+        +'<input class="admin-input" data-ddv type="text" value="'+esc(v)+'" style="flex:1;min-width:140px">'
+        +'<button class="admin-del" data-del-dd="'+i+'" data-del-field="'+field+'" title="Eliminar">🗑️</button>'
+        +'</div>';
+    }).join('');
+  });
+}
+
+function collectAdminToCfg(){
+  // Titulo
+  var t=document.getElementById('adm-titulo');if(t)CFG.titulo=t.value.trim()||CFG_DEFAULT.titulo;
+  // Columnas
+  CFG.columnas=CFG.columnas||{};
+  document.querySelectorAll('#adm-columnas [data-colkey]').forEach(function(inp){
+    var k=inp.dataset.colkey;
+    var v=inp.value.trim();
+    CFG.columnas[k]=v||CFG_DEFAULT.columnas[k];
+  });
+  // Estados
+  var estados=[];
+  document.querySelectorAll('#adm-estados [data-estado-idx]').forEach(function(it){
+    var v=it.querySelector('[data-ef="v"]').value.trim();
+    var label=it.querySelector('[data-ef="label"]').value.trim();
+    var color=it.querySelector('[data-ef="color"]').value.trim();
+    if(v||label)estados.push({v:v,label:label||v,color:color||'#ffffff'});
+  });
+  CFG.estados=estados;
+  // Operarios
+  var ops=[];
+  document.querySelectorAll('#adm-operarios [data-op-idx]').forEach(function(it){
+    var codigo=it.querySelector('[data-of="codigo"]').value.trim();
+    var nombre=it.querySelector('[data-of="nombre"]').value.trim();
+    if(codigo||nombre)ops.push({codigo:codigo,nombre:nombre});
+  });
+  CFG.operarios=ops;
+  // Instaladores
+  var inst=[];
+  document.querySelectorAll('#adm-instaladores [data-ins-idx]').forEach(function(it){
+    var nom=it.querySelector('[data-insf="nombre"]').value.trim();
+    if(nom)inst.push(nom);
+  });
+  CFG.instaladores=inst;
+  // Dropdowns
+  CFG.dropdowns=CFG.dropdowns||{};
+  ['rl','pag'].forEach(function(key){
+    var field=key==='rl'?'recoge_lleva':'pagada';
+    var vals=[];
+    document.querySelectorAll('#adm-'+key+' [data-dd-idx]').forEach(function(it){
+      var v=it.querySelector('[data-ddv]').value.trim();
+      if(v)vals.push(v);
+    });
+    CFG.dropdowns[field]=vals;
+  });
+}
+
+function bindAdmin(){
+  var addEst=document.getElementById('adm-add-estado');
+  if(addEst)addEst.addEventListener('click',function(){
+    collectAdminToCfg();
+    CFG.estados.push({v:'nuevo_'+Date.now(),label:'Nuevo estado',color:'#f3f4f6'});
+    renderAdminEstados();
+  });
+  var estHost=document.getElementById('adm-estados');
+  if(estHost)estHost.addEventListener('click',function(e){
+    var del=e.target.closest('[data-del-estado]');
+    if(del){collectAdminToCfg();CFG.estados.splice(+del.dataset.delEstado,1);renderAdminEstados();}
+  });
+
+  var addOp=document.getElementById('adm-add-operario');
+  if(addOp)addOp.addEventListener('click',function(){
+    collectAdminToCfg();
+    CFG.operarios.push({codigo:'',nombre:''});
+    renderAdminOperarios();
+  });
+  var addIns=document.getElementById('adm-add-instalador');
+  if(addIns)addIns.addEventListener('click',function(){
+    collectAdminToCfg();
+    CFG.instaladores=CFG.instaladores||[];
+    CFG.instaladores.push('');
+    renderAdminInstaladores();
+  });
+  var opHost=document.getElementById('adm-operarios');
+  if(opHost)opHost.addEventListener('click',function(e){
+    var del=e.target.closest('[data-del-operario]');
+    if(del){collectAdminToCfg();CFG.operarios.splice(+del.dataset.delOperario,1);renderAdminOperarios();}else{var delIns=t.closest('[data-del-instalador]');if(delIns){collectAdminToCfg();CFG.instaladores.splice(+delIns.dataset.delInstalador,1);renderAdminInstaladores();}}
+  });
+
+  ['rl','pag'].forEach(function(key){
+    var field=key==='rl'?'recoge_lleva':'pagada';
+    var addBtn=document.getElementById('adm-add-'+key);
+    if(addBtn)addBtn.addEventListener('click',function(){
+      collectAdminToCfg();
+      CFG.dropdowns[field]=CFG.dropdowns[field]||[];
+      CFG.dropdowns[field].push('');
+      renderAdminDropdowns();
+    });
+    var host=document.getElementById('adm-'+key);
+    if(host)host.addEventListener('click',function(e){
+      var del=e.target.closest('[data-del-dd]');
+      if(del){collectAdminToCfg();CFG.dropdowns[del.dataset.delField].splice(+del.dataset.delDd,1);renderAdminDropdowns();}
+    });
+  });
+
+  var saveBtn=document.getElementById('adm-save');
+  if(saveBtn)saveBtn.addEventListener('click',function(){
+    collectAdminToCfg();
+    saveConfig();
+    applyConfig();
+    if(cuaLoaded)cuaRenderTable();
+    toast('Configuración guardada ✓','success');
+  });
+
+  var resetBtn=document.getElementById('adm-reset');
+  if(resetBtn)resetBtn.addEventListener('click',function(){
+    if(!confirm('¿Restablecer toda la configuración a los valores por defecto?'))return;
+    resetConfig();
+    applyConfig();
+    if(cuaLoaded)cuaRenderTable();
+    renderAdmin();
+    toast('Configuración restablecida','success');
+  });
+}
+
+/* ===== EVENTS ===== */
+window.addEventListener('load',function(){
+  loadConfig();
+try{refreshInstaladoresDatalist();}catch(_){ }
+  applyConfig();
+  bindAdmin();
+  var navC=document.getElementById('nav-cuadrante');
+  var navA=document.getElementById('nav-admin');
+  if(navC)navC.addEventListener('click',function(){switchView('cuadrante');});
+  if(navA)navA.addEventListener('click',function(){switchView('admin');});
+  var navX=document.getElementById('nav-archivados');
+  if(navX)navX.addEventListener('click',function(){switchView('archivados');});
+  var navI=document.getElementById('nav-informe');
+  if(navI)navI.addEventListener('click',function(){switchView('informe');});
+  var navJ=document.getElementById('nav-ajustes');
+  if(navJ)navJ.addEventListener('click',function(){switchView('ajustes');});
+  var navInst=document.getElementById('nav-instalacion');
+  if(navInst)navInst.addEventListener('click',function(){switchView('instalacion');});
+  var navMed=document.getElementById('nav-medicion');
+  if(navMed)navMed.addEventListener('click',function(){switchView('medicion');});
+
+  document.getElementById('login-btn').addEventListener('click',doLogin);
+  document.getElementById('l-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+  document.getElementById('l-user').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+  document.getElementById('btn-logout').addEventListener('click',doLogout);
+
+  // Restore session
+  try{
+    var saved=localStorage.getItem('jeovent_user')||sessionStorage.getItem('jeovent_user');
+    if(saved){
+      currentUser=JSON.parse(saved);
+      try{localStorage.setItem('jeovent_user',saved);}catch(_){}
+      document.getElementById('user-name').textContent=currentUser.nombre||currentUser.username;
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='flex';
+      loadData();
+    }
+  }catch(e){try{localStorage.removeItem('jeovent_user');}catch(_){}}
+
+  document.querySelectorAll('.cua-period-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.cua-period-btn').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      cuaPeriod=this.dataset.p;cuaOffset=0;renderCuadrante();
+    });
+  });
+  document.getElementById('cua-prev').addEventListener('click',function(){cuaOffset--;renderCuadrante();});
+  document.getElementById('cua-next').addEventListener('click',function(){cuaOffset++;renderCuadrante();});
+  document.getElementById('cua-hoy').addEventListener('click',function(){cuaOffset=0;renderCuadrante();});
+  document.getElementById('cua-search').addEventListener('input',renderCuadrante);
+  document.getElementById('cua-add-row').addEventListener('click',cuaAddRow);
+  // Click pe header pentru sortare
+  document.querySelectorAll('#cua-table thead th[id^="th-"]').forEach(function(th){
+    th.style.cursor='pointer';
+    th.title='Click pentru a sorta dupa aceasta coloana';
+    th.addEventListener('click',function(){
+      var col=this.id.replace('th-','');
+      if(cuaSortBy===col){cuaSortDir=cuaSortDir==='asc'?'desc':'asc';}
+      else{cuaSortBy=col;cuaSortDir='asc';}
+      renderCuadrante();
+    });
+  });
+  // INFORME CUADRANTE button + modal
+  var bInf=document.getElementById('cua-informe');
+  if(bInf)bInf.addEventListener('click',openCuaInformeModal);
+  var bAju=document.getElementById('aju-informe');
+  if(bAju)bAju.addEventListener('click',openCuaInformeModal);
+  var iCl=document.getElementById('cua-inf-close');if(iCl)iCl.addEventListener('click',closeCuaInformeModal);
+  var iCa=document.getElementById('cua-inf-cancel');if(iCa)iCa.addEventListener('click',closeCuaInformeModal);
+  var iOv=document.getElementById('cua-inf-overlay');if(iOv)iOv.addEventListener('click',function(e){
+    var pop=document.getElementById('cua-inf-popover');
+    if(pop&&pop.contains(e.target))return;
+    closeCuaInformeModal();
+  });
+  document.querySelectorAll('[data-cuainf-preset]').forEach(function(b){
+    b.addEventListener('click',function(){_cuaInfApplyPreset(this.dataset.cuainfPreset);});
+  });
+  ['cua-inf-desde','cua-inf-hasta'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.addEventListener('change',_cuaInfUpdateSummary);
+  });
+  // Live update summary cand bifezi/debifezi coloane
+  var cb=document.getElementById('cua-inf-cols');
+  if(cb)cb.addEventListener('change',_cuaInfUpdateSummary);
+  var iAll=document.getElementById('cua-inf-all');
+  if(iAll)iAll.addEventListener('click',function(){document.querySelectorAll('#cua-inf-cols input').forEach(function(c){c.checked=true;});_cuaInfUpdateSummary();});
+  var iNo=document.getElementById('cua-inf-none');
+  if(iNo)iNo.addEventListener('click',function(){document.querySelectorAll('#cua-inf-cols input').forEach(function(c){c.checked=false;});_cuaInfUpdateSummary();});
+  var iEx=document.getElementById('cua-inf-excel');if(iEx)iEx.addEventListener('click',exportCuaInformeExcel);
+  var iPd=document.getElementById('cua-inf-pdf');if(iPd)iPd.addEventListener('click',exportCuaInformePDF);
+  document.getElementById('cua-save-all').addEventListener('click',cuaSaveAll);
+  cuaInitColResize();
+});
+
+/* ===== COLUMN RESIZE (Excel-style) ===== */
+var CUA_COL_WIDTHS_KEY='jeovent_cua_col_widths_v1';
+function cuaLoadColWidths(){try{return JSON.parse(localStorage.getItem(CUA_COL_WIDTHS_KEY)||'{}');}catch(_){return{};}}
+function cuaSaveColWidths(o){try{localStorage.setItem(CUA_COL_WIDTHS_KEY,JSON.stringify(o));}catch(_){}}
+function cuaApplyColWidths(){
+  var w=cuaLoadColWidths();
+  Object.keys(w).forEach(function(id){
+    var th=document.getElementById(id);
+    if(th){th.style.width=w[id]+'px';th.style.minWidth=w[id]+'px';th.style.maxWidth=w[id]+'px';}
+  });
+}
+function cuaInitColResize(){
+  var ths=document.querySelectorAll('#cua-table thead th[id^="th-"]');
+  ths.forEach(function(th){
+    if(th.querySelector('.col-resize'))return;
+    var handle=document.createElement('div');
+    handle.className='col-resize';
+    handle.title='Arrastrar para redimensionar';
+    th.appendChild(handle);
+    handle.addEventListener('mousedown',function(ev){
+      ev.preventDefault();ev.stopPropagation();
+      var startX=ev.clientX;
+      var startW=th.getBoundingClientRect().width;
+      handle.classList.add('dragging');
+      document.body.classList.add('col-resizing');
+      function onMove(e){
+        var dx=e.clientX-startX;
+        var newW=Math.max(40,Math.round(startW+dx));
+        th.style.width=newW+'px';
+        th.style.minWidth=newW+'px';
+        th.style.maxWidth=newW+'px';
+      }
+      function onUp(e){
+        document.removeEventListener('mousemove',onMove);
+        document.removeEventListener('mouseup',onUp);
+        handle.classList.remove('dragging');
+        document.body.classList.remove('col-resizing');
+        var w=cuaLoadColWidths();
+        w[th.id]=Math.round(th.getBoundingClientRect().width);
+        cuaSaveColWidths(w);
+      }
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+    /* Dublu-click reseteaza coloana */
+    handle.addEventListener('dblclick',function(ev){
+      ev.preventDefault();ev.stopPropagation();
+      th.style.width='';th.style.minWidth='';th.style.maxWidth='';
+      var w=cuaLoadColWidths();delete w[th.id];cuaSaveColWidths(w);
+    });
+  });
+  cuaApplyColWidths();
+}
+
+/* ===== INFORME ===== */
+var infInited=false;
+function infInit(){
+  /* Configuram doar o data event handlers + valori implicite */
+  if(!infInited){
+    infInited=true;
+    var sel=document.getElementById('inf-periodo');
+    var wMes=document.getElementById('inf-mes-wrap');
+    var wTri=document.getElementById('inf-tri-wrap');
+    var wAnyo=document.getElementById('inf-anyo-wrap');
+    var wCustom=document.getElementById('inf-custom-wrap');
+    function applyPeriodVisibility(){
+      var v=sel.value;
+      wMes.style.display=(v==='mes')?'block':'none';
+      wTri.style.display=(v==='trimestre')?'block':'none';
+      wAnyo.style.display=(v==='anyo')?'block':'none';
+      wCustom.style.display=(v==='custom')?'block':'none';
+    }
+    sel.addEventListener('change',applyPeriodVisibility);
+    /* Pre-completam: luna curenta, anul curent, trim curent */
+    var now=new Date();
+    var y=now.getFullYear();
+    var m=String(now.getMonth()+1).padStart(2,'0');
+    document.getElementById('inf-mes').value=y+'-'+m;
+    document.getElementById('inf-anyo').value=y;
+    document.getElementById('inf-tri-anyo').value=y;
+    var curTri=Math.floor(now.getMonth()/3)+1;
+    document.getElementById('inf-tri').value=String(curTri);
+    /* Default desde-hasta = ultimele 30 zile */
+    var t30=new Date(now.getTime()-30*86400000);
+    document.getElementById('inf-hasta').value=now.toISOString().slice(0,10);
+    document.getElementById('inf-desde').value=t30.toISOString().slice(0,10);
+    document.getElementById('inf-generar').addEventListener('click',infGenerar);
+    applyPeriodVisibility();
+  }
+  /* Auto-genereaza la fiecare deschidere a tab-ului */
+  infGenerar();
+}
+
+function infGetRange(){
+  var v=document.getElementById('inf-periodo').value;
+  var s,e;
+  if(v==='mes'){
+    var mv=document.getElementById('inf-mes').value;
+    if(!mv)return null;
+    var pp=mv.split('-');
+    var yy=parseInt(pp[0],10), mm=parseInt(pp[1],10);
+    s=new Date(yy,mm-1,1,0,0,0,0);
+    e=new Date(yy,mm,0,23,59,59,999);
+  }else if(v==='trimestre'){
+    var t=parseInt(document.getElementById('inf-tri').value,10);
+    var ty=parseInt(document.getElementById('inf-tri-anyo').value,10);
+    if(!t||!ty)return null;
+    var sm=(t-1)*3;
+    s=new Date(ty,sm,1,0,0,0,0);
+    e=new Date(ty,sm+3,0,23,59,59,999);
+  }else if(v==='anyo'){
+    var ay=parseInt(document.getElementById('inf-anyo').value,10);
+    if(!ay)return null;
+    s=new Date(ay,0,1,0,0,0,0);
+    e=new Date(ay,11,31,23,59,59,999);
+  }else{
+    var dv=document.getElementById('inf-desde').value;
+    var hv=document.getElementById('inf-hasta').value;
+    if(!dv||!hv)return null;
+    s=new Date(dv+'T00:00:00');
+    e=new Date(hv+'T23:59:59');
+  }
+  return{start:s,end:e};
+}
+
+function infGenerar(){
+  var rg=infGetRange();
+  if(!rg){toast('Periodo invalido','error');return;}
+  /* Filtram cuaRows (toate, inclusiv archivado) dupa data */
+  var rows=(typeof cuaRows!=='undefined'?cuaRows:[]).filter(function(r){
+    if(r._del)return false;
+    var iso=cuaDateIso(r.fecha);
+    if(!iso)return false;
+    var d=new Date(iso+'T12:00:00');
+    return d>=rg.start && d<=rg.end;
+  });
+  /* KPIs */
+  var totBase=0,totIva=0,totTotal=0,totP1=0,totP2=0,totP3=0,totInst=0,totDeuda=0,totCobrado=0;
+  var byInst={},byEst={};
+  rows.forEach(function(r){
+    var b=cuaParseNum(r.base),i=cuaParseNum(r.iva),t=cuaParseNum(r.total);
+    var p1=cuaParseNum(r.primer_pago),p2=cuaParseNum(r.segundo_pago),p3=cuaParseNum(r.tercer_pago);
+    var ins=cuaParseNum(r.total_instalacion),du=cuaParseNum(r.total_deuda);
+    var cob=p1+p2+p3;
+    totBase+=b;totIva+=i;totTotal+=t;totP1+=p1;totP2+=p2;totP3+=p3;
+    totInst+=ins;totDeuda+=du;totCobrado+=cob;
+    var ki=(r.instaladores||'(sin asignar)').trim()||'(sin asignar)';
+    if(!byInst[ki])byInst[ki]={n:0,t:0,c:0,d:0};
+    byInst[ki].n++;byInst[ki].t+=t;byInst[ki].c+=cob;byInst[ki].d+=du;
+    var ke=(r.estado||'(sin estado)').trim()||'(sin estado)';
+    if(!byEst[ke])byEst[ke]={n:0,t:0,c:0,d:0};
+    byEst[ke].n++;byEst[ke].t+=t;byEst[ke].c+=cob;byEst[ke].d+=du;
+  });
+  document.getElementById('inf-cobrado').textContent=cuaFmtNum(totCobrado)||'0 €';
+  document.getElementById('inf-deuda').textContent=cuaFmtNum(totDeuda)||'0 €';
+  document.getElementById('inf-total').textContent=cuaFmtNum(totTotal)||'0 €';
+  document.getElementById('inf-base').textContent=cuaFmtNum(totBase)||'0 €';
+  document.getElementById('inf-inst').textContent=cuaFmtNum(totInst)||'0 €';
+  document.getElementById('inf-num').textContent=String(rows.length);
+  /* Desglose instaladores */
+  var tbI=document.querySelector('#inf-instaladores tbody');
+  var keysI=Object.keys(byInst).sort(function(a,b){return byInst[b].t-byInst[a].t;});
+  tbI.innerHTML=keysI.length?keysI.map(function(k){
+    var x=byInst[k];
+    return'<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:6px 8px">'+esc(k)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px">'+x.n+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.t)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;color:#10b981;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.c)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;color:#ef4444;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.d)+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:14px;color:#9ca3af">Sin datos</td></tr>';
+  /* Desglose estados */
+  var tbE=document.querySelector('#inf-estados tbody');
+  var keysE=Object.keys(byEst).sort(function(a,b){return byEst[b].t-byEst[a].t;});
+  tbE.innerHTML=keysE.length?keysE.map(function(k){
+    var x=byEst[k];
+    return'<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:6px 8px">'+esc(k)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px">'+x.n+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.t)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;color:#10b981;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.c)+'</td>'
+      +'<td style="text-align:right;padding:6px 8px;color:#ef4444;font-family:IBM Plex Mono,monospace">'+cuaFmtNum(x.d)+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:14px;color:#9ca3af">Sin datos</td></tr>';
+  document.getElementById('inf-resultado').style.display='block';
+}
+
+/* ===== AJUSTES ===== */
+function ajuRender(){
+  var tb=document.getElementById('aju-tbody');
+  var emp=document.getElementById('aju-empty');
+  var rows=(typeof cuaRows!=='undefined'?cuaRows:[]).filter(function(r){
+    return r.ajuste===true && !r._del;
+  });
+  if(!rows.length){
+    tb.innerHTML='';
+    emp.style.display='block';
+    document.getElementById('aju-tbl-wrap').style.display='none';
+    return;
+  }
+  emp.style.display='none';
+  document.getElementById('aju-tbl-wrap').style.display='block';
+  /* Sortam descrescator dupa data */
+  rows.sort(function(a,b){
+    var da=cuaDateIso(a.fecha)||'';
+    var db=cuaDateIso(b.fecha)||'';
+    return db.localeCompare(da);
+  });
+  tb.innerHTML=rows.map(function(r){
+    var estCls=cuaEstadoCls(r.estado||'');
+    var estLbl=r.estado||'-';
+    var deuda=cuaParseNum(r.total_deuda);
+    var deudaCls=deuda>0?'color:#ef4444;font-weight:700':'color:#10b981;font-weight:600';
+    return'<tr class="'+estCls+'" style="border-bottom:1px solid #e5e7eb">'
+      +'<td style="padding:7px 8px">'+esc(r.cliente||'-')+'</td>'
+      +'<td style="padding:7px 8px;color:#6b7280">'+esc(r.direccion||'-')+'</td>'
+      +'<td style="padding:7px 8px;text-align:center">'+esc(r.presupuesto||'-')+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;font-family:IBM Plex Mono,monospace">'+esc(cuaDateVal(r.fecha||'')||'-')+'</td>'
+      +'<td style="padding:7px 8px;text-align:right;font-family:IBM Plex Mono,monospace">'+esc(cuaFmtNum(cuaParseNum(r.total)))+'</td>'
+      +'<td style="padding:7px 8px;text-align:right;font-family:IBM Plex Mono,monospace;'+deudaCls+'">'+esc(cuaFmtNum(deuda))+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;font-size:11px;text-transform:uppercase">'+esc(estLbl)+'</td>'
+      +'<td style="padding:7px 8px;color:#374151">'+esc(r.observaciones||'')+'</td>'
+      +'<td style="padding:7px 8px;text-align:center"><button class="aju-quitar" data-rid="'+esc(r._id)+'" style="border:none;background:#ef4444;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px">Quitar</button></td>'
+      +'</tr>';
+  }).join('');
+  /* Bind buton "Quitar" */
+  tb.querySelectorAll('.aju-quitar').forEach(function(btn){
+    btn.addEventListener('click',async function(ev){
+      ev.preventDefault();
+      var rid=this.dataset.rid;
+      var row=cuaRows.find(function(r){return r._id===rid;});
+      if(!row)return;
+      btn.disabled=true;btn.textContent='...';
+      row.ajuste=false;
+      setSyncState('syncing');
+      try{
+        var res=await cuaSaveOne(row);
+        if(res.ok){
+          setSyncState('ok');
+          toast('Quitada de Ajustes','success');
+          ajuRender();
+          /* Daca tabela cuadrante e vizibila, refresam butoanele */
+          if(cuaView==='cuadrante'||cuaView==='archivados'){cuaRenderTable();}
+        }else{
+          setSyncState('error');
+          row.ajuste=true;
+          btn.disabled=false;btn.textContent='Quitar';
+          toast('Error al guardar','error');
+        }
+      }catch(exQ){
+        setSyncState('error');
+        row.ajuste=true;
+        btn.disabled=false;btn.textContent='Quitar';
+        console.error('aju quitar FAIL',exQ);
+      }
+    });
+  });
+}
+
+
+/* ===== ARCHIVE MASIVAMENTE ===== */
+function _archGetExcluded(){
+  var mes = +document.getElementById('cua-arch-mes').value;
+  var ano = +document.getElementById('cua-arch-ano').value;
+  if(!mes || !ano) return null;
+  return { mes: mes, ano: ano };
+}
+function _archMatches(row, sel){
+  if(!row || !sel) return false;
+  var isoFecha = cuaDateIso(row.fecha || '');
+  if(!isoFecha) return false; // fara fecha, NU se archiveaza (siguranta)
+  var parts = isoFecha.split('-');
+  if(parts.length !== 3) return false;
+  var rowAno = +parts[0], rowMes = +parts[1];
+  return !(rowAno === sel.ano && rowMes === sel.mes);
+}
+function _archCountToArchive(){
+  var sel = _archGetExcluded();
+  var preview = document.getElementById('cua-arch-preview');
+  var btn = document.getElementById('cua-arch-go');
+  if(!sel){
+    preview.innerHTML = 'Selecciona mes y año para ver el conteo.';
+    btn.disabled = true; return;
+  }
+  var candidates = cuaRows.filter(function(r){
+    if(!r || r._del) return false;
+    if((r.estado||'') === 'archivado') return false; // ya archivado
+    return _archMatches(r, sel);
+  });
+  var mesNames = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  preview.innerHTML = '<b>'+candidates.length+'</b> filas se archivaran (todas las que NO sean de <b>'+mesNames[sel.mes]+' '+sel.ano+'</b>).' +
+    (candidates.length ? '<br><small style="color:#374151">Las filas sin fecha NO se tocan.</small>' : '');
+  btn.disabled = candidates.length === 0;
+  btn.textContent = candidates.length ? ('Archivar '+candidates.length+' filas') : 'Nada que archivar';
+  return candidates;
+}
+function openArchBulkModal(){
+  var ov = document.getElementById('cua-arch-overlay');
+  if(!ov) return;
+  // Populeaza dropdown-urile mes/ano
+  var mesNames = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var d = new Date();
+  var curMes = d.getMonth() + 1;
+  var curAno = d.getFullYear();
+  var mesSel = document.getElementById('cua-arch-mes');
+  mesSel.innerHTML = '';
+  for(var m=1;m<=12;m++){
+    var op = document.createElement('option');
+    op.value = m; op.textContent = mesNames[m] + ' ('+String(m).padStart(2,'0')+')';
+    if(m === curMes) op.selected = true;
+    mesSel.appendChild(op);
+  }
+  var anoSel = document.getElementById('cua-arch-ano');
+  anoSel.innerHTML = '';
+  // Anii: ultimii 5 + viitor 2
+  var anos = {};
+  cuaRows.forEach(function(r){
+    var iso = cuaDateIso(r.fecha||''); if(!iso) return;
+    var y = +iso.split('-')[0]; if(y > 1990 && y < 2100) anos[y] = true;
+  });
+  anos[curAno] = true; anos[curAno-1] = true;
+  Object.keys(anos).sort().reverse().forEach(function(y){
+    var op = document.createElement('option');
+    op.value = y; op.textContent = y;
+    if(+y === curAno) op.selected = true;
+    anoSel.appendChild(op);
+  });
+  ov.style.display = 'flex';
+  _archCountToArchive();
+}
+function closeArchBulkModal(){ document.getElementById('cua-arch-overlay').style.display = 'none'; }
+
+async function _archRunBulk(){
+  var sel = _archGetExcluded();
+  if(!sel) return;
+  var candidates = cuaRows.filter(function(r){
+    if(!r || r._del) return false;
+    if((r.estado||'') === 'archivado') return false;
+    return _archMatches(r, sel);
+  });
+  if(!candidates.length) return;
+  if(!confirm('¿Confirmas archivar '+candidates.length+' filas? (Se pueden recuperar desde la pestaña Archivados)')) return;
+
+  var btn = document.getElementById('cua-arch-go');
+  btn.disabled = true;
+  setSyncState('syncing');
+  var ok = 0, err = 0, firstErr = null;
+
+  // Pentru randurile cu _dbId, PATCH direct
+  // Pentru randurile fara _dbId (din factura/presupuesto, nesalvate), facem save complet
+  for(var i = 0; i < candidates.length; i++){
+    var row = candidates[i];
+    try{
+      row.estado = 'archivado';
+      if(row._dbId){
+        await sbFetch('PATCH', 'cuadrante', { estado: 'archivado' }, 'id=eq.'+row._dbId);
+      }else{
+        var res = await cuaSaveOne(row);
+        if(!res.ok) throw (res.err || new Error('save failed'));
+      }
+      row._dirty = false;
+      ok++;
+      btn.textContent = 'Archivando... '+ok+'/'+candidates.length;
+    }catch(e){
+      err++;
+      if(!firstErr) firstErr = e;
+      console.error('[archive] row fail', row._id, e);
+    }
+  }
+
+  setSyncState(err ? 'error' : 'ok');
+  if(err){
+    toast('Archivadas: '+ok+'. Errores: '+err+(firstErr ? '. '+((firstErr.message||firstErr)) : ''), 'error', 6000);
+  }else{
+    toast('✓ '+ok+' filas archivadas correctamente', 'success', 3000);
+  }
+  closeArchBulkModal();
+  if(typeof loadData === 'function') loadData();
+}
+
+(function bindArchBulk(){
+  function init(){
+    var b = document.getElementById('cua-archive-bulk');
+    if(!b) return;
+    b.addEventListener('click', openArchBulkModal);
+    document.getElementById('cua-arch-close').addEventListener('click', closeArchBulkModal);
+    document.getElementById('cua-arch-cancel').addEventListener('click', closeArchBulkModal);
+    document.getElementById('cua-arch-overlay').addEventListener('click', function(e){ if(e.target === this) closeArchBulkModal(); });
+    document.getElementById('cua-arch-mes').addEventListener('change', _archCountToArchive);
+    document.getElementById('cua-arch-ano').addEventListener('change', _archCountToArchive);
+    document.getElementById('cua-arch-go').addEventListener('click', _archRunBulk);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+
+/* SINGLE GLOBAL scroll listener — repozitioneaza orice .cua-ac-list deschis */
+(function(){
+  function repositionOpenList(){
+    var open = document.querySelector('.cua-ac-list.open');
+    if(!open) return;
+    var safeId = open.id;
+    // Cauta input-ul corespondent dupa safeId
+    var inp = document.querySelector('input.cua-ac-input,input.cua-pres-ac,input.cua-fac-ac,input.cua-obra-ac');
+    // Mai sigur: gaseste input-ul focused (din care a venit deschiderea)
+    var focused = document.activeElement;
+    if(focused && focused.tagName === 'INPUT'){
+      var rect = focused.getBoundingClientRect();
+      open.style.top = (rect.bottom + 2) + 'px';
+      open.style.left = rect.left + 'px';
+      open.style.width = Math.max(280, rect.width * 2) + 'px';
+    }
+  }
+  function init(){
+    var wrap = document.getElementById('cua-table');
+    if(!wrap) return;
+    wrap = wrap.closest('.table-wrap');
+    if(!wrap) return;
+    wrap.addEventListener('scroll', repositionOpenList, {passive:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+/* ===== REALTIME SYNC (adaugat automat) ===== */
+(function initRealtime(){
+  if(typeof supabase==="undefined"||!supabase.createClient){console.warn("[Realtime] supabase-js lipseste");return;}
+  // Tracking pentru ultima tastare — folosit la realtime defer
+  document.addEventListener('input', function(){ window._lastInputAt = Date.now(); }, true);
+  document.addEventListener('keydown', function(){ window._lastInputAt = Date.now(); }, true);
+
+  var _sbRT=supabase.createClient(SB_URL,SB_KEY);
+  var _rtTimer=null;
+  function _rtHasDrafts(){
+    try{
+      if(typeof cuaRows!=='undefined' && Array.isArray(cuaRows)){
+        for(var i=0;i<cuaRows.length;i++){
+          if(cuaRows[i] && (cuaRows[i]._new||cuaRows[i]._dirty))return true;
+        }
+      }
+    }catch(_){}
+    return false;
+  }
+  function _rtIsEditing(){
+    try{
+      var a=document.activeElement;
+      if(!a)return false;
+      var tn=a.tagName;
+      if(tn==='INPUT'||tn==='TEXTAREA'||tn==='SELECT')return true;
+      if(a.isContentEditable)return true;
+    }catch(_){}
+    return false;
+  }
+  function _rtTrigger(tbl){
+    try{if(typeof setSyncState==="function")setSyncState("syncing");}catch(_){}
+    if(_rtTimer)clearTimeout(_rtTimer);
+    _rtTimer=setTimeout(function _rtReload(){
+      // STRICT: cat timp exista DRAFTS sau focus pe orice input → NU reload deloc
+      // Verifica iar dupa 3 secunde
+      if(_rtIsEditing() || _rtHasDrafts()){
+        if(_rtTimer)clearTimeout(_rtTimer);
+        _rtTimer=setTimeout(_rtReload, 3000);
+        return;
+      }
+      // Plus: NU reload daca utilizatorul a apasat o tasta in ultimele 5 secunde
+      var lastTyped = +(window._lastInputAt || 0);
+      if(Date.now() - lastTyped < 5000){
+        if(_rtTimer)clearTimeout(_rtTimer);
+        _rtTimer=setTimeout(_rtReload, 3000);
+        return;
+      }
+      try{if(typeof loadData==="function")loadData();}catch(e){console.error("[Realtime] loadData failed",e);}
+      try{if(typeof setSyncState==="function")setSyncState("ok");}catch(_){}
+    },1500);
+  }
+  var TABLES=['cuadrante','presupuestos','clientes','facturas'];
+  var ch=_sbRT.channel("jeovent-sync-"+Math.random().toString(36).slice(2));
+  TABLES.forEach(function(t){
+    ch.on("postgres_changes",{event:"*",schema:"public",table:t},function(p){
+      // Smart update: daca e UPDATE single row pe cuadrante si avem deja randul, doar patch local
+      if(t==='cuadrante' && p.eventType==='UPDATE' && p.new && p.new.id){
+        try{
+          var idx = cuaRows.findIndex(function(r){return r._dbId === p.new.id;});
+          if(idx >= 0 && !cuaRows[idx]._dirty){
+            // Update doar randul afectat — fara reload total
+            Object.keys(p.new).forEach(function(k){
+              if(k === 'id') return;
+              cuaRows[idx][k] = p.new[k];
+            });
+            // Re-randeaza doar acest tr DACA utilizatorul NU are focus in el (fix C3)
+            var tr = document.querySelector('tr[data-rid="'+cuaRows[idx]._id+'"]');
+            if(tr && !tr.contains(document.activeElement)){
+              var rows = Array.from(document.querySelectorAll('#cua-table tbody tr'));
+              var rowIdx = rows.indexOf(tr);
+              tr.outerHTML = cuaRowHTML(cuaRows[idx], rowIdx);
+              var newTr = document.querySelector('tr[data-rid="'+cuaRows[idx]._id+'"]');
+              if(newTr) cuaBindRow(newTr, cuaRows[idx]._id);
+            }
+            // Daca user-ul edita randul, skip render dar updateaza datele in fundal (deja facut mai sus)
+            return;
+          }
+        }catch(eP){console.warn('[rt] inplace update failed, falling back to reload',eP);}
+      }
+      console.log("[Realtime]",t,p.eventType);
+      _rtTrigger(t);
+    });
+  });
+  ch.subscribe(function(status){console.log("[Realtime] channel:",status);});
+  window._jeoventRealtime=ch;
+  // RT_CLEANUP_INSTALLED
+  window.addEventListener('beforeunload', function(){
+    try{ if(_rtTimer) clearTimeout(_rtTimer); }catch(_){}
+    try{ if(ch && typeof ch.unsubscribe==='function') ch.unsubscribe(); }catch(_){}
+    try{ if(_sbRT && typeof _sbRT.removeAllChannels==='function') _sbRT.removeAllChannels(); }catch(_){}
+    window._jeoventRealtime = null;
+  });
+})();
+
+/* ===== IMPORT EXCEL CUADRANTE ===== */
+var _impRows = null;
+var _impHeaders = [];
+var _impMapping = {};
+var _impSelected = {};
+
+var _IMP_FIELD_OPTIONS = [
+  {v:'',            lbl:'(ignorar)'},
+  {v:'cliente',     lbl:'Cliente'},
+  {v:'direccion',   lbl:'Direccion'},
+  {v:'presupuesto', lbl:'N° Presupuesto'},
+  {v:'fecha',       lbl:'Fecha'},
+  {v:'obra',        lbl:'N° Obra'},
+  {v:'base',        lbl:'Base'},
+  {v:'iva',         lbl:'IVA'},
+  {v:'total',       lbl:'Total'},
+  {v:'primer_pago', lbl:'1er pago'},
+  {v:'segundo_pago',lbl:'2° pago'},
+  {v:'tercer_pago', lbl:'3er pago'},
+  {v:'total_instalacion',lbl:'Total instalacion'},
+  {v:'factura',     lbl:'N° Factura'},
+  {v:'total_deuda', lbl:'Total deuda'},
+  {v:'recoge_lleva',lbl:'Recoge / Lleva'},
+  {v:'pagada',      lbl:'Pagada'},
+  {v:'fecha_recogida',lbl:'Fecha recog/inst'},
+  {v:'estado',      lbl:'Estado'},
+  {v:'observaciones',lbl:'Observaciones'},
+  {v:'instaladores',lbl:'Instaladores'}
+];
+
+function _impNormalize(s){
+  return String(s||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[\.\-_\/\\]/g,' ').replace(/\s+/g,' ').trim();
+}
+
+function _impGuessField(header){
+  var h = _impNormalize(header);
+  if(!h) return '';
+  var rules = [
+    [/^(cliente|customer|razon social|nombre cliente)/, 'cliente'],
+    [/^(direccion|domicilio|address|calle)/, 'direccion'],
+    [/^(n[º°o]?\s*presupuesto|presupuesto|presup|nro presup|n presup)/, 'presupuesto'],
+    [/^(n[º°o]?\s*factura|factura|invoice|nro fac|n fac)/, 'factura'],
+    [/^(n[º°o]?\s*obra|obra|job|trabajo)\b/, 'obra'],
+    [/(fecha.*(recog|inst|entrega))/, 'fecha_recogida'],
+    [/^fecha\b/, 'fecha'],
+    [/^(base|subtotal|sin iva|importe sin iva|s\/iva)$/, 'base'],
+    [/^(iva|igic)\b/, 'iva'],
+    [/^(total ?inst|total instalacion|total instal)/, 'total_instalacion'],
+    [/^(total ?deuda|deuda|pendiente|saldo)/, 'total_deuda'],
+    [/^(total(?! ?inst)(?! ?deuda))/, 'total'],
+    [/(1er|primer|^1\s|pago 1)/, 'primer_pago'],
+    [/(2[oa]?|segundo|^2\s|pago 2)/, 'segundo_pago'],
+    [/(3er|tercer|^3\s|pago 3)/, 'tercer_pago'],
+    [/(recoge|lleva)/, 'recoge_lleva'],
+    [/(pagada|paid|estado pago)/, 'pagada'],
+    [/^(estado|status)$/, 'estado'],
+    [/(observ|notas|comentar|obs)/, 'observaciones'],
+    [/(instalad|operari)/, 'instaladores']
+  ];
+  for(var i=0;i<rules.length;i++){
+    if(rules[i][0].test(h)) return rules[i][1];
+  }
+  return '';
+}
+
+function _impExcelDateToStr(v){
+  if(typeof v === 'number'){
+    var d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    if(!isNaN(d)){
+      return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear();
+    }
+  }
+  var s = String(v||'').trim();
+  if(!s) return '';
+  var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  m = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  if(m){
+    var y = m[3]; if(y.length===2) y = '20'+y;
+    return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+y;
+  }
+  return s;
+}
+
+function _impConvertValue(field, raw){
+  if(field === 'fecha' || field === 'fecha_recogida') return _impExcelDateToStr(raw);
+  return String(raw == null ? '' : raw).trim();
+}
+
+function openImportCuaModal(){
+  document.getElementById('cua-imp-overlay').style.display = 'flex';
+  document.getElementById('cua-imp-file').value = '';
+  document.getElementById('cua-imp-info').textContent = '';
+  document.getElementById('cua-imp-body').innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:30px;text-align:center">Selecciona un archivo .xlsx, .xls o .csv para previsualizar...</div>';
+  document.getElementById('cua-imp-go').disabled = true;
+  _impRows = null; _impHeaders = []; _impMapping = {}; _impSelected = {};
+}
+function closeImportCuaModal(){
+  document.getElementById('cua-imp-overlay').style.display = 'none';
+}
+
+function _impReadFile(file){
+  return new Promise(function(resolve, reject){
+    var rd = new FileReader();
+    rd.onload = function(e){
+      try{
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, {type:'array', cellDates:false});
+        var sheetName = wb.SheetNames[0];
+        var ws = wb.Sheets[sheetName];
+        var aoa = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:true});
+        resolve(aoa);
+      }catch(err){ reject(err); }
+    };
+    rd.onerror = function(){ reject(rd.error); };
+    rd.readAsArrayBuffer(file);
+  });
+}
+
+function _impDetectHeaderRow(aoa){
+  for(var i=0;i<Math.min(aoa.length,15);i++){
+    var row = aoa[i] || [];
+    var nonEmpty = row.filter(function(c){return String(c||'').trim()!=='';});
+    if(nonEmpty.length < 3) continue;
+    var strCnt = nonEmpty.filter(function(c){return typeof c === 'string';}).length;
+    if(strCnt >= nonEmpty.length * 0.6) return i;
+  }
+  return 0;
+}
+
+function _impBuildPreview(){
+  var body = document.getElementById('cua-imp-body');
+  if(!_impRows || !_impRows.length){
+    body.innerHTML = '<div style="color:#dc2626">Archivo vacio o no se pudo leer.</div>';
+    return;
+  }
+  var hdrRow = _impDetectHeaderRow(_impRows);
+  _impHeaders = (_impRows[hdrRow] || []).map(function(h){return String(h||'').trim();});
+  var dataRows = _impRows.slice(hdrRow+1).filter(function(r){
+    return r && r.some(function(c){return String(c||'').trim() !== '';});
+  });
+  _impMapping = {};
+  _impHeaders.forEach(function(h, i){ _impMapping[i] = _impGuessField(h); });
+  _impSelected = {};
+  dataRows.forEach(function(_, i){ _impSelected[i] = true; });
+
+  // Statistici detectate
+  var mappedCount = 0, ignoredCount = 0;
+  _impHeaders.forEach(function(_, i){ if(_impMapping[i]) mappedCount++; else ignoredCount++; });
+
+  document.getElementById('cua-imp-info').innerHTML =
+    '<div style="background:#dbeafe;border:1px solid #1a4fa0;border-radius:6px;padding:10px 12px;color:#1a4fa0;font-size:13px">' +
+    '<b>✓ Vista previa generada:</b><br>' +
+    '&nbsp;&nbsp;&bull; Encabezado detectado en fila <b>'+(hdrRow+1)+'</b><br>' +
+    '&nbsp;&nbsp;&bull; <b>'+_impHeaders.length+'</b> columnas en total &mdash; <b style="color:#059669">'+mappedCount+' identificadas</b> automaticamente'+(ignoredCount?' (<b style="color:#9ca3af">'+ignoredCount+' sin mapear</b>)':'')+'<br>' +
+    '&nbsp;&nbsp;&bull; <b>'+dataRows.length+'</b> filas de datos detectadas &mdash; todas marcadas para importar' +
+    '</div>';
+
+  var html = '';
+
+  // Header bar cu controale globale
+  html += '<div style="display:flex;gap:10px;align-items:center;background:#fefce8;border:1px solid #fde047;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:12px;font-weight:600;color:#92400e">' +
+    '<span style="font-size:14px">📋</span>' +
+    '<span>PREVIEW &mdash; revisa abajo y desmarca lo que NO quieres importar</span>' +
+    '<div style="margin-left:auto;display:flex;gap:6px">' +
+      '<button id="cua-imp-selall" class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px">Seleccionar todas</button>' +
+      '<button id="cua-imp-selnone" class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px">Deseleccionar todas</button>' +
+      '<button id="cua-imp-toghide" class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px">Ocultar columnas sin mapear</button>' +
+    '</div>' +
+  '</div>';
+
+  // Live counter
+  html += '<div id="cua-imp-count" style="text-align:right;padding:4px 6px;font-size:12px;color:#374151;font-weight:600">' +
+    'Seleccionadas: <span id="cua-imp-cnt">'+dataRows.length+'</span> / '+dataRows.length+
+  '</div>';
+
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+  html += '<thead><tr>';
+  html += '<th style="padding:6px;background:#eef2ff;border:1px solid #e5e7eb;width:30px;position:sticky;top:0;z-index:2"><input type="checkbox" id="cua-imp-all" checked></th>';
+  _impHeaders.forEach(function(h, i){
+    var hasMap = !!_impMapping[i];
+    var bg = hasMap ? '#dcfce7' : '#fef3c7';
+    var col = hasMap ? '#166534' : '#92400e';
+    html += '<th data-impcolhdr="'+i+'" style="padding:6px;background:'+bg+';color:'+col+';border:1px solid #e5e7eb;position:sticky;top:0;z-index:2">'+esc(h||'(sin nombre)')+'</th>';
+  });
+  html += '</tr></thead><tbody>';
+  // Row 2: mapare cu vizualizare in functie de match
+  html += '<tr style="background:#fefce8">';
+  html += '<td style="padding:4px;border:1px solid #e5e7eb;text-align:center;color:#9ca3af">⇩ a:</td>';
+  _impHeaders.forEach(function(h, i){
+    var cur = _impMapping[i] || '';
+    html += '<td data-impmapcell="'+i+'" style="padding:2px;border:1px solid #e5e7eb"><select data-impcol="'+i+'" style="width:100%;padding:4px;border:1px solid #d1d5db;border-radius:4px;font-size:11px">';
+    _IMP_FIELD_OPTIONS.forEach(function(o){
+      html += '<option value="'+o.v+'"'+(o.v===cur?' selected':'')+'>'+esc(o.lbl)+'</option>';
+    });
+    html += '</select></td>';
+  });
+  html += '</tr>';
+  var maxShow = dataRows.length;  // afiseaza TOATE randurile
+  function _fmtCell(v, field){
+    if(v == null) return '';
+    // Pentru date — converteste serial Excel sau text → DD/MM/YYYY
+    if(field === 'fecha' || field === 'fecha_recogida'){
+      var s = _impExcelDateToStr(v);
+      return s || String(v);
+    }
+    return String(v);
+  }
+  for(var r=0;r<maxShow;r++){
+    var dr = dataRows[r];
+    html += '<tr data-improw-tr="'+r+'">';
+    html += '<td style="padding:4px;border:1px solid #f3f4f6;text-align:center"><input type="checkbox" data-improw="'+r+'" checked></td>';
+    for(var c=0;c<_impHeaders.length;c++){
+      var v = dr[c];
+      var fld = _impMapping[c] || '';
+      var displayed = _fmtCell(v, fld);
+      html += '<td data-impcolcell="'+c+'" data-impraw="'+esc(String(v==null?'':v))+'" style="padding:4px 6px;border:1px solid #f3f4f6;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis">'+esc(displayed)+'</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  // (afisam toate randurile)
+  body.innerHTML = html;
+  body._impData = dataRows;
+
+  function updateCount(){
+    var c = 0;
+    body.querySelectorAll('input[data-improw]').forEach(function(cb){ if(cb.checked) c++; });
+    var total = dataRows.length;
+    // Adauga si randurile ascunse (selectate dar nu in DOM)
+    Object.keys(_impSelected).forEach(function(k){
+      var idx = +k;
+      if(idx >= maxShow && _impSelected[idx]) c++;
+    });
+    var el = document.getElementById('cua-imp-cnt');
+    if(el) el.textContent = c;
+  }
+
+  body.querySelectorAll('select[data-impcol]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var i = +this.dataset.impcol;
+      var newField = this.value;
+      _impMapping[i] = newField;
+      // Coloreaza header-ul de coloana
+      var th = body.querySelector('th[data-impcolhdr="'+i+'"]');
+      if(th){
+        var hasMap = !!newField;
+        th.style.background = hasMap ? '#dcfce7' : '#fef3c7';
+        th.style.color = hasMap ? '#166534' : '#92400e';
+      }
+      // Re-converteste valorile vizibile din aceasta coloana (ex: serial Excel → DD/MM/YYYY)
+      body.querySelectorAll('td[data-impcolcell="'+i+'"]').forEach(function(td){
+        var rawAttr = td.getAttribute('data-impraw');
+        var rawVal = rawAttr == null ? '' : rawAttr;
+        // Recompune valoarea de afisat dupa noul mapping
+        var displayed = rawVal;
+        if(newField === 'fecha' || newField === 'fecha_recogida'){
+          // Daca raw e un numar (Excel serial), interpreteaza-l
+          var asNum = parseFloat(rawVal);
+          if(!isNaN(asNum) && /^\d+(\.\d+)?$/.test(rawVal.trim())){
+            displayed = _impExcelDateToStr(asNum);
+          }else{
+            displayed = _impExcelDateToStr(rawVal);
+          }
+        }
+        td.textContent = displayed;
+      });
+    });
+  });
+  body.querySelectorAll('input[data-improw]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      _impSelected[+this.dataset.improw] = this.checked;
+      updateCount();
+    });
+  });
+  var allCb = document.getElementById('cua-imp-all');
+  if(allCb) allCb.addEventListener('change', function(){
+    body.querySelectorAll('input[data-improw]').forEach(function(cb){
+      cb.checked = allCb.checked;
+      _impSelected[+cb.dataset.improw] = cb.checked;
+    });
+    for(var i=0;i<dataRows.length;i++) _impSelected[i] = allCb.checked;
+    updateCount();
+  });
+  // Butoane globale
+  var btnSelAll = document.getElementById('cua-imp-selall');
+  if(btnSelAll) btnSelAll.addEventListener('click', function(){
+    body.querySelectorAll('input[data-improw]').forEach(function(cb){ cb.checked = true; });
+    for(var i=0;i<dataRows.length;i++) _impSelected[i] = true;
+    if(allCb) allCb.checked = true;
+    updateCount();
+  });
+  var btnSelNone = document.getElementById('cua-imp-selnone');
+  if(btnSelNone) btnSelNone.addEventListener('click', function(){
+    body.querySelectorAll('input[data-improw]').forEach(function(cb){ cb.checked = false; });
+    for(var i=0;i<dataRows.length;i++) _impSelected[i] = false;
+    if(allCb) allCb.checked = false;
+    updateCount();
+  });
+  var btnTogHide = document.getElementById('cua-imp-toghide');
+  var hidden = false;
+  if(btnTogHide) btnTogHide.addEventListener('click', function(){
+    hidden = !hidden;
+    btnTogHide.textContent = hidden ? 'Mostrar todas las columnas' : 'Ocultar columnas sin mapear';
+    _impHeaders.forEach(function(_, i){
+      if(!_impMapping[i]){
+        var th = body.querySelector('th[data-impcolhdr="'+i+'"]');
+        var tm = body.querySelector('td[data-impmapcell="'+i+'"]');
+        var cells = body.querySelectorAll('td[data-impcolcell="'+i+'"]');
+        if(th) th.style.display = hidden ? 'none' : '';
+        if(tm) tm.style.display = hidden ? 'none' : '';
+        cells.forEach(function(c){ c.style.display = hidden ? 'none' : ''; });
+      }
+    });
+  });
+
+  document.getElementById('cua-imp-go').disabled = false;
+  // Asigura ca butonul are textul corect
+  document.getElementById('cua-imp-go').textContent = 'Importar ' + dataRows.length + ' filas';
+}
+
+async function _impRunImport(){
+  var body = document.getElementById('cua-imp-body');
+  var dataRows = body._impData;
+  if(!dataRows || !dataRows.length){ toast('Nada que importar','error'); return; }
+  var btn = document.getElementById('cua-imp-go');
+  btn.disabled = true; btn.textContent = 'Importando...';
+
+  var toInsert = [];
+  dataRows.forEach(function(dr, i){
+    if(!_impSelected[i]) return;
+    var rec = { id: uid(), created_at: new Date().toISOString() };
+    Object.keys(_impMapping).forEach(function(colIdx){
+      var field = _impMapping[colIdx];
+      if(!field) return;
+      var raw = dr[colIdx];
+      if(field === 'fecha' || field === 'fecha_recogida'){
+        rec[field] = cuaDateIso(_impExcelDateToStr(raw));
+      }else if(['base','iva','total','primer_pago','segundo_pago','tercer_pago','total_instalacion','total_deuda'].indexOf(field)>=0){
+        var n = cuaParseNum(typeof raw === 'number' ? String(raw) : raw);
+        rec[field] = (isNaN(n) || n === 0) ? null : n;
+      }else{
+        var s = String(raw == null ? '' : raw).trim();
+        rec[field] = s || null;
+      }
+    });
+    toInsert.push(rec);
+  });
+
+  if(!toInsert.length){ toast('No hay filas seleccionadas','error'); btn.disabled=false; btn.textContent='Importar filas seleccionadas'; return; }
+
+  setSyncState('syncing');
+  var ok = 0, err = 0, firstErr = null;
+  for(var i = 0; i < toInsert.length; i += 100){
+    var chunk = toInsert.slice(i, i + 100);
+    try{
+      await sbFetch('POST', 'cuadrante', chunk);
+      ok += chunk.length;
+      btn.textContent = 'Importando... '+ok+'/'+toInsert.length;
+    }catch(e){
+      err += chunk.length;
+      if(!firstErr) firstErr = e;
+      console.error('[import] chunk fail',e);
+    }
+  }
+  setSyncState(err ? 'error' : 'ok');
+  if(err){
+    toast('Importacion parcial: '+ok+' ok, '+err+' fallidas. '+((firstErr&&firstErr.message)||''), 'error', 6000);
+  }else{
+    toast('Importadas '+ok+' filas correctamente ✓', 'success', 3000);
+  }
+  btn.disabled = false; btn.textContent = 'Importar filas seleccionadas';
+  closeImportCuaModal();
+  if(typeof loadData === 'function') loadData();
+}
+
+(function bindImport(){
+  function init(){
+    var b = document.getElementById('cua-import');
+    if(!b)return;
+    b.addEventListener('click', openImportCuaModal);
+    document.getElementById('cua-imp-close').addEventListener('click', closeImportCuaModal);
+    document.getElementById('cua-imp-cancel').addEventListener('click', closeImportCuaModal);
+    document.getElementById('cua-imp-overlay').addEventListener('click', function(e){
+      if(e.target === this) closeImportCuaModal();
+    });
+    document.getElementById('cua-imp-file').addEventListener('change', async function(){
+      var f = this.files[0]; if(!f) return;
+      document.getElementById('cua-imp-info').textContent = 'Leyendo '+f.name+'...';
+      try{
+        _impRows = await _impReadFile(f);
+        _impBuildPreview();
+      }catch(e){
+        console.error('import read err',e);
+        document.getElementById('cua-imp-info').textContent = 'Error: '+e.message;
+        document.getElementById('cua-imp-body').innerHTML = '<div style="color:#dc2626;padding:30px;text-align:center">No se pudo leer el archivo: '+esc(e.message)+'</div>';
+      }
+    });
+    document.getElementById('cua-imp-go').addEventListener('click', _impRunImport);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
+<!-- IMPORT CUADRANTE MODAL -->
+<div id="cua-imp-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;width:min(1100px,96vw);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <header style="padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px">
+      <h3 style="margin:0;font-size:16px;color:#111827;flex:1">📥 Importar cuadrante desde Excel</h3>
+      <button id="cua-imp-close" style="border:none;background:#f3f4f6;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
+    </header>
+    <div style="padding:14px 18px;border-bottom:1px solid #f3f4f6">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:8px">Cargar archivo .xlsx, .xls o .csv. La aplicacion detecta automaticamente las columnas (Cliente, Fecha, Total, etc.). Puedes ajustar el mapeo en la fila amarilla antes de importar.</div>
+      <input type="file" id="cua-imp-file" accept=".xlsx,.xls,.csv" style="padding:8px;border:1px dashed #d1d5db;border-radius:6px;width:100%">
+      <div id="cua-imp-info" style="margin-top:8px;font-size:12px;color:#374151"></div>
+    </div>
+    <div style="flex:1;overflow:auto;padding:14px 18px" id="cua-imp-body">
+      <div style="color:#9ca3af;font-size:13px;padding:30px;text-align:center">Selecciona un archivo .xlsx, .xls o .csv para previsualizar...</div>
+    </div>
+    <footer style="padding:12px 18px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end">
+      <button id="cua-imp-cancel" class="btn btn-secondary">Cancelar</button>
+      <button id="cua-imp-go" class="btn btn-success" disabled>Importar filas seleccionadas</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ARCHIVE BULK MODAL -->
+<div id="cua-arch-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;width:min(520px,95vw);box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <header style="padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px">
+      <h3 style="margin:0;font-size:16px;color:#111827;flex:1">📦 Archivar masivamente</h3>
+      <button id="cua-arch-close" style="border:none;background:#f3f4f6;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
+    </header>
+    <div style="padding:18px 20px">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:14px">
+        Se archivaran <b>todas las filas</b> CUYA <b>fecha NO es</b> del mes/año seleccionado.<br>
+        Las filas archivadas siguen disponibles en la pestaña <b>"Archivados"</b>.
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <label style="display:block;font-size:11px;text-transform:uppercase;color:#6b7280;margin-bottom:4px">Mes a CONSERVAR</label>
+          <select id="cua-arch-mes" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></select>
+        </div>
+        <div style="flex:1">
+          <label style="display:block;font-size:11px;text-transform:uppercase;color:#6b7280;margin-bottom:4px">Año a CONSERVAR</label>
+          <select id="cua-arch-ano" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></select>
+        </div>
+      </div>
+      <div id="cua-arch-preview" style="background:#fef3c7;border:1px solid #fde047;border-radius:6px;padding:10px 14px;font-size:13px;color:#92400e">
+        Selecciona mes y año para ver el conteo.
+      </div>
+    </div>
+    <footer style="padding:12px 18px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end">
+      <button id="cua-arch-cancel" class="btn btn-secondary">Cancelar</button>
+      <button id="cua-arch-go" class="btn btn-danger" disabled>Archivar filas</button>
+    </footer>
+  </div>
+</div>
+<script src="historico.js"></script>
+</body>
+</html>

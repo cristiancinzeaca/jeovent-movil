@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Jeovent · Gastos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh;font-size:15px}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e 0%,#1a4fa0 100%);display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:360px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.login-logo{text-align:center;margin-bottom:20px;font-size:28px}
+.login-title{font-size:20px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:#6b7280;text-align:center;margin-bottom:24px}
+.login-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.login-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#6b7280}
+.login-input{background:#f9fafb;border:1px solid #d1d5db;border-radius:8px;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .15s;width:100%}
+.login-input:focus{border-color:#1a4fa0;background:#fff}
+.login-btn{width:100%;padding:12px;background:#1a4fa0;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:6px}
+.login-btn:hover{background:#163d80}
+.login-error{color:#dc2626;font-size:13px;text-align:center;margin-top:8px;display:none}
+.login-loading{color:#6b7280;font-size:13px;text-align:center;margin-top:8px;display:none}
+
+/* HEADER */
+header{background:#1a1a2e;border-bottom:3px solid #1a4fa0;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0}
+.logo{font-weight:700;font-size:16px;color:#fff}
+.logo-sub{font-size:10px;color:#94a3b8;font-weight:400;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-badge{font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;transition:background .3s}
+.sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite}
+.sync-dot.error{background:#ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+nav{display:flex;gap:2px}
+.nav-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;transition:all .15s;background:transparent;color:#94a3b8;text-decoration:none;display:inline-flex;align-items:center}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-btn.active{background:#1a4fa0;color:#fff}
+.nav-btn.nav-link-ext{border:1px solid rgba(255,255,255,.15)}
+.subnav{background:#0f1525;border-bottom:1px solid #1f2940;padding:6px 16px;display:flex;gap:2px;align-items:center;flex-shrink:0;overflow-x:auto;flex-wrap:wrap}
+.subnav .nav-btn{padding:6px 12px;font-size:11px}
+.btn-logout{padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-logout:hover{border-color:#ef4444;color:#ef4444}
+
+/* MAIN */
+main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* TABS */
+.tabs-bar{display:flex;gap:0;border-bottom:2px solid #e5e7eb;background:#fff;flex-shrink:0;padding:0 20px}
+.tab-btn{padding:12px 20px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#6b7280;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab-btn:hover{color:#1a4fa0}
+.tab-btn.active{color:#1a4fa0;border-bottom-color:#1a4fa0;font-weight:600}
+.tab-view{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tab-view.active{display:flex}
+
+/* TOOLBAR */
+.toolbar{padding:10px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #d1d5db;background:#fff;flex-shrink:0;flex-wrap:wrap}
+.search-wrap{flex:1;position:relative;max-width:280px}
+.search-wrap input{padding-left:32px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:13px;pointer-events:none}
+
+/* INPUTS */
+input,select,textarea{background:#f9fafb;border:1px solid #d1d5db;border-radius:7px;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:14px;padding:8px 12px;outline:none;transition:border-color .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:#1a4fa0;background:#fff}
+select option{background:#fff}
+
+/* BUTTONS */
+.btn{padding:8px 14px;border-radius:7px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn-primary{background:#1a4fa0;color:#fff}.btn-primary:hover{background:#163d80}
+.btn-secondary{background:#f9fafb;color:#374151;border:1px solid #d1d5db}.btn-secondary:hover{background:#f3f4f6}
+.btn-danger{background:#fee2e2;color:#dc2626;border:1px solid transparent}.btn-danger:hover{background:#dc2626;color:#fff}
+.btn-success{background:#d1fae5;color:#059669;border:1px solid transparent}.btn-success:hover{background:#059669;color:#fff}
+.btn-warning{background:#fef3c7;color:#d97706;border:1px solid transparent}.btn-warning:hover{background:#d97706;color:#fff}
+.btn-info{background:#e0f2fe;color:#0369a1;border:1px solid transparent}.btn-info:hover{background:#0369a1;color:#fff}
+.btn-sm{padding:5px 9px;font-size:12px}
+.btn-purple{background:#f3e8ff;color:#7c3aed;border:1px solid transparent}.btn-purple:hover{background:#7c3aed;color:#fff}
+
+/* STATS */
+.stat-cards{display:flex;gap:10px;padding:10px 20px;background:#fff;border-bottom:1px solid #d1d5db;flex-shrink:0;flex-wrap:wrap}
+.stat-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px;min-width:110px}
+.stat-card .sv{font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#1a1a2e}
+.stat-card .sl{font-size:11px;color:#6b7280;margin-top:1px}
+.stat-card.danger .sv{color:#dc2626}
+.stat-card.success .sv{color:#059669}
+.stat-card.warning .sv{color:#d97706}
+
+/* TABLE */
+.table-wrap{flex:1;overflow:auto;background:#fff}
+table{width:100%;border-collapse:collapse}
+thead th{background:#f9fafb;border-bottom:2px solid #e5e7eb;padding:10px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;white-space:nowrap;position:sticky;top:0;z-index:2;cursor:pointer;user-select:none}
+thead th:hover{color:#374151}
+tbody tr{border-bottom:1px solid #f3f4f6;transition:background .1s;cursor:pointer}
+tbody tr:hover{background:#eff6ff}
+td{padding:9px 14px;font-size:13px;color:#1a1a2e;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b7280}
+.actions-td{display:flex;gap:4px;justify-content:flex-end}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase}
+.badge-pendiente{background:#fef3c7;color:#d97706}
+.badge-facturado{background:#d1fae5;color:#059669}
+.badge-parcial{background:#e0f2fe;color:#0369a1}
+.badge-pagado{background:#d1fae5;color:#059669}
+.badge-cat{background:#f3f4f6;color:#374151;text-transform:none;font-weight:500}
+
+/* EMPTY STATE */
+.empty-state{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#6b7280;gap:12px}
+.empty-state .ei{font-size:48px}
+.empty-state .et{font-size:16px;font-weight:600;color:#374151}
+.empty-state .es{font-size:13px}
+
+/* COUNT BADGE */
+.count-badge{background:#f3f4f6;border:1px solid #d1d5db;border-radius:20px;padding:3px 10px;font-size:12px;color:#6b7280;white-space:nowrap}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-wide{max-width:720px}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:#1a1a2e}
+.modal-close{background:none;border:none;cursor:pointer;color:#6b7280;font-size:20px;line-height:1;padding:2px 6px;border-radius:4px}
+.modal-close:hover{background:#f3f4f6;color:#1a1a2e}
+.modal-body{padding:20px 24px}
+.modal-foot{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#6b7280}
+
+/* PDF UPLOAD ZONE */
+.pdf-drop-zone{border:2px dashed #d1d5db;border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.pdf-drop-zone:hover,.pdf-drop-zone.drag-over{border-color:#1a4fa0;background:#eff6ff}
+.pdf-drop-zone .pdz-icon{font-size:40px;margin-bottom:8px}
+.pdf-drop-zone .pdz-title{font-size:14px;font-weight:600;color:#374151;margin-bottom:4px}
+.pdf-drop-zone .pdz-sub{font-size:12px;color:#6b7280}
+.pdf-drop-zone input[type=file]{display:none}
+
+/* AI EXTRACTION RESULT */
+.extraction-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-top:12px;display:none}
+.extraction-panel.visible{display:block}
+.ep-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ep-title{font-size:13px;font-weight:700;color:#1a1a2e}
+.ep-badge{font-size:11px;padding:2px 8px;border-radius:12px;font-weight:600}
+.ep-badge.alb{background:#dbeafe;color:#1a4fa0}
+.ep-badge.fac{background:#f3e8ff;color:#7c3aed}
+.ep-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ep-field{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:8px 10px}
+.ep-field .ef-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:2px}
+.ep-field .ef-value{font-size:13px;font-weight:500;color:#1a1a2e}
+.ep-field.full{grid-column:1/-1}
+.ep-lineas{margin-top:10px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
+.ep-lineas table{font-size:12px}
+.ep-lineas thead th{font-size:10px;padding:6px 10px;background:#f3f4f6}
+.ep-lineas td{padding:6px 10px;border-bottom:1px solid #f3f4f6;max-width:300px;white-space:normal}
+.ai-loading{display:flex;align-items:center;gap:10px;padding:20px;color:#6b7280;font-size:13px}
+.ai-spinner{width:20px;height:20px;border:2px solid #e5e7eb;border-top-color:#1a4fa0;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* VINCULACION */
+.vinc-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:160px;overflow-y:auto}
+.vinc-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;transition:all .15s;font-size:12px}
+.vinc-item:hover{border-color:#1a4fa0;background:#eff6ff}
+.vinc-item.selected{border-color:#1a4fa0;background:#dbeafe}
+.vinc-item input[type=checkbox]{flex-shrink:0;accent-color:#1a4fa0}
+.vinc-item .vi-num{font-family:'IBM Plex Mono',monospace;font-weight:600;color:#1a1a2e;min-width:80px}
+.vinc-item .vi-prov{color:#374151;flex:1}
+.vinc-item .vi-total{font-family:'IBM Plex Mono',monospace;color:#059669;font-weight:600;white-space:nowrap}
+
+/* PAGOS */
+.pagos-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pago-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#f9fafb;font-size:12px}
+.pago-item .pi-met{background:#dbeafe;color:#1a4fa0;padding:1px 6px;border-radius:3px;font-weight:600;font-size:10px;text-transform:uppercase}
+.pago-item .pi-amt{font-family:'IBM Plex Mono',monospace;font-weight:700;color:#059669;margin-left:auto}
+.pago-item .pi-del{background:none;border:none;cursor:pointer;color:#d1d5db;font-size:14px;padding:0 2px}
+.pago-item .pi-del:hover{color:#dc2626}
+.pago-resumen{display:flex;gap:10px;margin-top:8px;padding:8px 12px;border-radius:6px;background:#f3f4f6;font-size:12px}
+.pago-resumen span{display:flex;flex-direction:column;gap:1px}
+.pago-resumen .pr-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
+.pago-resumen .pr-val{font-family:'IBM Plex Mono',monospace;font-weight:700}
+.pr-val.ok{color:#059669}
+.pr-val.pend{color:#d97706}
+.pr-val.over{color:#dc2626}
+
+/* ALERT */
+.alert-box{padding:10px 14px;border-radius:7px;font-size:12px;font-weight:500;margin-top:8px;display:none}
+.alert-box.visible{display:block}
+.alert-warning{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.alert-ok{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0}
+.alert-danger{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:#1a1a2e;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:slideIn .2s ease;opacity:1;transition:opacity .3s}
+.toast-item.error{background:#dc2626}
+.toast-item.info{background:#1a4fa0}
+.toast-item.success{background:#059669}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* CORELATIE PANEL */
+.corel-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:12px}
+.corel-header{font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.corel-match{display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280}
+.corel-match .cm-val{font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1a1a2e}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  nav .nav-btn{font-size:9px;padding:4px 6px}
+  .form-row{grid-template-columns:1fr}
+  .ep-fields{grid-template-columns:1fr}
+  .modal{max-width:100%;border-radius:0;max-height:100vh}
+  .stat-card{min-width:80px}
+}
+</style>
+<script src="acceso.js"></script>
+
+<style>/* JEOVENT-MOBILE-CSS */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .table-wrap, .table-wrap-x { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 800px; }
+  .toolbar, .subnav { flex-wrap: wrap; gap: 6px; padding: 8px; }
+  .modal { width: 96vw !important; max-width: 96vw !important; max-height: 92vh !important; }
+  .modal-wide { width: 96vw !important; max-width: 96vw !important; }
+  .btn { padding: 10px 14px; font-size: 14px; min-height: 38px; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; min-height: 32px; }
+  input, select, textarea { font-size: 16px !important; min-height: 38px; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .stat-cards { overflow-x: auto; padding: 8px; }
+  .stat-card { min-width: 120px; }
+  /* hide sidebar / detail panels on mobile */
+  .csp-side, .client-detail-side { display: none; }
+}
+@media (max-width: 480px) {
+  .nav-btn, .subnav button { font-size: 12px; padding: 6px 8px; }
+  h1, h2 { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🏗️</div>
+    <div class="login-title">Jeovent · Gastos</div>
+    <div class="login-sub">Gestión de albaranes y facturas de gasto</div>
+    <div class="login-group">
+      <label class="login-label">Usuario</label>
+      <input class="login-input" type="text" id="l-user" placeholder="usuario" autocomplete="username">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Contraseña</label>
+      <input class="login-input" type="password" id="l-pass" placeholder="••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="login-btn">Entrar</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <div class="login-loading" id="login-loading">Verificando...</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <header>
+    <div class="logo"><div>Jeovent</div><div class="logo-sub">Gestión de Gastos</div></div>
+    <nav>
+      <a class="nav-btn" href="gestion.html">🏢 Gestión</a>
+      <a class="nav-btn" href="presupuestos.html">📋 Presupuestos</a>
+      <a class="nav-btn" href="cuadrante.html">📅 Cuadrante</a>
+      <button class="nav-btn active" id="nav-gastos">💸 Gastos</button>
+    </nav>
+    <div class="header-right">
+      <div class="user-badge"><span class="sync-dot" id="sync-dot"></span><span id="user-name">—</span></div>
+      <button class="btn-logout" id="btn-logout">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TABS -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" id="tab-alb">📋 Albaranes</button>
+      <button class="tab-btn" id="tab-fac">🧾 Facturas de Gasto</button>
+      <button class="tab-btn" id="tab-scan">🤖 Escanear PDF</button>
+    </div>
+
+    <!-- ===== TAB: ALBARANES ===== -->
+    <div class="tab-view active" id="view-alb">
+      <div class="stat-cards">
+        <div class="stat-card"><div class="sv" id="alb-total-n">0</div><div class="sl">Total albaranes</div></div>
+        <div class="stat-card warning"><div class="sv" id="alb-pend-n">0</div><div class="sl">Sin facturar</div></div>
+        <div class="stat-card warning"><div class="sv" id="alb-pend-importe">0 €</div><div class="sl">Importe pendiente</div></div>
+        <div class="stat-card success"><div class="sv" id="alb-fact-n">0</div><div class="sl">Facturados</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="alb-srch" placeholder="Buscar albarán, proveedor...">
+        </div>
+        <select id="alb-fil-st" style="width:140px">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">Sin facturar</option>
+          <option value="FACTURADO">Facturados</option>
+        </select>
+        <select id="alb-fil-prov" style="width:160px">
+          <option value="">Todos los proveedores</option>
+        </select>
+        <span class="count-badge" id="alb-badge">0</span>
+        <button class="btn btn-primary" id="btn-new-alb">+ Nuevo</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nº Albarán</th>
+              <th>Fecha</th>
+              <th>Proveedor</th>
+              <th>Categoría</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Facturas vinc.</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="alb-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="alb-empty">
+          <div class="ei">📋</div>
+          <div class="et">No hay albaranes</div>
+          <div class="es">Crea uno nuevo o escanea un PDF</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: FACTURAS GASTO ===== -->
+    <div class="tab-view" id="view-fac">
+      <div class="stat-cards">
+        <div class="stat-card"><div class="sv" id="fg-total-n">0</div><div class="sl">Total facturas</div></div>
+        <div class="stat-card danger"><div class="sv" id="fg-pend-importe">0 €</div><div class="sl">Pendiente pagar</div></div>
+        <div class="stat-card warning"><div class="sv" id="fg-parcial-importe">0 €</div><div class="sl">Pago parcial</div></div>
+        <div class="stat-card success"><div class="sv" id="fg-pagado-importe">0 €</div><div class="sl">Pagado</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="fg-srch" placeholder="Buscar factura, proveedor...">
+        </div>
+        <select id="fg-fil-st" style="width:150px">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">Pendiente pago</option>
+          <option value="PARCIAL">Pago parcial</option>
+          <option value="PAGADO">Pagadas</option>
+        </select>
+        <select id="fg-fil-prov" style="width:160px">
+          <option value="">Todos los proveedores</option>
+        </select>
+        <span class="count-badge" id="fg-badge">0</span>
+        <button class="btn btn-primary" id="btn-new-fg">+ Nueva</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nº Factura</th>
+              <th>Fecha factura</th>
+              <th>Fecha vto</th>
+              <th>Proveedor</th>
+              <th>Categoría</th>
+              <th>Total</th>
+              <th>Cobrado</th>
+              <th>Pendiente</th>
+              <th>Estado pago</th>
+              <th>Albaranes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="fg-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="fg-empty">
+          <div class="ei">🧾</div>
+          <div class="et">No hay facturas de gasto</div>
+          <div class="es">Crea una nueva o escanea un PDF</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: ESCANEAR PDF ===== -->
+    <div class="tab-view" id="view-scan">
+      <div style="padding:24px;max-width:760px;width:100%;margin:0 auto;overflow-y:auto;flex:1">
+        <div style="margin-bottom:20px">
+          <div style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:4px">🤖 Escáner de documentos</div>
+          <div style="font-size:13px;color:#6b7280">Sube un PDF de albarán o factura de proveedor. La IA extrae todos los datos automáticamente.</div>
+        </div>
+
+        <!-- TIPO SELECTOR -->
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <button class="btn btn-info active" id="scan-tipo-alb" style="flex:1;justify-content:center;font-size:14px;padding:12px">📋 Albarán</button>
+          <button class="btn btn-secondary" id="scan-tipo-fac" style="flex:1;justify-content:center;font-size:14px;padding:12px">🧾 Factura de gasto</button>
+        </div>
+
+        <!-- DROP ZONE -->
+        <div class="pdf-drop-zone" id="pdf-drop">
+          <div class="pdz-icon">📄</div>
+          <div class="pdz-title">Arrastra el PDF aquí o haz clic para seleccionar</div>
+          <div class="pdz-sub">Acepta PDF · Múltiples páginas · Máx. 20MB</div>
+          <input type="file" id="pdf-input" accept=".pdf,application/pdf">
+        </div>
+
+        <!-- AI LOADING -->
+        <div class="ai-loading" id="ai-loading" style="display:none">
+          <div class="ai-spinner"></div>
+          <span id="ai-loading-txt">Analizando documento con IA...</span>
+        </div>
+
+        <!-- EXTRACTION PANEL -->
+        <div class="extraction-panel" id="extraction-panel">
+          <div class="ep-header">
+            <div class="ep-title">✅ Datos extraídos</div>
+            <span class="ep-badge" id="ep-tipo-badge">Albarán</span>
+          </div>
+          <div class="ep-fields" id="ep-fields"></div>
+          <div id="ep-lineas-wrap"></div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="btn-usar-datos" style="flex:1;justify-content:center">✅ Usar estos datos</button>
+            <button class="btn btn-secondary" id="btn-scan-otro">📄 Escanear otro</button>
+          </div>
+        </div>
+
+        <!-- ERROR PANEL -->
+        <div id="scan-error" style="display:none;margin-top:12px;padding:14px;background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;color:#991b1b;font-size:13px"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ===== MODAL ALBARÁN ===== -->
+<div class="overlay" id="alb-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="alb-m-title">Nuevo Albarán</div>
+      <button class="modal-close" id="alb-m-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nº Albarán *</label>
+          <input type="text" id="am-num" placeholder="ALB-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="text" id="am-fecha" placeholder="dd/mm/yyyy">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Proveedor *</label>
+          <input type="text" id="am-prov" placeholder="Nombre del proveedor" list="prov-list-alb">
+          <datalist id="prov-list-alb"></datalist>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select id="am-cat">
+            <option>Materiales</option>
+            <option>Herramientas</option>
+            <option>Subcontrata</option>
+            <option>Transporte</option>
+            <option>Otros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total (€)</label>
+          <input type="number" id="am-total" placeholder="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Líneas / Descripción</label>
+          <textarea id="am-lineas" rows="3" placeholder="Descripción de materiales, referencias, etc."></textarea>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Observaciones</label>
+          <input type="text" id="am-obs" placeholder="Notas adicionales">
+        </div>
+      </div>
+      <div id="am-pdf-row" style="margin-top:12px;padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+          <span style="font-weight:600;color:#374151">📄 PDF adjunto:</span>
+          <span id="am-pdf-name" style="color:#6b7280;flex:1;min-width:120px">Ninguno</span>
+          <input type="file" id="am-pdf-input" accept="application/pdf" style="display:none">
+          <button type="button" id="am-pdf-attach" class="btn btn-secondary btn-sm">📎 Adjuntar</button>
+          <button type="button" id="am-pdf-view" class="btn btn-info btn-sm" style="display:none">👁️ Ver</button>
+          <button type="button" id="am-pdf-clear" style="display:none;background:none;border:none;cursor:pointer;color:#dc2626;font-size:12px;padding:4px 8px">✕ Quitar</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" id="alb-m-cancel">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="alb-m-del" style="display:none;margin-right:auto">🗑️ Eliminar</button>
+      <button class="btn btn-primary" id="alb-m-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL FACTURA GASTO ===== -->
+<div class="overlay" id="fg-overlay">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-title" id="fg-m-title">Nueva Factura de Gasto</div>
+      <button class="modal-close" id="fg-m-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nº Factura</label>
+          <input type="text" id="fm-num" placeholder="FAC-2024-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha factura</label>
+          <input type="text" id="fm-fecha" placeholder="dd/mm/yyyy">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fecha vencimiento (SEPA)</label>
+          <input type="text" id="fm-vto" placeholder="dd/mm/yyyy (opcional — pago programado)">
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">
+            Si rellenas esta fecha, la factura se pagará por SEPA y NO se marcará como pagada hasta esa fecha.
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado manual</label>
+          <select id="fm-estado-manual" style="width:100%">
+            <option value="">Automático (según pagos + vto)</option>
+            <option value="PENDIENTE">Forzar PENDIENTE</option>
+            <option value="PAGADO">Forzar PAGADA</option>
+          </select>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">
+            Ignora los pagos/vto y marca manualmente.
+          </div>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Proveedor *</label>
+          <input type="text" id="fm-prov" placeholder="Nombre del proveedor" list="prov-list-fg">
+          <datalist id="prov-list-fg"></datalist>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select id="fm-cat">
+            <option>Materiales</option>
+            <option>Herramientas</option>
+            <option>Subcontrata</option>
+            <option>Transporte</option>
+            <option>Otros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total factura (€) *</label>
+          <input type="number" id="fm-total" placeholder="0.00" step="0.01">
+        </div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Descripción / Líneas</label>
+          <textarea id="fm-lineas" rows="2" placeholder="Descripción de materiales o servicios"></textarea>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Observaciones</label>
+          <input type="text" id="fm-obs" placeholder="Notas adicionales">
+        </div>
+      </div>
+
+      <!-- ALBARANES VINCULADOS -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-bottom:8px">📋 Albaranes vinculados</div>
+        <div class="vinc-list" id="fg-alb-list">
+          <div style="color:#9ca3af;font-size:12px;padding:8px">No hay albaranes pendientes</div>
+        </div>
+        <div class="alert-box" id="fg-alb-alert"></div>
+      </div>
+
+      <!-- PAGOS -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-bottom:8px">💳 Pagos registrados</div>
+        <div class="pagos-list" id="fg-pagos-list"></div>
+        <div class="pago-resumen" id="fg-pago-res" style="display:none"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:100px" class="form-group">
+            <label class="form-label">Importe</label>
+            <input type="number" id="fg-np-imp" placeholder="0.00" step="0.01" style="width:100%">
+          </div>
+          <div class="form-group" style="width:120px">
+            <label class="form-label">Método</label>
+            <select id="fg-np-met" style="width:100%">
+              <option>Transferencia</option>
+              <option>SEPA</option>
+              <option>Efectivo</option>
+              <option>Cheque</option>
+              <option>Tarjeta</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:130px">
+            <label class="form-label">Fecha pago</label>
+            <input type="date" id="fg-np-fecha" style="width:100%">
+          </div>
+          <button class="btn btn-success" id="btn-add-pago">+ Pago</button>
+        </div>
+      </div>
+
+      <div id="fm-pdf-row" style="margin-top:12px;padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+          <span style="font-weight:600;color:#374151">📄 PDF adjunto:</span>
+          <span id="fm-pdf-name" style="color:#6b7280;flex:1;min-width:120px">Ninguno</span>
+          <input type="file" id="fm-pdf-input" accept="application/pdf" style="display:none">
+          <button type="button" id="fm-pdf-attach" class="btn btn-secondary btn-sm">📎 Adjuntar</button>
+          <button type="button" id="fm-pdf-view" class="btn btn-info btn-sm" style="display:none">👁️ Ver</button>
+          <button type="button" id="fm-pdf-clear" style="display:none;background:none;border:none;cursor:pointer;color:#dc2626;font-size:12px;padding:4px 8px">✕ Quitar</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" id="fg-m-cancel">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="fg-m-del" style="display:none;margin-right:auto">🗑️ Eliminar</button>
+      <button class="btn btn-primary" id="fg-m-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* ===== CONFIG ===== */
+var SB_URL='https://jcznbhisnbbszlicsnjt.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impjem5iaGlzbmJic3psaWNzbmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjY1ODcsImV4cCI6MjA5MTQwMjU4N30.jnWZ5UGqqbO05YT-Xl1uiGjuKl3wAb4JPPHQa841xPM';
+var CLAUDE_KEY=''; // Nu e necesar - se injecteaza de proxy
+
+/* ===== STATE ===== */
+var albaranes=[];
+var facturasGasto=[];
+var currentUser=null;
+var editAlbId=null;
+var editFgId=null;
+var scanTipo='alb'; // 'alb' | 'fac'
+var lastExtracted=null;
+var pendingPagos=[];
+var PDF_BUCKET='documentos';
+var amPendingPdf=null; // {file, previewUrl} | {clear:true} | null
+var fmPendingPdf=null;
+
+/* ===== UTILS ===== */
+function uid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
+function fmt(v){return(+v||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function todayEs(){var d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
+function setSyncState(s){var d=document.getElementById('sync-dot');d.className='sync-dot'+(s==='syncing'?' syncing':s==='error'?' error':'');}
+
+function toast(msg,type,dur){
+  var c=document.getElementById('toast');
+  var t=document.createElement('div');
+  t.className='toast-item'+(type?' '+type:'');
+  t.textContent=msg;
+  t.style.cursor='pointer';
+  t.title='Click para cerrar';
+  t.addEventListener('click',function(){t.style.opacity='0';setTimeout(function(){if(c.contains(t))c.removeChild(t);},200);});
+  c.appendChild(t);
+  var defaultDur=type==='error'?8000:2800;
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){if(c.contains(t))c.removeChild(t);},300);},(dur||defaultDur));
+}
+
+/* ===== SUPABASE ===== */
+function sbFetch(method,table,data,filters){
+  var url=SB_URL+'/rest/v1/'+table+(filters?'?'+filters:'');
+  var opts={method:method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  if(data)opts.body=JSON.stringify(data);
+  return fetch(url,opts).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error(t);});
+    return r.status===204?null:r.json();
+  });
+}
+
+/* ===== STORAGE (PDFs) ===== */
+function slugifyName(s){
+  return (s||'file').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9.]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'').slice(0,80);
+}
+
+async function uploadPdfToStorage(file, folder, entityId){
+  var baseName=slugifyName((file.name||'doc').replace(/\.pdf$/i,''));
+  var path=folder+'/'+entityId+'_'+Date.now()+'_'+baseName+'.pdf';
+  var url=SB_URL+'/storage/v1/object/'+PDF_BUCKET+'/'+encodeURI(path);
+  var resp;
+  try{
+    resp=await fetch(url,{
+      method:'POST',
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+SB_KEY,
+        'Content-Type':'application/pdf',
+        'x-upsert':'true'
+      },
+      body:file
+    });
+  }catch(networkErr){
+    throw new Error('Fallo de red al subir PDF: '+(networkErr.message||networkErr));
+  }
+  if(!resp.ok){
+    var t='';try{t=await resp.text();}catch(e){}
+    if(resp.status===404||/bucket not found/i.test(t)){
+      var msg='❌ Falta crear el bucket "'+PDF_BUCKET+'" en Supabase Storage.\n\n'
+        +'Cómo crearlo (30 segundos):\n'
+        +'1. Abre Supabase → Storage → New bucket\n'
+        +'2. Nombre: '+PDF_BUCKET+'\n'
+        +'3. Marca "Public bucket" ✅\n'
+        +'4. Click Save y reintenta guardar.';
+      alert(msg);
+      throw new Error('Bucket "'+PDF_BUCKET+'" no existe. Créalo en Supabase Storage (público) y reintenta.');
+    }
+    if(resp.status===403||/unauthorized|permission|policy/i.test(t)){
+      throw new Error('Sin permisos para subir al bucket. Revisa las políticas RLS del bucket "'+PDF_BUCKET+'".');
+    }
+    throw new Error('Subida PDF falló ('+resp.status+'): '+t.slice(0,200));
+  }
+  return SB_URL+'/storage/v1/object/public/'+PDF_BUCKET+'/'+encodeURI(path);
+}
+
+async function deletePdfFromStorage(url){
+  if(!url)return;
+  var marker='/storage/v1/object/public/'+PDF_BUCKET+'/';
+  var i=url.indexOf(marker);
+  if(i<0)return;
+  var path=url.slice(i+marker.length);
+  try{
+    await fetch(SB_URL+'/storage/v1/object/'+PDF_BUCKET+'/'+path,{
+      method:'DELETE',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+  }catch(e){/* non-fatal */}
+}
+
+function openPdfUrl(url){if(url)window.open(url,'_blank');}
+
+function renderPdfUI(prefix, savedName, savedUrl, pending){
+  var nameEl=document.getElementById(prefix+'-pdf-name');
+  var viewBtn=document.getElementById(prefix+'-pdf-view');
+  var clearBtn=document.getElementById(prefix+'-pdf-clear');
+  var attachBtn=document.getElementById(prefix+'-pdf-attach');
+  if(!nameEl||!viewBtn||!clearBtn||!attachBtn)return;
+  viewBtn.onclick=null;
+  if(pending&&pending.clear){
+    nameEl.textContent='(se eliminará al guardar)';
+    nameEl.style.color='#dc2626';
+    viewBtn.style.display='none';
+    clearBtn.style.display='none';
+    attachBtn.textContent='📎 Adjuntar';
+  }else if(pending&&pending.file){
+    nameEl.textContent=pending.file.name+' (nuevo)';
+    nameEl.style.color='#059669';
+    viewBtn.style.display='';
+    viewBtn.onclick=function(){window.open(pending.previewUrl,'_blank');};
+    clearBtn.style.display='';
+    attachBtn.textContent='📎 Cambiar';
+  }else if(savedUrl){
+    nameEl.textContent=savedName||'(PDF guardado)';
+    nameEl.style.color='#6b7280';
+    viewBtn.style.display='';
+    viewBtn.onclick=function(){openPdfUrl(savedUrl);};
+    clearBtn.style.display='';
+    attachBtn.textContent='📎 Cambiar';
+  }else{
+    nameEl.textContent='Ninguno';
+    nameEl.style.color='#9ca3af';
+    viewBtn.style.display='none';
+    clearBtn.style.display='none';
+    attachBtn.textContent='📎 Adjuntar';
+  }
+}
+
+function attachPdfHandler(prefix, isFac){
+  var inp=document.getElementById(prefix+'-pdf-input');
+  if(!inp.files||!inp.files[0])return;
+  var f=inp.files[0];
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){toast('Solo se permiten archivos PDF','error');inp.value='';return;}
+  var pending={file:f,previewUrl:URL.createObjectURL(f)};
+  if(isFac){fmPendingPdf=pending;}else{amPendingPdf=pending;}
+  var savedName=null,savedUrl=null;
+  if(isFac&&editFgId){var fg=facturasGasto.find(function(x){return x.id===editFgId;});if(fg){savedName=fg.pdf_name;savedUrl=fg.pdf_url;}}
+  else if(!isFac&&editAlbId){var a=albaranes.find(function(x){return x.id===editAlbId;});if(a){savedName=a.pdf_name;savedUrl=a.pdf_url;}}
+  renderPdfUI(prefix, savedName, savedUrl, pending);
+  inp.value='';
+}
+
+function clearPdfHandler(prefix, isFac){
+  var savedName=null,savedUrl=null;
+  if(isFac&&editFgId){var fg=facturasGasto.find(function(x){return x.id===editFgId;});if(fg){savedName=fg.pdf_name;savedUrl=fg.pdf_url;}}
+  else if(!isFac&&editAlbId){var a=albaranes.find(function(x){return x.id===editAlbId;});if(a){savedName=a.pdf_name;savedUrl=a.pdf_url;}}
+  var pending=(isFac?fmPendingPdf:amPendingPdf);
+  if(pending&&pending.file){
+    // Just cancel the new attachment
+    if(pending.previewUrl)URL.revokeObjectURL(pending.previewUrl);
+    if(isFac)fmPendingPdf=null;else amPendingPdf=null;
+    renderPdfUI(prefix, savedName, savedUrl, null);
+  }else if(savedUrl){
+    // Mark for deletion
+    if(isFac)fmPendingPdf={clear:true};else amPendingPdf={clear:true};
+    renderPdfUI(prefix, savedName, savedUrl, {clear:true});
+  }
+}
+
+/* ===== AUTH ===== */
+async function sha256(str){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doLogin(){
+  var user=document.getElementById('l-user').value.trim();
+  var pass=document.getElementById('l-pass').value;
+  if(!user||!pass){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent='Completa todos los campos';return;}
+  document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
+  try{
+    var hash=await sha256(pass);
+    var res=await sbFetch('GET','usuarios',null,'username=eq.'+encodeURIComponent(user)+'&password_hash=eq.'+hash+'&select=id,username,nombre,rol');
+    if(!res||!res.length){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent='Usuario o contraseña incorrectos';document.getElementById('login-loading').style.display='none';return;}
+    currentUser=res[0];
+    try{localStorage.setItem('jeovent_user',JSON.stringify(currentUser));}catch(e){}
+    document.getElementById('user-name').textContent=currentUser.nombre||currentUser.username;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    await loadData();
+  }catch(e){
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-error').textContent='Error: '+e.message;
+    document.getElementById('login-loading').style.display='none';
+  }
+}
+
+function doLogout(){
+  try{localStorage.removeItem('jeovent_user');sessionStorage.removeItem('jeovent_user');}catch(e){}
+  currentUser=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('l-pass').value='';
+}
+
+/* ===== LOAD DATA ===== */
+async function loadData(){
+  setSyncState('syncing');
+  try{
+    var aRes=await sbFetch('GET','albaranes',null,'order=created_at.desc&select=*');
+    albaranes=aRes||[];
+    var fRes=await sbFetch('GET','facturas_gasto',null,'order=created_at.desc&select=*');
+    facturasGasto=fRes||[];
+    setSyncState('ok');
+    renderAlbaranes();
+    renderFacturasGasto();
+    fillProvFilters();
+  }catch(e){
+    setSyncState('error');
+    toast('Error cargando datos: '+e.message,'error');
+  }
+}
+
+/* ===== TABS ===== */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.tab-view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('view-'+tab).classList.add('active');
+}
+
+/* ===== PROVEEDOR FILTERS ===== */
+function fillProvFilters(){
+  var provs=[...new Set([...albaranes.map(function(a){return a.proveedor;}), ...facturasGasto.map(function(f){return f.proveedor;})].filter(Boolean))].sort();
+  
+  ['alb-fil-prov','fg-fil-prov'].forEach(function(id){
+    var sel=document.getElementById(id);
+    var val=sel.value;
+    sel.innerHTML='<option value="">Todos los proveedores</option>';
+    provs.forEach(function(p){sel.innerHTML+='<option value="'+esc(p)+'">'+esc(p)+'</option>';});
+    sel.value=val;
+  });
+
+  // Datalists
+  ['prov-list-alb','prov-list-fg'].forEach(function(id){
+    var dl=document.getElementById(id);
+    dl.innerHTML='';
+    provs.forEach(function(p){dl.innerHTML+='<option value="'+esc(p)+'">'+esc(p)+'</option>';});
+  });
+}
+
+/* ===== RENDER ALBARANES ===== */
+function renderAlbaranes(){
+  var q=(document.getElementById('alb-srch').value||'').toLowerCase();
+  var fst=document.getElementById('alb-fil-st').value;
+  var fprov=document.getElementById('alb-fil-prov').value;
+  var f=albaranes.filter(function(a){
+    var mq=!q||(a.num||'').toLowerCase().indexOf(q)>=0||(a.proveedor||'').toLowerCase().indexOf(q)>=0||(a.lineas||'').toLowerCase().indexOf(q)>=0;
+    var ms=!fst||a.status===fst;
+    var mp=!fprov||a.proveedor===fprov;
+    return mq&&ms&&mp;
+  });
+  document.getElementById('alb-badge').textContent=f.length;
+  document.getElementById('alb-empty').style.display=f.length?'none':'flex';
+
+  // Stats
+  var pend=albaranes.filter(function(a){return a.status==='PENDIENTE';});
+  var fact=albaranes.filter(function(a){return a.status==='FACTURADO';});
+  document.getElementById('alb-total-n').textContent=albaranes.length;
+  document.getElementById('alb-pend-n').textContent=pend.length;
+  document.getElementById('alb-pend-importe').textContent=fmt(pend.reduce(function(s,a){return s+(+a.total||0);},0));
+  document.getElementById('alb-fact-n').textContent=fact.length;
+
+  var html='';
+  f.forEach(function(a){
+    var vincs=facturasGasto.filter(function(fg){return(fg.albaranes_ids||[]).indexOf(a.id)>=0;});
+    var vincHtml=vincs.length
+      ?vincs.map(function(fg){return'<span style="background:#dbeafe;color:#1a4fa0;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;margin-right:2px">'+esc(fg.num||'—')+'</span>';}).join('')
+      :'<span style="color:#d1d5db;font-size:11px">—</span>';
+    var stClass=a.status==='FACTURADO'?'badge badge-facturado':'badge badge-pendiente';
+    var stLabel=a.status==='FACTURADO'?'Facturado':'Sin facturar';
+    html+='<tr data-albid="'+a.id+'">'
+      +'<td class="mono" style="font-weight:600">'+esc(a.num||'—')+(a.pdf_url?'<a href="'+esc(a.pdf_url)+'" target="_blank" title="'+esc(a.pdf_name||'Ver PDF')+'" data-pdflink="1" style="margin-left:4px;font-size:13px;text-decoration:none;cursor:pointer">📄</a>':(a.pdf_name?'<span title="'+esc(a.pdf_name)+'" style="margin-left:4px;font-size:11px;opacity:.5">📄</span>':''))+'</td>'
+      +'<td class="mono">'+esc(a.fecha||'—')+'</td>'
+      +'<td style="font-weight:500;max-width:160px">'+esc(a.proveedor||'—')+'</td>'
+      +'<td><span class="badge badge-cat">'+esc(a.categoria||'—')+'</span></td>'
+      +'<td class="mono" style="font-weight:700;color:#059669">'+fmt(a.total||0)+'</td>'
+      +'<td><span class="'+stClass+'">'+stLabel+'</span></td>'
+      +'<td>'+vincHtml+'</td>'
+      +'<td><div class="actions-td"><button class="btn btn-danger btn-sm" data-delalb="'+a.id+'" title="Eliminar">🗑️</button></div></td>'
+      +'</tr>';
+  });
+  document.getElementById('alb-tbody').innerHTML=html;
+}
+
+/* ===== RENDER FACTURAS GASTO ===== */
+function calcCobrado(fg){return(fg.pagos||[]).reduce(function(s,p){return s+(+p.importe||0);},0);}
+
+/* Convierte "dd/mm/yyyy" o "yyyy-mm-dd" a Date (o null) */
+function parseFechaGA(s){
+  if(!s)return null;
+  s=String(s).trim();
+  var m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(m){return new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));}
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m){return new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10));}
+  return null;
+}
+function isVtoFuture(fg){
+  if(!fg.fecha_vto)return false;
+  var d=parseFechaGA(fg.fecha_vto);
+  if(!d)return false;
+  var today=new Date();today.setHours(0,0,0,0);
+  return d.getTime()>today.getTime();
+}
+
+function calcPagoStatus(fg){
+  /* 1) Override manual: si el usuario forzó un estado, respetarlo */
+  if(fg.estado_manual==='PENDIENTE')return'PENDIENTE';
+  if(fg.estado_manual==='PAGADO')return'PAGADO';
+  /* 2) Cálculo normal en base a pagos */
+  var total=+fg.total||0;
+  var cob=calcCobrado(fg);
+  /* 3) Si hay fecha_vto en el futuro y NO hay pagos registrados -> PROGRAMADO */
+  if(cob<=0 && isVtoFuture(fg))return'PROGRAMADO';
+  if(cob<=0)return'PENDIENTE';
+  /* 4) Si el importe coincide pero vto en el futuro, tampoco marcamos pagado */
+  if(cob>=total-0.01 && isVtoFuture(fg))return'PROGRAMADO';
+  if(cob>=total-0.01)return'PAGADO';
+  return'PARCIAL';
+}
+
+function renderFacturasGasto(){
+  var q=(document.getElementById('fg-srch').value||'').toLowerCase();
+  var fst=document.getElementById('fg-fil-st').value;
+  var fprov=document.getElementById('fg-fil-prov').value;
+  var f=facturasGasto.filter(function(fg){
+    var mq=!q||(fg.num||'').toLowerCase().indexOf(q)>=0||(fg.proveedor||'').toLowerCase().indexOf(q)>=0;
+    var st=calcPagoStatus(fg);
+    var ms=!fst||st===fst;
+    var mp=!fprov||fg.proveedor===fprov;
+    return mq&&ms&&mp;
+  });
+  document.getElementById('fg-badge').textContent=f.length;
+  document.getElementById('fg-empty').style.display=f.length?'none':'flex';
+
+  // Stats
+  var pendTotal=0,parcialTotal=0,pagadoTotal=0;
+  facturasGasto.forEach(function(fg){
+    var st=calcPagoStatus(fg);
+    var pend=Math.max(0,(+fg.total||0)-calcCobrado(fg));
+    if(st==='PENDIENTE')pendTotal+=(+fg.total||0);
+    else if(st==='PARCIAL')parcialTotal+=pend;
+    else pagadoTotal+=(+fg.total||0);
+  });
+  document.getElementById('fg-total-n').textContent=facturasGasto.length;
+  document.getElementById('fg-pend-importe').textContent=fmt(pendTotal);
+  document.getElementById('fg-parcial-importe').textContent=fmt(parcialTotal);
+  document.getElementById('fg-pagado-importe').textContent=fmt(pagadoTotal);
+
+  var html='';
+  f.forEach(function(fg){
+    var st=calcPagoStatus(fg);
+    var cob=calcCobrado(fg);
+    var pend=Math.max(0,(+fg.total||0)-cob);
+    var stClass={'PENDIENTE':'badge badge-pendiente','PARCIAL':'badge badge-parcial','PAGADO':'badge badge-pagado','PROGRAMADO':'badge'}[st]||'badge badge-pendiente';
+    var stLabel={'PENDIENTE':'Pendiente','PARCIAL':'Parcial','PAGADO':'Pagada','PROGRAMADO':'Vto '+(fg.fecha_vto||'')}[st]||st;
+    var stStyle=st==='PROGRAMADO'?' style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700"':'';
+    var manualIcon=fg.estado_manual?' *':'';
+    var vtoCell='';
+    if(fg.fecha_vto){
+      var isFut=isVtoFuture(fg);
+      vtoCell='<span class="mono" style="color:'+(isFut?'#1e40af':'#6b7280')+';font-weight:'+(isFut?'600':'400')+'">'+esc(fg.fecha_vto)+'</span>';
+    }else{
+      vtoCell='<span style="color:#d1d5db;font-size:11px">-</span>';
+    }
+    var albIds=fg.albaranes_ids||[];
+    var albBadge=albIds.length
+      ?'<span style="background:#f3e8ff;color:#7c3aed;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700">'+albIds.length+' alb.</span>'
+      :'<span style="color:#d1d5db;font-size:11px">—</span>';
+    html+='<tr data-fgid="'+fg.id+'">'
+      +'<td class="mono" style="font-weight:600">'+esc(fg.num||'—')+(fg.pdf_url?'<a href="'+esc(fg.pdf_url)+'" target="_blank" title="'+esc(fg.pdf_name||'Ver PDF')+'" data-pdflink="1" style="margin-left:4px;font-size:13px;text-decoration:none;cursor:pointer">📄</a>':(fg.pdf_name?'<span title="'+esc(fg.pdf_name)+'" style="margin-left:4px;font-size:11px;opacity:.5">📄</span>':''))+'</td>'
+      +'<td class="mono">'+esc(fg.fecha||'—')+'</td>'
+      +'<td>'+vtoCell+'</td>'
+      +'<td style="font-weight:500;max-width:150px">'+esc(fg.proveedor||'—')+'</td>'
+      +'<td><span class="badge badge-cat">'+esc(fg.categoria||'—')+'</span></td>'
+      +'<td class="mono">'+fmt(fg.base||0)+'</td>'
+      
+      +'<td class="mono" style="font-weight:700">'+fmt(fg.total||0)+'</td>'
+      +'<td class="mono" style="color:#059669">'+fmt(cob)+'</td>'
+      +'<td class="mono" style="color:'+(pend>0?'#d97706':'#059669')+'">'+fmt(pend)+'</td>'
+      +'<td><span class="'+stClass+'"'+stStyle+'>'+stLabel+manualIcon+'</span></td>'
+      +'<td>'+albBadge+'</td>'
+      +'<td><div class="actions-td"><button class="btn btn-danger btn-sm" data-delfg="'+fg.id+'" title="Eliminar">🗑️</button></div></td>'
+      +'</tr>';
+  });
+  document.getElementById('fg-tbody').innerHTML=html;
+}
+
+/* ===== MODAL ALBARÁN ===== */
+function openAlbModal(id, prefill){
+  editAlbId=id||null;
+  pendingPagos=[];
+  if(amPendingPdf&&amPendingPdf.previewUrl)URL.revokeObjectURL(amPendingPdf.previewUrl);
+  amPendingPdf=null;
+  document.getElementById('alb-overlay').classList.add('open');
+  document.getElementById('alb-m-title').textContent=id?'Editar Albarán':'Nuevo Albarán';
+  document.getElementById('alb-m-del').style.display=id?'inline-flex':'none';
+  if(id){
+    var a=albaranes.find(function(x){return x.id===id;});
+    document.getElementById('am-num').value=a.num||'';
+    document.getElementById('am-fecha').value=a.fecha||'';
+    document.getElementById('am-prov').value=a.proveedor||'';
+    document.getElementById('am-cat').value=a.categoria||'Materiales';
+    document.getElementById('am-total').value=a.total||0;
+    document.getElementById('am-lineas').value=a.lineas||'';
+    document.getElementById('am-obs').value=a.obs||'';
+    renderPdfUI('am', a.pdf_name, a.pdf_url, null);
+  }else{
+    document.getElementById('am-num').value=prefill&&prefill.num||'';
+    document.getElementById('am-fecha').value=prefill&&prefill.fecha||todayEs();
+    document.getElementById('am-prov').value=prefill&&prefill.proveedor||'';
+    document.getElementById('am-cat').value=prefill&&prefill.categoria||'Materiales';
+    document.getElementById('am-total').value=prefill&&prefill.total||'';
+    document.getElementById('am-lineas').value=prefill&&prefill.lineas||'';
+    document.getElementById('am-obs').value=prefill&&prefill.obs||'';
+    if(prefill&&prefill.pdf_file){
+      amPendingPdf={file:prefill.pdf_file,previewUrl:URL.createObjectURL(prefill.pdf_file)};
+      renderPdfUI('am', null, null, amPendingPdf);
+    }else{
+      renderPdfUI('am', prefill&&prefill.pdf_name, null, null);
+    }
+  }
+}
+function closeAlbModal(){
+  document.getElementById('alb-overlay').classList.remove('open');
+  editAlbId=null;
+  if(amPendingPdf&&amPendingPdf.previewUrl)URL.revokeObjectURL(amPendingPdf.previewUrl);
+  amPendingPdf=null;
+}
+
+async function saveAlb(){
+  var num=document.getElementById('am-num').value.trim();
+  var prov=document.getElementById('am-prov').value.trim();
+  if(!num){toast('El número es obligatorio','error');return;}
+  if(!prov){toast('El proveedor es obligatorio','error');return;}
+  var d={
+    num:num,
+    fecha:document.getElementById('am-fecha').value,
+    proveedor:prov,
+    categoria:document.getElementById('am-cat').value,
+    total:parseFloat(document.getElementById('am-total').value)||0,
+    lineas:document.getElementById('am-lineas').value.trim(),
+    obs:document.getElementById('am-obs').value.trim(),
+    status:'PENDIENTE'
+  };
+  var existing=editAlbId?albaranes.find(function(a){return a.id===editAlbId;}):null;
+  // Preserve existing pdf unless changed
+  if(existing){if(existing.pdf_name)d.pdf_name=existing.pdf_name;if(existing.pdf_url)d.pdf_url=existing.pdf_url;if(existing.status)d.status=existing.status;}
+  var oldPdfUrl=existing?existing.pdf_url:null;
+  var mustDeleteOld=false;
+  setSyncState('syncing');
+  try{
+    // Determine entity id now (needed for upload path)
+    var entityId=editAlbId||uid();
+    // Handle pending PDF
+    if(amPendingPdf&&amPendingPdf.clear){
+      d.pdf_name=null;d.pdf_url=null;
+      if(oldPdfUrl)mustDeleteOld=true;
+    }else if(amPendingPdf&&amPendingPdf.file){
+      var newUrl=await uploadPdfToStorage(amPendingPdf.file,'albaranes',entityId);
+      d.pdf_name=amPendingPdf.file.name;
+      d.pdf_url=newUrl;
+      if(oldPdfUrl)mustDeleteOld=true;
+    }
+    if(editAlbId){
+      await sbFetch('PATCH','albaranes',d,'id=eq.'+editAlbId);
+      var i=albaranes.findIndex(function(a){return a.id===editAlbId;});
+      albaranes[i]=Object.assign({},albaranes[i],d);
+      toast('Albarán actualizado ✓');
+    }else{
+      d.id=entityId;d.created_at=new Date().toISOString();
+      await sbFetch('POST','albaranes',d);
+      albaranes.unshift(d);
+      toast('Albarán guardado ✓');
+    }
+    if(mustDeleteOld)deletePdfFromStorage(oldPdfUrl);
+    setSyncState('ok');closeAlbModal();renderAlbaranes();fillProvFilters();
+  }catch(e){setSyncState('error');console.error('saveAlb error:',e);toast('Error al guardar: '+(e.message||e),'error');}
+}
+
+async function delAlb(id){
+  if(!confirm('¿Eliminar este albarán?'))return;
+  setSyncState('syncing');
+  try{
+    var ex=albaranes.find(function(a){return a.id===id;});
+    var pdfUrl=ex?ex.pdf_url:null;
+    await sbFetch('DELETE','albaranes',null,'id=eq.'+id);
+    albaranes=albaranes.filter(function(a){return a.id!==id;});
+    if(pdfUrl)deletePdfFromStorage(pdfUrl);
+    setSyncState('ok');closeAlbModal();renderAlbaranes();renderFacturasGasto();fillProvFilters();toast('Eliminado','error');
+  }catch(e){setSyncState('error');toast('Error: '+e.message,'error');}
+}
+
+/* ===== MODAL FACTURA GASTO ===== */
+function renderFgPagos(fg){
+  var pagos=fg&&fg.pagos||pendingPagos||[];
+  var total=parseFloat(document.getElementById('fm-total').value)||0;
+  var cob=pagos.reduce(function(s,p){return s+(+p.importe||0);},0);
+  var pend=total-cob;
+  var list=document.getElementById('fg-pagos-list');
+  if(!pagos.length){list.innerHTML='<div style="color:#9ca3af;font-size:12px;padding:6px">Sin pagos registrados</div>';document.getElementById('fg-pago-res').style.display='none';return;}
+  list.innerHTML=pagos.map(function(p,i){
+    return'<div class="pago-item">'
+      +'<span class="pi-met">'+esc(p.metodo||'—')+'</span>'
+      +'<span style="color:#6b7280">'+esc(p.fecha||'')+'</span>'
+      +'<span class="pi-amt">'+fmt(p.importe||0)+'</span>'
+      +'<button class="pi-del" data-delpago="'+i+'" title="Quitar pago">✕</button>'
+      +'</div>';
+  }).join('');
+  var res=document.getElementById('fg-pago-res');
+  res.style.display='flex';
+  res.innerHTML='<span><div class="pr-label">Total</div><div class="pr-val">'+fmt(total)+'</div></span>'
+    +'<span><div class="pr-label">Cobrado</div><div class="pr-val ok">'+fmt(cob)+'</div></span>'
+    +'<span><div class="pr-label">Pendiente</div><div class="pr-val '+(pend>0?'pend':'ok')+'">'+fmt(Math.max(0,pend))+'</div></span>';
+}
+
+function renderFgAlbList(fg){
+  var albIds=fg&&fg.albaranes_ids||[];
+  var prov=(document.getElementById('fm-prov').value||'').toLowerCase();
+  var pendAlb=albaranes.filter(function(a){
+    // mostrar los pendientes del mismo proveedor + los ya vinculados
+    return a.status==='PENDIENTE'||(albIds.indexOf(a.id)>=0);
+  });
+  if(!pendAlb.length){document.getElementById('fg-alb-list').innerHTML='<div style="color:#9ca3af;font-size:12px;padding:8px">No hay albaranes pendientes</div>';return;}
+  document.getElementById('fg-alb-list').innerHTML=pendAlb.map(function(a){
+    var checked=albIds.indexOf(a.id)>=0;
+    return'<label class="vinc-item'+(checked?' selected':'')+'"><input type="checkbox" name="alb-chk" value="'+a.id+'"'+(checked?' checked':'')+'><span class="vi-num">'+esc(a.num||'—')+'</span><span class="vi-prov">'+esc(a.proveedor||'—')+' · '+esc(a.fecha||'')+'</span><span class="vi-total">'+fmt(a.total||0)+'</span></label>';
+  }).join('');
+  updateAlbAlert();
+}
+
+function updateAlbAlert(){
+  var total=parseFloat(document.getElementById('fm-total').value)||0;
+  var albIds=getSelectedAlbIds();
+  var sumAlb=albaranes.filter(function(a){return albIds.indexOf(a.id)>=0;}).reduce(function(s,a){return s+(+a.total||0);},0);
+  var alert=document.getElementById('fg-alb-alert');
+  if(!albIds.length){alert.className='alert-box';return;}
+  var diff=total-sumAlb;
+  if(Math.abs(diff)<0.05){alert.className='alert-box alert-ok visible';alert.textContent='✅ Los albaranes cuadran exactamente con la factura.';}
+  else if(diff>0){alert.className='alert-box alert-warning visible';alert.textContent='⚠️ La factura es '+fmt(diff)+' mayor que los albaranes vinculados.';}
+  else{alert.className='alert-box alert-danger visible';alert.textContent='❌ Los albaranes suman '+fmt(Math.abs(diff))+' más que la factura.';}
+}
+
+function getSelectedAlbIds(){
+  return Array.from(document.querySelectorAll('#fg-alb-list input[name="alb-chk"]:checked')).map(function(c){return c.value;});
+}
+
+function openFgModal(id, prefill){
+  editFgId=id||null;
+  pendingPagos=[];
+  if(fmPendingPdf&&fmPendingPdf.previewUrl)URL.revokeObjectURL(fmPendingPdf.previewUrl);
+  fmPendingPdf=null;
+  document.getElementById('fg-overlay').classList.add('open');
+  document.getElementById('fg-m-title').textContent=id?'Editar Factura de Gasto':'Nueva Factura de Gasto';
+  document.getElementById('fg-m-del').style.display=id?'inline-flex':'none';
+  document.getElementById('fg-np-fecha').value=new Date().toISOString().slice(0,10);
+
+  if(id){
+    var fg=facturasGasto.find(function(x){return x.id===id;});
+    document.getElementById('fm-num').value=fg.num||'';
+    document.getElementById('fm-fecha').value=fg.fecha||'';
+    var vtoInp=document.getElementById('fm-vto');if(vtoInp)vtoInp.value=fg.fecha_vto||'';
+    var mEst=document.getElementById('fm-estado-manual');if(mEst)mEst.value=fg.estado_manual||'';
+    document.getElementById('fm-prov').value=fg.proveedor||'';
+    document.getElementById('fm-cat').value=fg.categoria||'Materiales';
+    document.getElementById('fm-total').value=fg.total||'';
+    document.getElementById('fm-lineas').value=fg.lineas||'';
+    document.getElementById('fm-obs').value=fg.obs||'';
+    pendingPagos=JSON.parse(JSON.stringify(fg.pagos||[]));
+    renderPdfUI('fm', fg.pdf_name, fg.pdf_url, null);
+    renderFgPagos(fg);
+    renderFgAlbList(fg);
+  }else{
+    document.getElementById('fm-num').value=prefill&&prefill.num||'';
+    document.getElementById('fm-fecha').value=prefill&&prefill.fecha||todayEs();
+    var vtoInp2=document.getElementById('fm-vto');if(vtoInp2)vtoInp2.value=(prefill&&prefill.fecha_vto)||'';
+    var mEst2=document.getElementById('fm-estado-manual');if(mEst2)mEst2.value='';
+    document.getElementById('fm-prov').value=prefill&&prefill.proveedor||'';
+    document.getElementById('fm-cat').value=prefill&&prefill.categoria||'Materiales';
+    document.getElementById('fm-total').value=prefill&&prefill.total||'';
+    document.getElementById('fm-lineas').value=prefill&&prefill.lineas||'';
+    document.getElementById('fm-obs').value=prefill&&prefill.obs||'';
+    if(prefill&&prefill.pdf_file){
+      fmPendingPdf={file:prefill.pdf_file,previewUrl:URL.createObjectURL(prefill.pdf_file)};
+      renderPdfUI('fm', null, null, fmPendingPdf);
+    }else{
+      renderPdfUI('fm', prefill&&prefill.pdf_name, null, null);
+    }
+    renderFgPagos(null);
+    renderFgAlbList(null);
+  }
+
+  // Auto-calc total from base+iva
+  document.getElementById('fm-total').addEventListener('input',function(){updateAlbAlert();renderFgPagos(null);});
+}
+
+
+
+function closeFgModal(){
+  document.getElementById('fg-overlay').classList.remove('open');
+  editFgId=null;pendingPagos=[];
+  if(fmPendingPdf&&fmPendingPdf.previewUrl)URL.revokeObjectURL(fmPendingPdf.previewUrl);
+  fmPendingPdf=null;
+}
+
+async function saveFg(){
+  var prov=document.getElementById('fm-prov').value.trim();
+  var total=parseFloat(document.getElementById('fm-total').value);
+  if(!prov){toast('El proveedor es obligatorio','error');return;}
+  if(!total||total<=0){toast('El total es obligatorio','error');return;}
+  var albIds=getSelectedAlbIds();
+  var fg=editFgId?facturasGasto.find(function(x){return x.id===editFgId;}):null;
+  var cob=pendingPagos.reduce(function(s,p){return s+(+p.importe||0);},0);
+  var pagoSt=cob<=0?'PENDIENTE':cob>=total-0.01?'PAGADO':'PARCIAL';
+  var d={
+    num:document.getElementById('fm-num').value.trim(),
+    fecha:document.getElementById('fm-fecha').value,
+    fecha_vto:(document.getElementById('fm-vto')||{}).value||null,
+    estado_manual:((document.getElementById('fm-estado-manual')||{}).value)||null,
+    proveedor:prov,
+    categoria:document.getElementById('fm-cat').value,
+    total:total,
+    lineas:document.getElementById('fm-lineas').value.trim(),
+    obs:document.getElementById('fm-obs').value.trim(),
+    albaranes_ids:albIds,
+    pagos:pendingPagos,
+    pago_status:pagoSt
+  };
+  if(fg&&fg.pdf_name)d.pdf_name=fg.pdf_name;
+  if(fg&&fg.pdf_url)d.pdf_url=fg.pdf_url;
+  var oldPdfUrl=fg?fg.pdf_url:null;
+  var mustDeleteOld=false;
+  var entityId=editFgId||uid();
+  try{
+    if(fmPendingPdf&&fmPendingPdf.clear){
+      d.pdf_name=null;d.pdf_url=null;
+      if(oldPdfUrl)mustDeleteOld=true;
+    }else if(fmPendingPdf&&fmPendingPdf.file){
+      var newUrl=await uploadPdfToStorage(fmPendingPdf.file,'facturas_gasto',entityId);
+      d.pdf_name=fmPendingPdf.file.name;
+      d.pdf_url=newUrl;
+      if(oldPdfUrl)mustDeleteOld=true;
+    }
+  }catch(e){setSyncState('error');toast('Error subiendo PDF: '+e.message,'error');return;}
+  setSyncState('syncing');
+  try{
+    if(editFgId){
+      await sbFetch('PATCH','facturas_gasto',d,'id=eq.'+editFgId);
+      var i=facturasGasto.findIndex(function(x){return x.id===editFgId;});
+      facturasGasto[i]=Object.assign({},facturasGasto[i],d);
+      toast('Factura actualizada ✓');
+    }else{
+      d.id=entityId;d.created_at=new Date().toISOString();
+      await sbFetch('POST','facturas_gasto',d);
+      facturasGasto.unshift(d);
+      toast('Factura guardada ✓');
+    }
+    if(mustDeleteOld)deletePdfFromStorage(oldPdfUrl);
+    // Update albarán statuses
+    for(var ai=0;ai<albaranes.length;ai++){
+      var a=albaranes[ai];
+      var newSt=facturasGasto.some(function(f){return(f.albaranes_ids||[]).indexOf(a.id)>=0;})?'FACTURADO':'PENDIENTE';
+      if(a.status!==newSt){
+        try{await sbFetch('PATCH','albaranes',{status:newSt},'id=eq.'+a.id);}catch(e){}
+        albaranes[ai].status=newSt;
+      }
+    }
+    setSyncState('ok');closeFgModal();renderAlbaranes();renderFacturasGasto();fillProvFilters();
+  }catch(e){setSyncState('error');console.error('saveFg error:',e);toast('Error al guardar: '+(e.message||e),'error');}
+}
+
+async function delFg(id){
+  if(!confirm('¿Eliminar esta factura de gasto?'))return;
+  setSyncState('syncing');
+  try{
+    var ex=facturasGasto.find(function(f){return f.id===id;});
+    var pdfUrl=ex?ex.pdf_url:null;
+    await sbFetch('DELETE','facturas_gasto',null,'id=eq.'+id);
+    facturasGasto=facturasGasto.filter(function(f){return f.id!==id;});
+    if(pdfUrl)deletePdfFromStorage(pdfUrl);
+    for(var ai=0;ai<albaranes.length;ai++){
+      var a=albaranes[ai];
+      var newSt=facturasGasto.some(function(f){return(f.albaranes_ids||[]).indexOf(a.id)>=0;})?'FACTURADO':'PENDIENTE';
+      if(a.status!==newSt){try{await sbFetch('PATCH','albaranes',{status:newSt},'id=eq.'+a.id);}catch(e){}albaranes[ai].status=newSt;}
+    }
+    setSyncState('ok');closeFgModal();renderAlbaranes();renderFacturasGasto();fillProvFilters();toast('Eliminada','error');
+  }catch(e){setSyncState('error');toast('Error: '+e.message,'error');}
+}
+
+/* ===== PAGOS ===== */
+function addPago(){
+  var imp=parseFloat(document.getElementById('fg-np-imp').value);
+  if(!imp||imp<=0){toast('Introduce un importe válido','error');return;}
+  var metodo=document.getElementById('fg-np-met').value;
+  var fechaRaw=document.getElementById('fg-np-fecha').value;
+  var fecha=fechaRaw?fechaRaw.split('-').reverse().join('/'):todayEs();
+  pendingPagos.push({metodo:metodo,importe:imp,fecha:fecha});
+  document.getElementById('fg-np-imp').value='';
+  renderFgPagos(null);
+
+  // Si hay fg editándose, guardar inmediatamente
+  if(editFgId){
+    var fg=facturasGasto.find(function(f){return f.id===editFgId;});
+    if(fg){
+      var total=+fg.total||0;
+      var cob=pendingPagos.reduce(function(s,p){return s+(+p.importe||0);},0);
+      var st=cob<=0?'PENDIENTE':cob>=total-0.01?'PAGADO':'PARCIAL';
+      sbFetch('PATCH','facturas_gasto',{pagos:pendingPagos,pago_status:st},'id=eq.'+editFgId)
+        .then(function(){fg.pagos=pendingPagos;fg.pago_status=st;setSyncState('ok');renderFacturasGasto();toast('Pago añadido ✓','success');})
+        .catch(function(e){setSyncState('error');toast('Error: '+e.message,'error');});
+    }
+  }
+}
+
+function delPago(idx){
+  pendingPagos.splice(idx,1);
+  renderFgPagos(editFgId?facturasGasto.find(function(f){return f.id===editFgId;}):null);
+  if(editFgId){
+    var fg=facturasGasto.find(function(f){return f.id===editFgId;});
+    if(fg){
+      var total=+fg.total||0;
+      var cob=pendingPagos.reduce(function(s,p){return s+(+p.importe||0);},0);
+      var st=cob<=0?'PENDIENTE':cob>=total-0.01?'PAGADO':'PARCIAL';
+      sbFetch('PATCH','facturas_gasto',{pagos:pendingPagos,pago_status:st},'id=eq.'+editFgId)
+        .then(function(){fg.pagos=pendingPagos;fg.pago_status=st;setSyncState('ok');renderFacturasGasto();})
+        .catch(function(e){setSyncState('error');});
+    }
+  }
+}
+
+/* ===== PDF SCANNING ===== */
+function setScanTipo(tipo){
+  scanTipo=tipo;
+  var btnAlb=document.getElementById('scan-tipo-alb');
+  var btnFac=document.getElementById('scan-tipo-fac');
+  if(tipo==='alb'){btnAlb.className='btn btn-info active';btnFac.className='btn btn-secondary';}
+  else{btnFac.className='btn btn-purple active';btnAlb.className='btn btn-secondary';}
+}
+
+async function pdfToBase64Pages(file){
+  // Load pdf.js
+  if(!window.pdfjsLib){
+    await new Promise(function(res,rej){
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload=res;s.onerror=rej;document.head.appendChild(s);
+    });
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  var ab=await file.arrayBuffer();
+  var pdf=await window.pdfjsLib.getDocument({data:ab}).promise;
+  var pages=[];
+  var numPages=Math.min(pdf.numPages,4); // max 4 páginas
+  for(var i=1;i<=numPages;i++){
+    var page=await pdf.getPage(i);
+    var vp=page.getViewport({scale:2.0});
+    var canvas=document.createElement('canvas');
+    canvas.width=vp.width;canvas.height=vp.height;
+    var ctx=canvas.getContext('2d');
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
+    pages.push(canvas.toDataURL('image/jpeg',0.85).split(',')[1]);
+  }
+  return pages;
+}
+
+async function scanPdf(file){
+  document.getElementById('pdf-drop').style.display='none';
+  document.getElementById('ai-loading').style.display='flex';
+  document.getElementById('extraction-panel').classList.remove('visible');
+  document.getElementById('scan-error').style.display='none';
+  document.getElementById('ai-loading-txt').textContent='Convirtiendo PDF a imágenes...';
+
+  try{
+    var pages=await pdfToBase64Pages(file);
+    document.getElementById('ai-loading-txt').textContent='Analizando con IA... ('+pages.length+' página'+(pages.length>1?'s':'')+')';
+
+    var tipoLabel=scanTipo==='alb'?'albarán de proveedor':'factura de proveedor/gasto';
+    var prompt=`Eres un asistente experto en documentos de empresa española (construcción/ventanas/aluminio/PVC).
+Analiza este ${tipoLabel} y extrae TODOS los datos disponibles.
+
+Responde SOLO con un JSON válido, sin markdown, sin texto extra. Estructura:
+{
+  "tipo": "${scanTipo}",
+  "num": "número de documento",
+  "fecha": "DD/MM/YYYY",
+  "proveedor": "nombre empresa proveedora",
+  "cif_proveedor": "CIF si aparece",
+  "cliente": "nombre empresa destinataria si aparece",
+  "categoria": "Materiales|Herramientas|Subcontrata|Transporte|Otros",
+  "base": número_sin_iva,
+  "iva_p": porcentaje_iva_como_número,
+  "iva_amt": importe_iva,
+  "total": total_con_iva,
+  "forma_pago": "transferencia|efectivo|cheque|sepa|domiciliacion bancaria|etc si aparece",
+  "vencimiento": "fecha vencimiento en formato DD/MM/YYYY si aparece (busca: 'Vencimiento', 'Fecha vencimiento', 'Vto', 'Fecha de pago', 'Pago el', 'Cargo SEPA el', 'Domiciliación')",
+  "base_imponible": número_base_sin_iva_si_aparece,
+  "obs": "observaciones relevantes",
+  "lineas": [
+    {"desc": "descripción", "cant": cantidad, "precio": precio_unitario, "total": total_linea}
+  ]
+}
+
+Si un campo no aparece, usa null. Para categoría infiere según el contenido.`;
+
+    var content=[{type:'text',text:prompt}];
+    pages.forEach(function(p){content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:p}});});
+
+    var resp=await fetch('scan-proxy.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:2000,messages:[{role:'user',content:content}]})
+    });
+
+    if(!resp.ok){var errTxt=await resp.text();throw new Error('API error: '+errTxt);}
+    var data=await resp.json();
+    var raw=data.content[0].text.trim().replace(/^```json\n?/,'').replace(/\n?```$/,'');
+    var extracted=JSON.parse(raw);
+    lastExtracted={...extracted,pdf_name:file.name,pdf_file:file};
+    showExtracted(extracted,file.name);
+  }catch(e){
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('pdf-drop').style.display='block';
+    document.getElementById('scan-error').style.display='block';
+    document.getElementById('scan-error').textContent='Error al analizar: '+e.message;
+    toast('Error en el análisis','error');
+  }
+}
+
+function showExtracted(d, filename){
+  document.getElementById('ai-loading').style.display='none';
+  var panel=document.getElementById('extraction-panel');
+  panel.classList.add('visible');
+  var badge=document.getElementById('ep-tipo-badge');
+  badge.textContent=d.tipo==='alb'?'Albarán':'Factura de Gasto';
+  badge.className='ep-badge '+(d.tipo==='alb'?'alb':'fac');
+
+  var fields=[
+    {l:'Nº Documento',v:d.num},
+    {l:'Fecha',v:d.fecha},
+    {l:'Proveedor',v:d.proveedor,full:true},
+    {l:'CIF Proveedor',v:d.cif_proveedor},
+    {l:'Cliente/Destinatario',v:d.cliente},
+    {l:'Categoría inferida',v:d.categoria},
+    {l:'TOTAL',v:d.total!=null?fmt(d.total):null},
+    {l:'Forma de pago',v:d.forma_pago},
+    {l:'Vencimiento',v:d.vencimiento},
+    {l:'Observaciones',v:d.obs,full:true},
+  ].filter(function(f){return f.v!=null&&f.v!=='';});
+
+  document.getElementById('ep-fields').innerHTML=fields.map(function(f){
+    return'<div class="ep-field'+(f.full?' full':'')+'"><div class="ef-label">'+esc(f.l)+'</div><div class="ef-value">'+esc(f.v)+'</div></div>';
+  }).join('');
+
+  var lineasWrap=document.getElementById('ep-lineas-wrap');
+  if(d.lineas&&d.lineas.length){
+    lineasWrap.innerHTML='<div class="ep-lineas"><table><thead><tr><th>Descripción</th><th>Cant.</th><th>Precio</th><th>Total</th></tr></thead><tbody>'
+      +d.lineas.map(function(l){
+        return'<tr><td style="max-width:280px;white-space:normal">'+esc(l.desc||'—')+'</td><td class="mono">'+esc(l.cant!=null?l.cant:'—')+'</td><td class="mono">'+esc(l.precio!=null?fmt(l.precio):'—')+'</td><td class="mono" style="font-weight:600">'+esc(l.total!=null?fmt(l.total):'—')+'</td></tr>';
+      }).join('')
+      +'</tbody></table></div>';
+  }else lineasWrap.innerHTML='';
+}
+
+function usarDatosExtraidos(){
+  if(!lastExtracted)return;
+  var d=lastExtracted;
+  var lineasTxt=d.lineas&&d.lineas.length?d.lineas.map(function(l){return(l.cant?l.cant+'x ':'')+l.desc+(l.precio?' — '+fmt(l.precio):'');}).join('\n'):'';
+
+  if(d.tipo==='alb'||scanTipo==='alb'){
+    openAlbModal(null,{
+      num:d.num||'',fecha:d.fecha||todayEs(),proveedor:d.proveedor||'',
+      categoria:d.categoria||'Materiales',total:d.total||'',lineas:lineasTxt,
+      obs:d.obs||'',pdf_name:d.pdf_name,pdf_file:d.pdf_file
+    });
+    switchTab('alb');
+  }else{
+    /* Normalizar fecha vencimiento de forma agresiva — el AI puede devolver:
+       "30/05/2026", "30-05-2026", "2026-05-30", "Cargo SEPA el 30/05/2026",
+       "30 de mayo de 2026", "Vencimiento: 30/05/26", etc. */
+    var vto=normalizeVencimiento(d.vencimiento);
+    console.log('[ga] vencimiento extracted:', d.vencimiento, '-> normalized:', vto);
+    openFgModal(null,{
+      num:d.num||'',fecha:d.fecha||todayEs(),proveedor:d.proveedor||'',
+      categoria:d.categoria||'Materiales',
+      total:d.total||'',lineas:lineasTxt,obs:d.obs||'',pdf_name:d.pdf_name,pdf_file:d.pdf_file,
+      fecha_vto:vto||null
+    });
+    switchTab('fac');
+    /* Si por algún motivo el modal aún no tiene el valor, forzarlo después de un tick */
+    if(vto){
+      setTimeout(function(){
+        var inp=document.getElementById('fm-vto');
+        if(inp&&!inp.value)inp.value=vto;
+      },80);
+    }
+  }
+}
+
+/* Extrae una fecha dd/mm/yyyy de cualquier string. Soporta:
+   - dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy
+   - yyyy-mm-dd, yyyy/mm/dd
+   - dd/mm/yy, dd-mm-yy (asume 20YY)
+   - "30 de mayo de 2026" (meses en español)
+   - texto rodeando la fecha ("Cargo SEPA el 30/05/2026") */
+function normalizeVencimiento(raw){
+  if(!raw)return'';
+  var s=String(raw).trim();
+  if(!s)return'';
+  /* 1) yyyy-mm-dd o yyyy/mm/dd embebido en cualquier parte */
+  var m=s.match(/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/);
+  if(m){
+    var y=m[1], mo=m[2].padStart(2,'0'), da=m[3].padStart(2,'0');
+    return da+'/'+mo+'/'+y;
+  }
+  /* 2) dd[/-.]mm[/-.]yyyy (4 dígitos año) */
+  m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if(m){
+    return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3];
+  }
+  /* 3) dd[/-.]mm[/-.]yy (2 dígitos año, asumimos 20YY) */
+  m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2})(?!\d)/);
+  if(m){
+    var yr=parseInt(m[3],10);
+    yr=(yr<70?2000:1900)+yr;
+    return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+yr;
+  }
+  /* 4) "30 de mayo de 2026" (meses en español, con o sin "de") */
+  var meses={enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',setiembre:'09',octubre:'10',noviembre:'11',diciembre:'12'};
+  m=s.toLowerCase().match(/(\d{1,2})\s*(?:de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\s*(?:de\s+)?(\d{4})/);
+  if(m){
+    return m[1].padStart(2,'0')+'/'+meses[m[2]]+'/'+m[3];
+  }
+  return'';
+}
+
+function resetScanner(){
+  document.getElementById('pdf-drop').style.display='block';
+  document.getElementById('ai-loading').style.display='none';
+  document.getElementById('extraction-panel').classList.remove('visible');
+  document.getElementById('scan-error').style.display='none';
+  document.getElementById('pdf-input').value='';
+  lastExtracted=null;
+}
+
+/* ===== EVENTS ===== */
+window.addEventListener('load',function(){
+  // Login
+  document.getElementById('login-btn').addEventListener('click',doLogin);
+  document.getElementById('l-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+  document.getElementById('l-user').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+  document.getElementById('btn-logout').addEventListener('click',doLogout);
+
+  // Restore session
+  try{
+    var saved=localStorage.getItem('jeovent_user')||sessionStorage.getItem('jeovent_user');
+    if(saved){
+      currentUser=JSON.parse(saved);
+      try{localStorage.setItem('jeovent_user',saved);}catch(_){}
+      document.getElementById('user-name').textContent=currentUser.nombre||currentUser.username;
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='flex';
+      loadData();
+    }
+  }catch(e){try{localStorage.removeItem('jeovent_user');}catch(_){}}
+
+  // Tabs
+  document.getElementById('tab-alb').addEventListener('click',function(){switchTab('alb');});
+  document.getElementById('tab-fac').addEventListener('click',function(){switchTab('fac');});
+  document.getElementById('tab-scan').addEventListener('click',function(){switchTab('scan');});
+
+  // Albaranes toolbar
+  document.getElementById('alb-srch').addEventListener('input',renderAlbaranes);
+  document.getElementById('alb-fil-st').addEventListener('change',renderAlbaranes);
+  document.getElementById('alb-fil-prov').addEventListener('change',renderAlbaranes);
+  document.getElementById('btn-new-alb').addEventListener('click',function(){openAlbModal();});
+
+  // Albaranes table
+  document.getElementById('alb-tbody').addEventListener('click',function(e){
+    var del=e.target.closest('[data-delalb]');
+    var pdfLink=e.target.closest('[data-pdflink]');
+    var row=e.target.closest('tr[data-albid]');
+    if(del){e.stopPropagation();delAlb(del.dataset.delalb);}
+    else if(pdfLink){e.stopPropagation();/* let default <a> behavior navigate */}
+    else if(row){openAlbModal(row.dataset.albid);}
+  });
+
+  // PDF handlers — Albarán modal
+  document.getElementById('am-pdf-attach').addEventListener('click',function(){document.getElementById('am-pdf-input').click();});
+  document.getElementById('am-pdf-input').addEventListener('change',function(){attachPdfHandler('am',false);});
+  document.getElementById('am-pdf-clear').addEventListener('click',function(){clearPdfHandler('am',false);});
+
+  // Albarán modal
+  document.getElementById('alb-m-close').addEventListener('click',closeAlbModal);
+  document.getElementById('alb-m-cancel').addEventListener('click',closeAlbModal);
+  document.getElementById('alb-m-save').addEventListener('click',saveAlb);
+  document.getElementById('alb-m-del').addEventListener('click',function(){if(editAlbId)delAlb(editAlbId);});
+  document.getElementById('alb-overlay').addEventListener('click',function(e){if(e.target===this)closeAlbModal();});
+
+  // Facturas gasto toolbar
+  document.getElementById('fg-srch').addEventListener('input',renderFacturasGasto);
+  document.getElementById('fg-fil-st').addEventListener('change',renderFacturasGasto);
+  document.getElementById('fg-fil-prov').addEventListener('change',renderFacturasGasto);
+  document.getElementById('btn-new-fg').addEventListener('click',function(){openFgModal();});
+
+  // Facturas gasto table
+  document.getElementById('fg-tbody').addEventListener('click',function(e){
+    var del=e.target.closest('[data-delfg]');
+    var pdfLink=e.target.closest('[data-pdflink]');
+    var row=e.target.closest('tr[data-fgid]');
+    if(del){e.stopPropagation();delFg(del.dataset.delfg);}
+    else if(pdfLink){e.stopPropagation();/* let default <a> behavior navigate */}
+    else if(row){openFgModal(row.dataset.fgid);}
+  });
+
+  // PDF handlers — Factura Gasto modal
+  document.getElementById('fm-pdf-attach').addEventListener('click',function(){document.getElementById('fm-pdf-input').click();});
+  document.getElementById('fm-pdf-input').addEventListener('change',function(){attachPdfHandler('fm',true);});
+  document.getElementById('fm-pdf-clear').addEventListener('click',function(){clearPdfHandler('fm',true);});
+
+  // Factura gasto modal
+  document.getElementById('fg-m-close').addEventListener('click',closeFgModal);
+  document.getElementById('fg-m-cancel').addEventListener('click',closeFgModal);
+  document.getElementById('fg-m-save').addEventListener('click',saveFg);
+  document.getElementById('fg-m-del').addEventListener('click',function(){if(editFgId)delFg(editFgId);});
+  document.getElementById('fg-overlay').addEventListener('click',function(e){if(e.target===this)closeFgModal();});
+  document.getElementById('btn-add-pago').addEventListener('click',addPago);
+  document.getElementById('fg-pagos-list').addEventListener('click',function(e){
+    var btn=e.target.closest('[data-delpago]');
+    if(btn)delPago(parseInt(btn.dataset.delpago));
+  });
+  document.getElementById('fg-alb-list').addEventListener('change',function(e){
+    if(e.target.name==='alb-chk'){
+      var item=e.target.closest('.vinc-item');
+      if(item)item.classList.toggle('selected',e.target.checked);
+      updateAlbAlert();
+    }
+  });
+
+  // PDF Scanner
+  document.getElementById('scan-tipo-alb').addEventListener('click',function(){setScanTipo('alb');});
+  document.getElementById('scan-tipo-fac').addEventListener('click',function(){setScanTipo('fac');});
+
+  var dropZone=document.getElementById('pdf-drop');
+  var pdfInput=document.getElementById('pdf-input');
+
+  dropZone.addEventListener('click',function(){pdfInput.click();});
+  pdfInput.addEventListener('change',function(e){if(e.target.files[0])scanPdf(e.target.files[0]);});
+
+  dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.classList.add('drag-over');});
+  dropZone.addEventListener('dragleave',function(){dropZone.classList.remove('drag-over');});
+  dropZone.addEventListener('drop',function(e){
+    e.preventDefault();dropZone.classList.remove('drag-over');
+    var file=e.dataTransfer.files[0];
+    if(file&&file.type==='application/pdf')scanPdf(file);
+    else toast('Por favor, sube un archivo PDF','error');
+  });
+
+  document.getElementById('btn-usar-datos').addEventListener('click',usarDatosExtraidos);
+  document.getElementById('btn-scan-otro').addEventListener('click',resetScanner);
+});
+
+/* ===== REALTIME SYNC (adaugat automat) ===== */
+(function initRealtime(){
+  if(typeof supabase==="undefined"||!supabase.createClient){console.warn("[Realtime] supabase-js lipseste");return;}
+  var _sbRT=supabase.createClient(SB_URL,SB_KEY);
+  var _rtTimer=null;
+  function _rtTrigger(tbl){
+    try{if(typeof setSyncState==="function")setSyncState("syncing");}catch(_){}
+    if(_rtTimer)clearTimeout(_rtTimer);
+    _rtTimer=setTimeout(function(){
+      try{if(typeof loadData==="function")loadData();}catch(e){console.error("[Realtime] loadData failed",e);}
+      try{if(typeof setSyncState==="function")setSyncState("ok");}catch(_){}
+    },1500);
+  }
+  var TABLES=['albaranes','facturas_gasto'];
+  var ch=_sbRT.channel("jeovent-sync-"+Math.random().toString(36).slice(2));
+  TABLES.forEach(function(t){ch.on("postgres_changes",{event:"*",schema:"public",table:t},function(p){console.log("[Realtime]",t,p.eventType);_rtTrigger(t);});});
+  ch.subscribe(function(status){console.log("[Realtime] channel:",status);});
+  window._jeoventRealtime=ch;
+  // RT_CLEANUP_INSTALLED
+  window.addEventListener('beforeunload', function(){
+    try{ if(_rtTimer) clearTimeout(_rtTimer); }catch(_){}
+    try{ if(ch && typeof ch.unsubscribe==='function') ch.unsubscribe(); }catch(_){}
+    try{ if(_sbRT && typeof _sbRT.removeAllChannels==='function') _sbRT.removeAllChannels(); }catch(_){}
+    window._jeoventRealtime = null;
+  });
+})();
+</script>
+<script src="historico.js"></script>
+</body>
+</html>

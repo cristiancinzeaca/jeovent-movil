@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1a4fa0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jeovent Obras">
+<title>Jeovent · Subir Obra</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh;font-size:15px;-webkit-tap-highlight-color:transparent}
+.app{max-width:520px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+header{background:linear-gradient(135deg,#1a1a2e,#1a4fa0);color:#fff;padding:18px 18px 14px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+header .sub{font-size:11px;opacity:.85;margin-top:3px}
+main{flex:1;padding:16px;display:flex;flex-direction:column;gap:14px}
+.section-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin:6px 0 4px}
+
+/* Botones */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:transform .1s,opacity .15s;font-family:inherit;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:#1a4fa0;color:#fff}
+.btn-primary:disabled{opacity:.5}
+.btn-success{background:#059669;color:#fff;font-size:17px;padding:18px}
+.btn-secondary{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
+.btn-danger{background:#fee2e2;color:#dc2626}
+
+/* Inputs */
+input[type=text],input[type=password],textarea{width:100%;padding:14px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,textarea:focus{border-color:#1a4fa0}
+textarea{resize:vertical;min-height:60px}
+.label{font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;display:block}
+
+/* Photos grid */
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f3f4f6;border:1px solid #e5e7eb}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-thumb .rm{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(220,38,38,.92);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.photo-thumb .num{position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:600}
+.photo-thumb .rot{position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;background:rgba(26,79,160,.92);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.photo-empty{padding:30px 14px;text-align:center;color:#9ca3af;font-size:13px;border:2px dashed #d1d5db;border-radius:10px}
+
+/* Cliente autocomplete */
+.cli-wrap{position:relative}
+.cli-drop{position:absolute;top:100%;left:0;right:0;max-height:240px;overflow:auto;background:#fff;border:1px solid #d1d5db;border-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.1);z-index:50;margin-top:4px;display:none}
+.cli-item{padding:12px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f3f4f6}
+.cli-item:last-child{border-bottom:none}
+.cli-item:active{background:#eff6ff}
+.cli-item .cif{font-size:11px;color:#6b7280;margin-top:2px}
+
+/* Login */
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#1a4fa0);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.login-box{background:#fff;border-radius:16px;padding:32px 24px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.login-box h2{font-size:20px;color:#1a1a2e;margin-bottom:6px;text-align:center}
+.login-box p{font-size:13px;color:#6b7280;margin-bottom:20px;text-align:center}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);max-width:90vw;z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast-item{background:#1a1a2e;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2);max-width:100%}
+.toast-item.success{background:#059669}
+.toast-item.error{background:#dc2626}
+
+/* Progress */
+#progress-overlay{position:fixed;inset:0;background:rgba(26,26,46,.92);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+#progress-overlay.show{display:flex}
+.progress-box{background:#fff;border-radius:16px;padding:30px 24px;width:100%;max-width:320px;text-align:center}
+.progress-box h3{font-size:16px;color:#1a1a2e;margin-bottom:14px}
+.progress-bar{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;background:#1a4fa0;width:0%;transition:width .3s}
+.progress-text{font-size:13px;color:#6b7280}
+</style>
+
+<style>/* JEOVENT-MOBILE-CSS */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .table-wrap, .table-wrap-x { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 800px; }
+  .toolbar, .subnav { flex-wrap: wrap; gap: 6px; padding: 8px; }
+  .modal { width: 96vw !important; max-width: 96vw !important; max-height: 92vh !important; }
+  .modal-wide { width: 96vw !important; max-width: 96vw !important; }
+  .btn { padding: 10px 14px; font-size: 14px; min-height: 38px; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; min-height: 32px; }
+  input, select, textarea { font-size: 16px !important; min-height: 38px; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .stat-cards { overflow-x: auto; padding: 8px; }
+  .stat-card { min-width: 120px; }
+  /* hide sidebar / detail panels on mobile */
+  .csp-side, .client-detail-side { display: none; }
+}
+@media (max-width: 480px) {
+  .nav-btn, .subnav button { font-size: 12px; padding: 6px 8px; }
+  h1, h2 { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <h2>📸 Jeovent · Obras</h2>
+    <p>Sube fotos directamente desde el m&oacute;vil</p>
+    <input type="password" id="pin-input" placeholder="PIN" inputmode="numeric" maxlength="6" autofocus>
+    <button class="btn btn-primary" id="btn-pin" style="margin-top:12px">Entrar</button>
+    <div id="pin-error" style="color:#dc2626;font-size:12px;margin-top:8px;display:none;text-align:center">PIN incorrecto</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <header>
+    <h1>📸 Subir Obra</h1>
+    <div class="sub">Toma fotos &rarr; PDF autom&aacute;tico &rarr; sube</div>
+  </header>
+
+  <main>
+    <!-- PASUL 1: Foto -->
+    <div>
+      <div class="section-title">1. Fotos de la obra</div>
+      <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
+      <button class="btn btn-primary" id="btn-camera">📷 Tomar foto</button>
+      <div id="photos-grid" class="photos-grid"></div>
+      <div id="photos-empty" class="photo-empty">No hay fotos todav&iacute;a. Toca "Tomar foto".</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:6px;text-align:center">Si la foto sale girada, toca el bot&oacute;n &#x21bb; sobre la imagen para rotarla.</div>
+    </div>
+
+    <!-- PASUL 2: Datos -->
+    <div>
+      <div class="section-title">2. Datos de la obra</div>
+      <label class="label">N&deg; Obra</label>
+      <input type="text" id="obra-num" placeholder="Ej: OBR-2026-001" autocomplete="off">
+    </div>
+
+    <div>
+      <label class="label">N&deg; Presupuesto (opcional - escribe para buscar)</label>
+      <div class="cli-wrap">
+        <input type="text" id="pre-num" placeholder="Ej: PRE-2026-001..." autocomplete="off">
+        <div id="pre-drop" class="cli-drop"></div>
+      </div>
+    </div>
+
+    <div>
+      <label class="label">Estado</label>
+      <select id="estado-sel" style="width:100%;padding:14px;border:1px solid #d1d5db;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;outline:none;-webkit-appearance:none;appearance:none">
+        <option value="PENDIENTE">⏳ Pendiente</option>
+        <option value="EN_FABRICACION">🔨 En fabricación</option>
+        <option value="TERMINADA">✅ Terminada</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="label">Cliente (escribe para buscar)</label>
+      <div class="cli-wrap">
+        <input type="text" id="cli-name" placeholder="Empieza a escribir nombre..." autocomplete="off">
+        <div id="cli-drop" class="cli-drop"></div>
+      </div>
+    </div>
+
+    <div>
+      <label class="label">Observaciones (opcional)</label>
+      <textarea id="obs" rows="2" placeholder="Notas..."></textarea>
+    </div>
+
+    <!-- PASUL 3: Subir -->
+    <div style="margin-top:14px">
+      <div class="section-title">3. Subir</div>
+      <button class="btn btn-success" id="btn-upload" disabled>📤 Crear PDF y subir</button>
+      <p style="font-size:12px;color:#6b7280;margin-top:8px;text-align:center">Las fotos se combinar&aacute;n en un PDF autom&aacute;ticamente.</p>
+    </div>
+  </main>
+</div>
+
+<!-- PROGRESS -->
+<div id="progress-overlay">
+  <div class="progress-box">
+    <h3 id="prog-title">Procesando...</h3>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="progress-text" id="prog-text">0%</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+/* ===== CONFIG (acelasi proiect Supabase ca aplicatia desktop) ===== */
+var SB_URL='https://jcznbhisnbbszlicsnjt.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impjem5iaGlzbmJic3psaWNzbmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjY1ODcsImV4cCI6MjA5MTQwMjU4N30.jnWZ5UGqqbO05YT-Xl1uiGjuKl3wAb4JPPHQa841xPM';
+var APP_PIN='2026'; // schimba in functia de PIN-ul tau dorit
+var STORAGE_BUCKET='obras-pdf';
+
+/* ===== STATE ===== */
+var photos=[]; // [{dataUrl, w, h}]
+var clientes=[];
+var presupuestos=[];
+var selectedCli=null;
+var selectedPre=null;
+
+/* ===== UTILS ===== */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function normNom(s){return (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();}
+function uid(){return 'm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);}
+function todayIso(){return new Date().toISOString().slice(0,10);}
+
+function toast(msg,type,dur){
+  var c=document.getElementById('toast');
+  var t=document.createElement('div');
+  t.className='toast-item'+(type?' '+type:'');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(function(){if(c.contains(t))c.removeChild(t);},400);},(dur||3000));
+}
+
+function showProgress(title){
+  document.getElementById('prog-title').textContent=title||'Procesando...';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('prog-text').textContent='0%';
+  document.getElementById('progress-overlay').classList.add('show');
+}
+function setProgress(pct,text){
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-text').textContent=text||(pct+'%');
+}
+function hideProgress(){document.getElementById('progress-overlay').classList.remove('show');}
+
+/* ===== LOGIN ===== */
+function doLogin(){
+  var v=document.getElementById('pin-input').value;
+  if(v===APP_PIN){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='flex';
+    try{localStorage.setItem('jeo_mob_auth','1');}catch(_){}
+    initApp();
+  }else{
+    document.getElementById('pin-error').style.display='block';
+    document.getElementById('pin-input').value='';
+  }
+}
+try{
+  if(localStorage.getItem('jeo_mob_auth')==='1'){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='flex';
+    setTimeout(initApp,50);
+  }
+}catch(_){}
+
+document.getElementById('btn-pin').addEventListener('click',doLogin);
+document.getElementById('pin-input').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+/* ===== SUPABASE ===== */
+function sbFetch(method,table,data,query){
+  var url=SB_URL+'/rest/v1/'+table+(query?'?'+query:'');
+  var opts={method:method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  if(data)opts.body=JSON.stringify(data);
+  return fetch(url,opts).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error('HTTP '+r.status+': '+t.slice(0,200));});
+    return r.status===204?null:r.json();
+  });
+}
+
+function sbUploadPdf(filename,blob){
+  var url=SB_URL+'/storage/v1/object/'+STORAGE_BUCKET+'/'+encodeURIComponent(filename);
+  return fetch(url,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/pdf','x-upsert':'true'},body:blob}).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error('Upload fail: '+t.slice(0,200));});
+    return SB_URL+'/storage/v1/object/public/'+STORAGE_BUCKET+'/'+encodeURIComponent(filename);
+  });
+}
+
+/* ===== INIT ===== */
+async function initApp(){
+  try{
+    var cli=await sbFetch('GET','clientes',null,'order=nombre.asc&select=id,nombre,cif');
+    clientes=cli||[];
+  }catch(e){console.warn('load clientes',e);clientes=[];}
+  try{
+    var pre=await sbFetch('GET','presupuestos',null,'order=created_at.desc&select=id,num,cliente_id,cliente_nombre');
+    presupuestos=pre||[];
+  }catch(e){console.warn('load presupuestos',e);presupuestos=[];}
+}
+
+/* ===== CAMERA ===== */
+document.getElementById('btn-camera').addEventListener('click',function(){
+  document.getElementById('cam-input').click();
+});
+document.getElementById('cam-input').addEventListener('change',function(){
+  var files=this.files;
+  if(!files||!files.length)return;
+  Array.from(files).forEach(function(f){addPhotoFile(f);});
+  this.value='';
+});
+
+/* Citeste EXIF orientation din JPEG */
+function getJpegOrientation(arrayBuffer){
+  try{
+    var view=new DataView(arrayBuffer);
+    if(view.getUint16(0,false)!==0xFFD8)return 1;
+    var len=view.byteLength,offset=2;
+    while(offset<len){
+      if(view.getUint16(offset+2,false)<=8)return 1;
+      var marker=view.getUint16(offset,false);
+      offset+=2;
+      if(marker===0xFFE1){
+        if(view.getUint32(offset+=2,false)!==0x45786966)return 1;
+        var little=view.getUint16(offset+=6,false)===0x4949;
+        offset+=view.getUint32(offset+4,little);
+        var tags=view.getUint16(offset,little);
+        offset+=2;
+        for(var i=0;i<tags;i++){
+          if(view.getUint16(offset+(i*12),little)===0x0112){
+            return view.getUint16(offset+(i*12)+8,little);
+          }
+        }
+      }else if((marker&0xFF00)!==0xFF00)break;
+      else offset+=view.getUint16(offset,false);
+    }
+  }catch(e){}
+  return 1;
+}
+
+/* Aplica EXIF orientation pe canvas si returneaza dataURL nou */
+function rotateImage(img, orientation){
+  var canvas=document.createElement('canvas');
+  var ctx=canvas.getContext('2d');
+  var w=img.width, h=img.height;
+  /* Pentru orientarile 5,6,7,8 lat si inalt se schimba */
+  if(orientation>=5 && orientation<=8){canvas.width=h;canvas.height=w;}
+  else{canvas.width=w;canvas.height=h;}
+  switch(orientation){
+    case 2: ctx.transform(-1,0,0,1,w,0);break;
+    case 3: ctx.transform(-1,0,0,-1,w,h);break;
+    case 4: ctx.transform(1,0,0,-1,0,h);break;
+    case 5: ctx.transform(0,1,1,0,0,0);break;
+    case 6: ctx.transform(0,1,-1,0,h,0);break;
+    case 7: ctx.transform(0,-1,-1,0,h,w);break;
+    case 8: ctx.transform(0,-1,1,0,0,w);break;
+  }
+  ctx.drawImage(img,0,0);
+  return {dataUrl:canvas.toDataURL('image/jpeg',0.85), w:canvas.width, h:canvas.height};
+}
+
+function addPhotoFile(file){
+  /* Citim ca ArrayBuffer pentru EXIF + DataURL pentru afisare */
+  var freader=new FileReader();
+  freader.onload=function(ab){
+    var orientation=getJpegOrientation(ab.target.result);
+    var dreader=new FileReader();
+    dreader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        if(orientation>1){
+          /* Roteste pe canvas, salveaza dataURL nou */
+          var rot=rotateImage(img, orientation);
+          photos.push({dataUrl:rot.dataUrl, w:rot.w, h:rot.h, size:file.size});
+        }else{
+          photos.push({dataUrl:e.target.result, w:img.width, h:img.height, size:file.size});
+        }
+        renderPhotos();
+      };
+      img.src=e.target.result;
+    };
+    dreader.readAsDataURL(file);
+  };
+  freader.readAsArrayBuffer(file);
+}
+
+function renderPhotos(){
+  var grid=document.getElementById('photos-grid');
+  var empty=document.getElementById('photos-empty');
+  if(!photos.length){grid.innerHTML='';empty.style.display='block';updateUploadBtn();return;}
+  empty.style.display='none';
+  grid.innerHTML=photos.map(function(p,i){
+    return '<div class="photo-thumb"><img src="'+p.dataUrl+'" alt="foto"><button class="rm" data-rm="'+i+'">&times;</button><button class="rot" data-rot="'+i+'" title="Rotar 90°">↻</button><span class="num">'+(i+1)+'</span></div>';
+  }).join('');
+  grid.querySelectorAll('.rm').forEach(function(b){
+    b.addEventListener('click',function(){
+      photos.splice(parseInt(this.dataset.rm),1);
+      renderPhotos();
+    });
+  });
+  grid.querySelectorAll('.rot').forEach(function(b){
+    b.addEventListener('click',function(){
+      var idx=parseInt(this.dataset.rot);
+      rotatePhoto90(idx);
+    });
+  });
+  updateUploadBtn();
+}
+
+/* Roteste poza 90° in sens orar pe canvas */
+function rotatePhoto90(idx){
+  var p=photos[idx];if(!p)return;
+  var img=new Image();
+  img.onload=function(){
+    var c=document.createElement('canvas');
+    c.width=img.height;
+    c.height=img.width;
+    var ctx=c.getContext('2d');
+    ctx.translate(c.width,0);
+    ctx.rotate(Math.PI/2);
+    ctx.drawImage(img,0,0);
+    p.dataUrl=c.toDataURL('image/jpeg',0.85);
+    p.w=c.width;
+    p.h=c.height;
+    renderPhotos();
+  };
+  img.src=p.dataUrl;
+}
+
+/* ===== PRESUPUESTO AUTOCOMPLETE ===== */
+var preInput=document.getElementById('pre-num');
+var preDrop=document.getElementById('pre-drop');
+preInput.addEventListener('input',function(){
+  selectedPre=null;
+  var q=(this.value||'').trim().toLowerCase();
+  if(!q||q.length<1){preDrop.style.display='none';return;}
+  var hits=presupuestos.filter(function(p){return p.num&&String(p.num).toLowerCase().indexOf(q)>=0;}).slice(0,10);
+  if(!hits.length){preDrop.style.display='none';return;}
+  preDrop.innerHTML=hits.map(function(p){
+    var cliN=p.cliente_nombre||'';
+    return '<div class="cli-item" data-id="'+p.id+'" data-num="'+esc(p.num)+'" data-cli="'+esc(cliN)+'" data-cliid="'+(p.cliente_id||'')+'"><b>'+esc(p.num)+'</b>'+(cliN?'<div class="cif">'+esc(cliN)+'</div>':'')+'</div>';
+  }).join('');
+  preDrop.style.display='block';
+  preDrop.querySelectorAll('.cli-item').forEach(function(item){
+    item.addEventListener('click',function(){
+      preInput.value=this.dataset.num;
+      selectedPre={id:this.dataset.id,num:this.dataset.num,cliente_id:this.dataset.cliid||null,cliente_nombre:this.dataset.cli||null};
+      /* Auto-completeaza cliente daca e gol */
+      var cliField=document.getElementById('cli-name');
+      if(!cliField.value.trim()&&this.dataset.cli){
+        cliField.value=this.dataset.cli;
+        if(this.dataset.cliid){selectedCli={id:this.dataset.cliid,nombre:this.dataset.cli};}
+      }
+      preDrop.style.display='none';
+    });
+  });
+});
+preInput.addEventListener('blur',function(){setTimeout(function(){preDrop.style.display='none';},250);});
+
+/* ===== CLIENTE AUTOCOMPLETE ===== */
+var cliInput=document.getElementById('cli-name');
+var cliDrop=document.getElementById('cli-drop');
+cliInput.addEventListener('input',function(){
+  selectedCli=null;
+  var q=normNom(this.value);
+  if(!q||q.length<2){cliDrop.style.display='none';return;}
+  var hits=clientes.filter(function(c){return normNom(c.nombre).indexOf(q)>=0;}).slice(0,10);
+  if(!hits.length){cliDrop.style.display='none';return;}
+  cliDrop.innerHTML=hits.map(function(c){
+    return '<div class="cli-item" data-id="'+c.id+'" data-nom="'+esc(c.nombre)+'">'+esc(c.nombre)+(c.cif?'<div class="cif">'+esc(c.cif)+'</div>':'')+'</div>';
+  }).join('');
+  cliDrop.style.display='block';
+  cliDrop.querySelectorAll('.cli-item').forEach(function(item){
+    item.addEventListener('click',function(){
+      cliInput.value=this.dataset.nom;
+      selectedCli=clientes.find(function(c){return c.id===this.dataset.id;}.bind(this));
+      cliDrop.style.display='none';
+    });
+  });
+});
+cliInput.addEventListener('blur',function(){setTimeout(function(){cliDrop.style.display='none';},250);});
+
+/* ===== UPDATE BUTTON STATE ===== */
+function updateUploadBtn(){
+  var btn=document.getElementById('btn-upload');
+  var num=document.getElementById('obra-num').value.trim();
+  btn.disabled=!(photos.length>0&&num);
+}
+document.getElementById('obra-num').addEventListener('input',updateUploadBtn);
+
+/* ===== PDF GENERATION ===== */
+function buildPdf(){
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+  var pageW=210, pageH=297, margin=8;
+  var maxW=pageW-margin*2, maxH=pageH-margin*2-12; // -12 pentru header
+  photos.forEach(function(p,i){
+    if(i>0)doc.addPage();
+    // Header
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(26,79,160);
+    doc.text('Jeovent · Obra · Foto '+(i+1)+'/'+photos.length,margin,margin+5);
+    doc.setTextColor(120);doc.setFontSize(8);doc.setFont('helvetica','normal');
+    var num=document.getElementById('obra-num').value.trim();
+    var cli=document.getElementById('cli-name').value.trim();
+    var info=[num?'N° '+num:'',cli?cli:'',new Date().toLocaleString('es-ES')].filter(Boolean).join(' · ');
+    doc.text(info,margin,margin+10);
+    // Imagine
+    var iw=p.w, ih=p.h;
+    var ratio=Math.min(maxW/iw,maxH/ih);
+    var dw=iw*ratio, dh=ih*ratio;
+    var x=(pageW-dw)/2, y=margin+14;
+    doc.addImage(p.dataUrl,'JPEG',x,y,dw,dh,undefined,'FAST');
+  });
+  return doc.output('blob');
+}
+
+/* ===== UPLOAD ===== */
+document.getElementById('btn-upload').addEventListener('click',async function(){
+  var num=document.getElementById('obra-num').value.trim();
+  var cliName=document.getElementById('cli-name').value.trim();
+  var obs=document.getElementById('obs').value.trim();
+  if(!photos.length||!num){toast('Faltan fotos o n° de obra','error');return;}
+
+  showProgress('Generando PDF...');
+  await new Promise(function(r){setTimeout(r,50);});
+
+  var pdfBlob;
+  try{
+    pdfBlob=buildPdf();
+    setProgress(40,'PDF generado');
+  }catch(e){hideProgress();toast('Error PDF: '+e.message,'error');return;}
+
+  setProgress(50,'Subiendo PDF...');
+  var safeName=(num.replace(/[^a-zA-Z0-9._-]/g,'_'))+'-'+Date.now()+'.pdf';
+  var pdfUrl;
+  try{
+    pdfUrl=await sbUploadPdf(safeName,pdfBlob);
+    setProgress(75,'PDF subido');
+  }catch(e){hideProgress();toast('Error subiendo: '+e.message,'error');return;}
+
+  setProgress(85,'Creando registro...');
+  var cli=selectedCli||clientes.find(function(c){return c.nombre===cliName;});
+  var preNum=document.getElementById('pre-num').value.trim();
+  var pre=selectedPre||(preNum?presupuestos.find(function(p){return(p.num||'').toLowerCase()===preNum.toLowerCase();}):null);
+  var estado=document.getElementById('estado-sel').value||'PENDIENTE';
+  /* Daca cliente nu e setat dar avem presupuesto, mosteneste de acolo */
+  if(!cli&&pre){
+    cli={id:pre.cliente_id,nombre:pre.cliente_nombre};
+  }
+  var obra={
+    id:uid(),
+    num:num,
+    fecha:todayIso(),
+    presupuesto_id:pre?pre.id:null,
+    presupuesto_num:preNum||null,
+    cliente_id:cli&&cli.id?cli.id:null,
+    cliente_nombre:cli?cli.nombre:(cliName||null),
+    estado:estado,
+    pdf_url:pdfUrl,
+    pdf_name:safeName,
+    obs:obs||('Subido desde móvil ('+photos.length+' fotos)'),
+    created_at:new Date().toISOString()
+  };
+  try{
+    await sbFetch('POST','obras',obra);
+    setProgress(100,'Listo!');
+    setTimeout(function(){
+      hideProgress();
+      toast('Obra subida ✓ ('+photos.length+' fotos)','success',4000);
+      // Reset form
+      photos=[];
+      document.getElementById('obra-num').value='';
+      document.getElementById('pre-num').value='';
+      document.getElementById('cli-name').value='';
+      document.getElementById('obs').value='';
+      document.getElementById('estado-sel').value='PENDIENTE';
+      selectedCli=null;
+      selectedPre=null;
+      renderPhotos();
+    },400);
+  }catch(e){hideProgress();toast('Error guardando: '+e.message,'error');}
+});
+
+/* ===== INIT prima vizualizare ===== */
+renderPhotos();
+</script>
+</body>
+</html>
