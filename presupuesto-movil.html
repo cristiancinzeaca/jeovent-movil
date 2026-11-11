@@ -202,8 +202,11 @@ async function empezarAMano() {
 }
 
 // Al recibir una solicitud (de la lista o del poll): pasa la lectura a la tabla editable
-function cargarSolicitud(sol) {
-  var cambia = !S.sol || S.sol.id !== sol.id || S.sol.estado !== sol.estado;
+function escribiendo() { var a = document.activeElement; return !!(a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.closest('#app')); }
+function cargarSolicitud(sol, desdePoll) {
+  var nueva = !S.sol || S.sol.id !== sol.id;
+  var cambia = nueva || S.sol.estado !== sol.estado;
+  var igual = !cambia && S.sol.updated_at === sol.updated_at;
   S.sol = sol; guardarActual(sol.id);
   if (cambia && sol.estado === 'leida') {
     var L = sol.lectura || {};
@@ -214,10 +217,16 @@ function cargarSolicitud(sol) {
     var cat = S.cat || {};
     S.vidrio = (sol.datos && sol.datos.acabado && sol.datos.acabado.vidrio) || L.vidrio_auto || cat.vidrio_defecto || '';
     S.color = (sol.datos && sol.datos.acabado && sol.datos.acabado.color) || L.color_auto || cat.color_defecto || '';
-    S.montaje = sol.datos && sol.datos.montaje ? !!sol.datos.montaje.incluir : true;
+    S.montaje = sol.datos && sol.datos.montaje ? !!sol.datos.montaje.incluir : false;
+  }
+  if (desdePoll) {
+    if (igual) return;                                   // nada nuevo del PC: no tocar la pantalla
+    if (escribiendo()) { S.pendiente = true; return; }   // el comercial está escribiendo: se repinta al salir del campo
+    render(); return;
   }
   render(); poll();
 }
+document.addEventListener('focusout', function () { if (S.pendiente) { S.pendiente = false; setTimeout(function () { if (!escribiendo()) render(); }, 150); } });
 
 function ventanaNueva() { return { ancho_cm: 0, alto_cm: 0, cajon_cm: 0, ancho_tramo1_cm: 0, panel: false, tipo: '1_hoja_oscilobatiente', persiana: 'ninguna', recogedor_lado: 'ninguno', tapajuntas: true, color: '', vidrio: '', uds: 1, estancia: '', notas: '', confianza: 'alta' }; }
 
@@ -233,6 +242,7 @@ function datosParaCrear() {
 }
 
 async function crearEnPrefGest() {
+  if (!String(S.cab.cliente || '').trim()) { toast('Escribe el nombre del cliente antes de crear el presupuesto', 4000); var el = document.querySelector('[data-cab="cliente"]'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); } return; }
   var d = datosParaCrear();
   if (!d.ventanas.length) { toast('No hay ventanas con ancho y alto'); return; }
   if (!confirm('¿Crear un presupuesto NUEVO en PrefGest con ' + d.ventanas.length + ' ventana' + (d.ventanas.length > 1 ? 's' : '') + (S.montaje ? ' + montaje' : '') + '?\nVidrio: ' + (S.vidrio || 'el de la plantilla') + '\nColor: ' + (S.color || 'el de la plantilla') + '\nTarda alrededor de un minuto.')) return;
@@ -243,7 +253,7 @@ async function crearEnPrefGest() {
 }
 async function guardarBorrador() {
   if (!S.sol || S.sol.estado !== 'leida') return;
-  try { await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, { datos: datosParaCrear(), cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null }, 'return=minimal'); } catch (e) {}
+  try { var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, { datos: datosParaCrear(), cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null }); if (r && r[0] && S.sol && S.sol.id === r[0].id) S.sol.updated_at = r[0].updated_at; } catch (e) {}
 }
 async function reintentar() {
   var sol = S.sol; if (!sol) return;
@@ -263,7 +273,7 @@ async function poll() {
     if (w && w[0]) { S.worker = w[0]; if (w[0].catalogo && (!S.cat || S.cat.actualizado !== w[0].catalogo.actualizado)) { S.cat = w[0].catalogo; if (S.sol && S.sol.estado === 'leida') { S.vidrio = S.vidrio || S.cat.vidrio_defecto || ''; S.color = S.color || S.cat.color_defecto || ''; } } }
     if (S.sol) {
       var r = await sb('GET', 'pres_solicitudes?id=eq.' + S.sol.id + '&select=*');
-      if (r && r[0]) { var antes = S.sol.estado; cargarSolicitud(r[0]); if (antes !== r[0].estado && r[0].estado === 'creado') toast('Presupuesto ' + r[0].resultado.numero + ' creado ✓', 4000); }
+      if (r && r[0]) { var antes = S.sol.estado; cargarSolicitud(r[0], true); if (antes !== r[0].estado && r[0].estado === 'creado') toast('Presupuesto ' + r[0].resultado.numero + ' creado ✓', 4000); }
     }
     var m = await sb('GET', 'pres_solicitudes?usuario=eq.' + encodeURIComponent(user.username) + '&order=created_at.desc&limit=15&select=id,created_at,estado,cliente,resultado,pdf_url');
     S.mis = m || [];
@@ -329,7 +339,7 @@ function render() {
     h += '<div class="card"><h2>Acabados <span>se aplican a todas las ventanas</span></h2>' +
       '<label>Vidrio' + ((S.cabTexto || {}).vidrio ? ' <span style="color:var(--muted)">(ficha: «' + esc(S.cabTexto.vidrio) + '»)</span>' : '') + '</label><select data-gen="vidrio" ' + (S.cat ? '' : 'disabled') + '>' + selVidrio(S.vidrio, false) + '</select>' +
       '<label>Color' + ((S.cabTexto || {}).color ? ' <span style="color:var(--muted)">(ficha: «' + esc(S.cabTexto.color) + '»)</span>' : '') + '</label><select data-gen="color" ' + (S.cat ? '' : 'disabled') + '>' + selColor(S.color, false) + '</select>' +
-      '<div class="chk"><input type="checkbox" id="montaje" ' + (S.montaje ? 'checked' : '') + '><label for="montaje" style="margin:0;font-size:14px;color:var(--txt)">Añadir línea de montaje (el precio se pone en PrefGest)</label></div>' +
+      '<div class="chk"><input type="checkbox" id="montaje" ' + (S.montaje ? 'checked' : '') + '><label for="montaje" style="margin:0;font-size:14px;color:var(--txt)">Añadir la línea de montaje copiada de la plantilla' + (S.cat && S.cat.montaje_precio ? ' (' + fmt(S.cat.montaje_precio) + ' €: cámbialo en PrefGest)' : ' (su precio se cambia en PrefGest)') + '</label></div>' +
       (S.cat ? '' : '<div class="msg warn">Aún no tengo el catálogo de vidrios y colores del PC del taller: se usará el de la plantilla.</div>') + '</div>';
     h += '<div class="card"><h2>Ventanas <span>' + S.ventanas.length + ' · revisa medidas y tipo</span></h2>' + S.ventanas.map(cardVentana).join('') + '<button class="btn w" id="add">+ Añadir ventana</button></div>';
     barra.innerHTML = '<button class="btn p" id="crear" ' + (S.ventanas.length ? '' : 'disabled') + '>Crear presupuesto en PrefGest</button>'; barra.style.display = 'block';
