@@ -33,12 +33,18 @@
   .btn.d{background:var(--errbg);color:var(--err)}
   .btn:disabled{opacity:.5}
   .btn:active{transform:scale(.98)}
-  .fotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  /* inicio: tres formas de empezar */
+  .inicio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .inicio .tile{border:1.5px solid var(--line);border-radius:14px;padding:14px 6px 12px;text-align:center;background:#f8fafc;cursor:pointer;color:var(--txt);display:block;margin:0;font-size:inherit}
+  .inicio .tile:active{background:#e2e8f0}
+  .inicio .tile b{display:block;font-size:30px;margin-bottom:6px}
+  .inicio .tile span{display:block;font-size:13px;font-weight:600;line-height:1.2}
+  .inicio .tile small{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.2}
+  .fotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .fotos .f{position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
   .fotos .f img{width:100%;height:100%;object-fit:cover}
   .fotos .f b{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px}
-  .camara{border:2px dashed #94a3b8;border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:14px;background:#f8fafc}
-  .camara b{display:block;font-size:28px;margin-bottom:4px}
+  .fotos .mas{width:88px;height:88px;border:2px dashed #94a3b8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted);cursor:pointer;margin:0}
   .msg{padding:10px 12px;border-radius:10px;font-size:13px;margin-top:10px;line-height:1.4}
   .msg.ok{background:var(--okbg);color:var(--ok)}
   .msg.warn{background:var(--warnbg);color:var(--warn)}
@@ -48,12 +54,19 @@
   @keyframes g{to{transform:rotate(360deg)}}
   .espera p{margin:4px 0;color:var(--muted);font-size:13px}
   .espera h3{margin:0 0 6px;font-size:16px}
-  .vent{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fafbfd}
-  .vent .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  /* tarjeta de ventana: mini croquis + resumen */
+  .vent{display:grid;grid-template-columns:96px 1fr;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fafbfd;cursor:pointer}
+  .vent:active{background:#eef2f7}
+  .vent .mini{width:96px}
+  .vent .mini svg{display:block}
+  .vent .h{display:flex;align-items:center;justify-content:space-between;gap:6px}
   .vent .h b{font-size:15px}
-  .vent .h small{color:var(--muted);font-size:12px}
-  .vent .nota{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
+  .vent .res{font-size:13px;color:var(--txt);margin:4px 0;line-height:1.35}
+  .vent .ac{font-size:12px;color:var(--muted);line-height:1.35}
+  .vent .nota{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
   .vent .baja{color:var(--warn);font-weight:600}
+  .vent .acciones{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .vent .acciones .btn{padding:5px 8px;font-size:12px}
   .chk{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--txt);margin-top:14px}
   table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
   th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
@@ -68,7 +81,38 @@
   .barra .btn{width:100%}
   .pc{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 10px}
   .pc.mal{color:var(--err)}
-  #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:9;max-width:90vw}
+  #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:99;max-width:90vw}
+  /* ===== editor de ventana (pantalla completa) ===== */
+  .ed{position:fixed;inset:0;background:#eef2f7;z-index:20;display:none;flex-direction:column}
+  .ed.on{display:flex}
+  .ed .edtop{background:var(--azul);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px;display:flex;align-items:center;gap:10px}
+  .ed .edtop b{font-size:16px;white-space:nowrap}
+  .ed .edtop input{flex:1;padding:7px 10px;border-radius:9px;border:none;font-size:14px}
+  .ed .edtop .x{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:9px;width:38px;height:36px;font-size:18px;flex:0 0 38px}
+  .ed .edbody{flex:1;overflow:auto;padding:10px 12px 230px}
+  .ed .edbody.sinpad{padding-bottom:90px}
+  .tipos{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .tipos .t{border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:5px 2px 4px;text-align:center;cursor:pointer}
+  .tipos .t.on{border-color:var(--azul2);background:#dbeafe}
+  .tipos .t svg{display:block;margin:0 auto;width:48px;height:46px}
+  .tipos .t small{display:block;font-size:9.5px;line-height:1.1;color:var(--txt);margin-top:3px;height:21px;overflow:hidden}
+  .dibujo{background:#fff;border-radius:14px;padding:6px 6px 2px;margin-top:10px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+  .dibujo svg{display:block}
+  .dibujo .ayuda{font-size:11px;color:var(--muted);text-align:center;margin:2px 0 6px}
+  .seg{display:flex;gap:6px;margin-top:8px}
+  .seg .k{font-size:12px;color:var(--muted);align-self:center;flex:0 0 66px}
+  .seg .o{flex:1;text-align:center;padding:9px 4px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+  .seg .o.on{border-color:var(--azul2);background:#dbeafe;color:#1e3a8a}
+  .seg .o.num{font-weight:700;font-size:18px;flex:0 0 46px}
+  .seg .o.val{flex:0 0 56px;background:#f8fafc}
+  details.acab{margin-top:10px;background:#fff;border-radius:12px;padding:8px 12px}
+  details.acab summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--azul)}
+  .pad{position:fixed;left:0;right:0;bottom:0;background:#cbd5e1;padding:6px 6px calc(env(safe-area-inset-bottom,0px) + 6px);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;z-index:21}
+  .pad button{border:none;border-radius:10px;background:#fff;font-size:22px;font-weight:600;padding:12px 0;color:var(--txt);box-shadow:0 1px 1px rgba(0,0,0,.15)}
+  .pad button:active{background:#e2e8f0}
+  .pad button.f{background:var(--azul);color:#fff;font-size:15px;grid-row:span 2}
+  .pad button.g{background:#e2e8f0;font-size:18px}
+  .edfoot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px);display:grid;grid-template-columns:1fr 1fr;gap:8px;z-index:21}
 </style>
 
 <style>/* JEOVENT-MOBILE-CSS */
@@ -105,9 +149,11 @@
   <div class="card lista" id="mis" style="display:none"><h2>Mis fichas <span id="mis-n"></span></h2><div id="mis-l"></div></div>
 </div>
 <div class="barra" id="barra"></div>
+<div class="ed" id="ed"></div>
 <div id="toast"></div>
 
 <script src="acabados.js"></script>
+<script src="croquis.js"></script>
 <script>
 /* ===== CONFIG (mismo proyecto Supabase que el PWA) ===== */
 var SB_URL = 'https://jcznbhisnbbszlicsnjt.supabase.co';
@@ -115,16 +161,15 @@ var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var BUCKET_FOTOS = 'pres-fotos';
 var MAX_PX = 1600;           // lado mayor de la foto que se sube (Claude no necesita más)
 var KEY_ACTUAL = 'pres_movil_actual';
-
-var TIPOS = { fijo: 'Fijo', '1_hoja_practicable': '1 hoja practicable', '1_hoja_oscilobatiente': '1 hoja oscilobatiente', '2_hojas_1_oscilobatiente': '2 hojas, 1 oscilobatiente', '2_hojas_practicables': '2 hojas practicables', '2_hojas_oscilobatientes': '2 hojas oscilobatientes', corredera: 'Corredera', balconera: 'Balconera', puerta: 'Puerta', otro: 'Otro (poste + panel)' };
-var PERSIANA = { ninguna: 'Sin persiana', recogedor: 'Recogedor', motor: 'Motor' };
-var LADO = { ninguno: 'Lado: –', izquierda: 'Lado: izquierda', derecha: 'Lado: derecha' };
-var CAJONES = [[0, 'Sin cajón'], [15.5, 'Cajón 155'], [18.5, 'Cajón 185'], [20, 'Cajón 200'], [22.5, 'Cajón 225']];
+var TIPOS = Croquis.TIPOS;
+var PERSIANA = { ninguna: 'Sin', recogedor: 'Recogedor', motor: 'Motor' };
+var CAJONES = [15.5, 18.5, 20, 22.5];
 var ESTADO_TXT = { foto: 'esperando al PC', leyendo: 'leyendo la ficha', leida: 'para revisar', crear: 'esperando al PC', creando: 'creando en PrefGest', creado: 'creado', error: 'error' };
 
 /* ===== estado ===== */
 var user = null;
-var S = { sol: null, cat: null, worker: null, fotos: [], cab: { cliente: '', telefono: '', direccion: '' }, ventanas: [], vidrio: '', color: '', montaje: true, enviando: false, poll: null, mis: [] };
+// modo: '' | 'foto' (hay fotos elegidas) | 'dibujo' (ventanas dibujadas en el móvil, todavía sin fila en Supabase)
+var S = { sol: null, modo: '', cat: null, worker: null, fotos: [], cab: { cliente: '', telefono: '', direccion: '' }, ventanas: [], vidrio: '', color: '', montaje: false, enviando: false, poll: null, mis: [], ed: null };
 
 /* ===== utilidades ===== */
 function $(id) { return document.getElementById(id); }
@@ -135,6 +180,8 @@ function uuid() { return (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xx
 function toast(m, ms) { var t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._t); t._t = setTimeout(function () { t.style.display = 'none'; }, ms || 2600); }
 function hace(iso) { if (!iso) return '–'; var s = Math.round((Date.now() - new Date(iso).getTime()) / 1000); return s < 60 ? s + ' s' : s < 3600 ? Math.round(s / 60) + ' min' : Math.round(s / 3600) + ' h'; }
 function fecha(iso) { var d = new Date(iso); return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); }
+// regla de la ficha: alto total (ventana + cajón) <= 160 -> cajón 155, si no 185
+function cajonAuto(v) { return (num(v.alto_cm) + 15.5) <= 160 ? 15.5 : 18.5; }
 
 /* ===== Supabase (REST con la clave anon, como el resto del PWA) ===== */
 function sb(method, ruta, body, prefer) {
@@ -169,11 +216,12 @@ function leerFoto(file) {
 function anadirFotos(files) {
   var lista = [].slice.call(files).filter(function (f) { return /^image\//.test(f.type); });
   if (!lista.length) return;
-  Promise.all(lista.map(leerFoto)).then(function (fs) { S.fotos = S.fotos.concat(fs); render(); }).catch(function (e) { toast(e.message); });
+  Promise.all(lista.map(leerFoto)).then(function (fs) { S.fotos = S.fotos.concat(fs); S.modo = 'foto'; render(); }).catch(function (e) { toast(e.message); });
 }
 
 /* ===== flujo ===== */
 function guardarActual(id) { try { if (id) localStorage.setItem(KEY_ACTUAL, id); else localStorage.removeItem(KEY_ACTUAL); } catch (e) {} }
+function cabeceraSb() { return { cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null }; }
 
 async function enviarALeer() {
   if (S.enviando) return;
@@ -186,28 +234,34 @@ async function enviarALeer() {
       await sbSubir(BUCKET_FOTOS, ruta, S.fotos[i].blob, 'image/jpeg');
       fotos.push({ path: ruta, nombre: S.fotos[i].nombre });
     }
-    var fila = await sb('POST', 'pres_solicitudes', { id: id, usuario: user.username, cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null, estado: 'foto', fotos: fotos });
-    S.sol = fila[0]; S.fotos = []; guardarActual(S.sol.id);
+    var fila = await sb('POST', 'pres_solicitudes', Object.assign({ id: id, usuario: user.username, estado: 'foto', fotos: fotos }, cabeceraSb()));
+    S.sol = fila[0]; S.fotos = []; S.modo = ''; guardarActual(S.sol.id);
     toast('Ficha enviada. El PC del taller la está leyendo…');
   } catch (e) { toast(e.message, 5000); }
   S.enviando = false; render(); poll();
 }
 
-// Sin foto: ficha vacía para meter las medidas a mano
-async function empezarAMano() {
-  try {
-    var fila = await sb('POST', 'pres_solicitudes', { id: uuid(), usuario: user.username, cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null, estado: 'leida', fotos: [], lectura: { cabecera: {}, ventanas: [], avisos: [], vidrio_auto: '', color_auto: '' } });
-    cargarSolicitud(fila[0]);
-  } catch (e) { toast(e.message, 5000); }
+// Dibujar las ventanas: se trabaja en el móvil; la ficha se crea en Supabase al guardar la primera ventana
+function empezarDibujo() {
+  S.sol = null; S.modo = 'dibujo'; S.ventanas = []; S.cabTexto = null; S.fotos = [];
+  var cat = S.cat || {}; S.vidrio = cat.vidrio_defecto || ''; S.color = cat.color_defecto || ''; S.montaje = false;
+  render(); abrirEditor(-1);
+}
+// Crea la fila en Supabase si todavía no existe (modo dibujo)
+async function asegurarSolicitud() {
+  if (S.sol) return S.sol;
+  var fila = await sb('POST', 'pres_solicitudes', Object.assign({ id: uuid(), usuario: user.username, estado: 'leida', fotos: [], lectura: { cabecera: {}, ventanas: [], avisos: [], vidrio_auto: '', color_auto: '' }, datos: datosParaCrear() }, cabeceraSb()));
+  S.sol = fila[0]; S.modo = ''; guardarActual(S.sol.id);
+  return S.sol;
 }
 
 // Al recibir una solicitud (de la lista o del poll): pasa la lectura a la tabla editable
-function escribiendo() { var a = document.activeElement; return !!(a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.closest('#app')); }
+function escribiendo() { if (S.ed) return true; var a = document.activeElement; return !!(a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.closest('#app')); }
 function cargarSolicitud(sol, desdePoll) {
   var nueva = !S.sol || S.sol.id !== sol.id;
   var cambia = nueva || S.sol.estado !== sol.estado;
   var igual = !cambia && S.sol.updated_at === sol.updated_at;
-  S.sol = sol; guardarActual(sol.id);
+  S.sol = sol; S.modo = ''; guardarActual(sol.id);
   if (cambia && sol.estado === 'leida') {
     var L = sol.lectura || {};
     var cab = L.cabecera || {};
@@ -226,14 +280,14 @@ function cargarSolicitud(sol, desdePoll) {
   }
   render(); poll();
 }
-document.addEventListener('focusout', function () { if (S.pendiente) { S.pendiente = false; setTimeout(function () { if (!escribiendo()) render(); }, 150); } });
+document.addEventListener('focusout', function () { if (S.pendiente && !S.ed) { S.pendiente = false; setTimeout(function () { if (!escribiendo()) render(); }, 150); } });
 
-function ventanaNueva() { return { ancho_cm: 0, alto_cm: 0, cajon_cm: 0, ancho_tramo1_cm: 0, panel: false, tipo: '1_hoja_oscilobatiente', persiana: 'ninguna', recogedor_lado: 'ninguno', tapajuntas: true, color: '', vidrio: '', uds: 1, estancia: '', notas: '', confianza: 'alta' }; }
+function ventanaNueva() { return { ancho_cm: 0, alto_cm: 0, cajon_cm: 0, ancho_tramo1_cm: 0, panel: true, tipo: '1_hoja_oscilobatiente', persiana: 'ninguna', recogedor_lado: 'ninguno', tapajuntas: true, color: '', vidrio: '', uds: 1, estancia: '', notas: '', confianza: 'alta' }; }
 
 function datosParaCrear() {
   var cat = S.cat;
   var ventanas = S.ventanas.map(function (v, i) {
-    return { n: i + 1, ancho_mm: Math.round(num(v.ancho_cm) * 10), alto_mm: Math.round(num(v.alto_cm) * 10), cajon_mm: Math.round(num(v.cajon_cm) * 10), l1_mm: Math.round(num(v.ancho_tramo1_cm) * 10), panel: !!v.panel,
+    return { n: i + 1, ancho_mm: Math.round(num(v.ancho_cm) * 10), alto_mm: Math.round(num(v.alto_cm) * 10), cajon_mm: Math.round(num(v.cajon_cm) * 10), l1_mm: v.tipo === 'otro' ? Math.round(num(v.ancho_tramo1_cm) * 10) : 0, panel: v.tipo === 'otro' && v.panel !== false,
       tipo: v.tipo, persiana: v.persiana || 'ninguna', lado: v.recogedor_lado || 'ninguno', uds: Math.max(1, Math.round(num(v.uds) || 1)), tapajuntas: v.tapajuntas !== false, color: v.color || '',
       vidrio: cat ? Acabados.vidrioVentana(cat, v, S.vidrio) : (v.vidrio === 'mate' ? '' : (v.vidrio || '')) };
   }).filter(function (v) { return v.ancho_mm > 0 && v.alto_mm > 0; });
@@ -247,13 +301,19 @@ async function crearEnPrefGest() {
   if (!d.ventanas.length) { toast('No hay ventanas con ancho y alto'); return; }
   if (!confirm('¿Crear un presupuesto NUEVO en PrefGest con ' + d.ventanas.length + ' ventana' + (d.ventanas.length > 1 ? 's' : '') + (S.montaje ? ' + montaje' : '') + '?\nVidrio: ' + (S.vidrio || 'el de la plantilla') + '\nColor: ' + (S.color || 'el de la plantilla') + '\nTarda alrededor de un minuto.')) return;
   try {
-    var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, { estado: 'crear', datos: d, cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null, error: null });
+    await asegurarSolicitud();
+    var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, Object.assign({ estado: 'crear', datos: d, error: null }, cabeceraSb()));
     S.sol = r[0]; render(); poll();
   } catch (e) { toast(e.message, 5000); }
 }
 async function guardarBorrador() {
+  if (!S.sol && S.modo === 'dibujo') {
+    if (!S.ventanas.length && !S.cab.cliente) return;      // nada que guardar todavía
+    try { await asegurarSolicitud(); render(); } catch (e) { toast(e.message, 5000); }
+    return;
+  }
   if (!S.sol || S.sol.estado !== 'leida') return;
-  try { var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, { datos: datosParaCrear(), cliente: S.cab.cliente || null, telefono: S.cab.telefono || null, direccion: S.cab.direccion || null }); if (r && r[0] && S.sol && S.sol.id === r[0].id) S.sol.updated_at = r[0].updated_at; } catch (e) {}
+  try { var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, Object.assign({ datos: datosParaCrear() }, cabeceraSb())); if (r && r[0] && S.sol && S.sol.id === r[0].id) S.sol.updated_at = r[0].updated_at; } catch (e) {}
 }
 async function reintentar() {
   var sol = S.sol; if (!sol) return;
@@ -263,14 +323,14 @@ async function reintentar() {
 async function volverAEditar() {
   try { var r = await sb('PATCH', 'pres_solicitudes?id=eq.' + S.sol.id, { estado: 'leida', error: null }); S.sol = null; cargarSolicitud(r[0]); } catch (e) { toast(e.message, 5000); }
 }
-function nuevaFicha() { S.sol = null; S.fotos = []; S.ventanas = []; S.cab = { cliente: '', telefono: '', direccion: '' }; guardarActual(null); render(); }
+function nuevaFicha() { S.sol = null; S.modo = ''; S.fotos = []; S.ventanas = []; S.cab = { cliente: '', telefono: '', direccion: '' }; S.cabTexto = null; guardarActual(null); render(); }
 
 /* ===== poll: solicitud actual + latido del PC + catálogo ===== */
 async function poll() {
   clearTimeout(S.poll);
   try {
     var w = await sb('GET', 'pres_worker?id=eq.1&select=visto,pc,pendientes,catalogo,plantillas');
-    if (w && w[0]) { S.worker = w[0]; if (w[0].catalogo && (!S.cat || S.cat.actualizado !== w[0].catalogo.actualizado)) { S.cat = w[0].catalogo; if (S.sol && S.sol.estado === 'leida') { S.vidrio = S.vidrio || S.cat.vidrio_defecto || ''; S.color = S.color || S.cat.color_defecto || ''; } } }
+    if (w && w[0]) { S.worker = w[0]; if (w[0].catalogo && (!S.cat || S.cat.actualizado !== w[0].catalogo.actualizado)) { S.cat = w[0].catalogo; if ((S.sol && S.sol.estado === 'leida') || S.modo === 'dibujo') { S.vidrio = S.vidrio || S.cat.vidrio_defecto || ''; S.color = S.color || S.cat.color_defecto || ''; } } }
     if (S.sol) {
       var r = await sb('GET', 'pres_solicitudes?id=eq.' + S.sol.id + '&select=*');
       if (r && r[0]) { var antes = S.sol.estado; cargarSolicitud(r[0], true); if (antes !== r[0].estado && r[0].estado === 'creado') toast('Presupuesto ' + r[0].resultado.numero + ' creado ✓', 4000); }
@@ -319,30 +379,63 @@ function selColor(val, conGeneral) {
 function cardCabecera(editable) {
   return '<div class="card"><h2>Cliente</h2><div class="g2"><div><label>Nombre</label><input data-cab="cliente" value="' + esc(S.cab.cliente) + '" placeholder="Nombre del cliente"' + (editable ? '' : ' disabled') + '></div><div><label>Teléfono</label><input data-cab="telefono" inputmode="tel" value="' + esc(S.cab.telefono) + '"' + (editable ? '' : ' disabled') + '></div></div><label>Dirección</label><input data-cab="direccion" value="' + esc(S.cab.direccion) + '" placeholder="Calle, número, población"' + (editable ? '' : ' disabled') + '></div>';
 }
+function cardInicio() {
+  var h = '<div class="card"><h2>¿Cómo empezamos? <span>foto de la hoja o dibujo</span></h2>';
+  if (!S.fotos.length) {
+    h += '<div class="inicio">' +
+      '<label class="tile" for="foto-cam"><b>📷</b><span>Foto de la ficha</span><small>con la cámara</small></label>' +
+      '<label class="tile" for="foto-gal"><b>🖼️</b><span>Fotos del móvil</span><small>ya hechas</small></label>' +
+      '<div class="tile" id="dibujar"><b>✏️</b><span>Dibujar</span><small>las ventanas</small></div></div>';
+  } else {
+    h += '<div class="fotos">' + S.fotos.map(function (f, i) { return '<div class="f"><img src="' + f.url + '"><b data-quitar="' + i + '">×</b></div>'; }).join('') + '<label class="mas" for="foto-gal" title="Otra foto">+</label></div>' +
+      '<p style="font-size:12px;color:var(--muted);margin:8px 0 0">Se puede más de una (ficha larga, segunda hoja). El PC del taller lee la ficha con Claude y te devuelve las ventanas para revisar.</p>' +
+      '<button class="btn p w" id="enviar" ' + (S.enviando ? 'disabled' : '') + '>' + (S.enviando ? 'Subiendo…' : 'Enviar a leer (PC del taller)') + '</button>';
+  }
+  // dos entradas: con capture el móvil abre la cámara directamente; sin capture abre la galería / archivos
+  h += '<input id="foto-cam" type="file" accept="image/*" capture="environment" style="display:none">' +
+    '<input id="foto-gal" type="file" accept="image/*" multiple style="display:none"></div>';
+  return h;
+}
+function acabadoTexto(v) {
+  var p = [];
+  if (v.color) p.push('color ' + v.color);
+  if (v.vidrio === 'mate') p.push('vidrio mate'); else if (v.vidrio) p.push('vidrio ' + v.vidrio);
+  return p.join(' · ');
+}
+function cardVentana(v, i) {
+  var baja = v.confianza && v.confianza !== 'alta';
+  var sinMedidas = !(num(v.ancho_cm) > 0 && num(v.alto_cm) > 0);
+  return '<div class="vent" data-i="' + i + '"><div class="mini">' + Croquis.svg(v, { w: 96, h: 92, cotas: false }) + '</div><div>' +
+    '<div class="h"><b>Ventana ' + (i + 1) + (v.estancia ? ' · ' + esc(v.estancia) : '') + '</b></div>' +
+    '<div class="res">' + esc(Croquis.resumen(v)) + (sinMedidas ? ' <span class="baja">· faltan medidas</span>' : '') + '</div>' +
+    (acabadoTexto(v) ? '<div class="ac">' + esc(acabadoTexto(v)) + '</div>' : '') +
+    (v.notas || baja ? '<div class="nota">' + (baja ? '<span class="baja">Lectura dudosa (' + esc(v.confianza) + ')</span> · ' : '') + esc(v.notas || '') + '</div>' : '') +
+    '<div class="acciones"><button class="btn s" data-edit="' + i + '">Editar</button><button class="btn s" data-dup="' + i + '">Otra igual</button><button class="btn s d" data-del="' + i + '">Quitar</button></div>' +
+    '</div></div>';
+}
 function render() {
   var app = $('app'), barra = $('barra'); barra.style.display = 'none'; barra.innerHTML = '';
   var sol = S.sol, h = '';
-  if (!sol) {
+  var editando = (sol && sol.estado === 'leida') || (!sol && S.modo === 'dibujo');
+  if (!sol && S.modo !== 'dibujo') {
     h += cardCabecera(true);
-    h += '<div class="card"><h2>Ficha de medición <span>foto de la hoja, como la lees tú</span></h2>' +
-      '<label class="camara" for="foto-in"><b>📷</b>Hacer foto o elegir de la galería<br><small>se puede más de una (ficha larga, segunda hoja)</small></label>' +
-      '<input id="foto-in" type="file" accept="image/*" capture="environment" multiple style="display:none">' +
-      (S.fotos.length ? '<div class="fotos">' + S.fotos.map(function (f, i) { return '<div class="f"><img src="' + f.url + '"><b data-quitar="' + i + '">×</b></div>'; }).join('') + '</div>' : '') +
-      '<button class="btn p w" id="enviar" ' + (S.enviando || !S.fotos.length ? 'disabled' : '') + '>' + (S.enviando ? 'Subiendo…' : 'Enviar a leer (PC del taller)') + '</button>' +
-      '<button class="btn w" id="amano">Sin foto: meter las medidas a mano</button></div>';
-  } else if (/^(foto|leyendo)$/.test(sol.estado)) {
-    h += '<div class="card espera"><div class="sp"></div><h3>' + (sol.estado === 'foto' ? 'Esperando al PC del taller…' : 'Leyendo la ficha con Claude…') + '</h3><p>' + (sol.fotos || []).length + ' foto(s) · ' + esc(sol.cliente || 'sin nombre') + ' · enviada hace ' + hace(sol.created_at) + '</p><p>Suele tardar entre 30 y 60 segundos. Puedes cerrar y volver: la ficha queda en «Mis fichas».</p><button class="btn s" id="cancelar">Cancelar esta ficha</button></div>';
-  } else if (sol.estado === 'leida') {
-    var L = sol.lectura || {};
+    h += cardInicio();
+  } else if (editando) {
+    var L = (sol && sol.lectura) || {};
     h += cardCabecera(true);
     if (L.avisos && L.avisos.length) h += '<div class="msg warn"><b>Avisos de la lectura:</b> ' + L.avisos.map(esc).join(' · ') + '</div>';
+    h += '<div class="card"><h2>Ventanas <span>' + S.ventanas.length + (S.ventanas.length ? ' · toca una para cambiarla' : '') + '</span></h2>' + S.ventanas.map(cardVentana).join('') +
+      (S.ventanas.length ? '' : '<p style="color:var(--muted);font-size:13px;margin:0 0 6px">Todavía no hay ventanas.</p>') +
+      '<button class="btn ' + (S.ventanas.length ? '' : 'p ') + 'w" id="add">+ Añadir ventana</button></div>';
     h += '<div class="card"><h2>Acabados <span>se aplican a todas las ventanas</span></h2>' +
       '<label>Vidrio' + ((S.cabTexto || {}).vidrio ? ' <span style="color:var(--muted)">(ficha: «' + esc(S.cabTexto.vidrio) + '»)</span>' : '') + '</label><select data-gen="vidrio" ' + (S.cat ? '' : 'disabled') + '>' + selVidrio(S.vidrio, false) + '</select>' +
       '<label>Color' + ((S.cabTexto || {}).color ? ' <span style="color:var(--muted)">(ficha: «' + esc(S.cabTexto.color) + '»)</span>' : '') + '</label><select data-gen="color" ' + (S.cat ? '' : 'disabled') + '>' + selColor(S.color, false) + '</select>' +
       '<div class="chk"><input type="checkbox" id="montaje" ' + (S.montaje ? 'checked' : '') + '><label for="montaje" style="margin:0;font-size:14px;color:var(--txt)">Añadir la línea de montaje copiada de la plantilla' + (S.cat && S.cat.montaje_precio ? ' (' + fmt(S.cat.montaje_precio) + ' €: cámbialo en PrefGest)' : ' (su precio se cambia en PrefGest)') + '</label></div>' +
       (S.cat ? '' : '<div class="msg warn">Aún no tengo el catálogo de vidrios y colores del PC del taller: se usará el de la plantilla.</div>') + '</div>';
-    h += '<div class="card"><h2>Ventanas <span>' + S.ventanas.length + ' · revisa medidas y tipo</span></h2>' + S.ventanas.map(cardVentana).join('') + '<button class="btn w" id="add">+ Añadir ventana</button></div>';
+    h += '<button class="btn w" id="cancelar" style="background:transparent;color:var(--muted);font-weight:500">Descartar esta ficha</button>';
     barra.innerHTML = '<button class="btn p" id="crear" ' + (S.ventanas.length ? '' : 'disabled') + '>Crear presupuesto en PrefGest</button>'; barra.style.display = 'block';
+  } else if (/^(foto|leyendo)$/.test(sol.estado)) {
+    h += '<div class="card espera"><div class="sp"></div><h3>' + (sol.estado === 'foto' ? 'Esperando al PC del taller…' : 'Leyendo la ficha con Claude…') + '</h3><p>' + (sol.fotos || []).length + ' foto(s) · ' + esc(sol.cliente || 'sin nombre') + ' · enviada hace ' + hace(sol.created_at) + '</p><p>Suele tardar entre 30 y 60 segundos. Puedes cerrar y volver: la ficha queda en «Mis fichas».</p><button class="btn s" id="cancelar">Cancelar esta ficha</button></div>';
   } else if (/^(crear|creando)$/.test(sol.estado)) {
     h += '<div class="card espera"><div class="sp"></div><h3>' + (sol.estado === 'crear' ? 'Esperando al PC del taller…' : 'Creando el presupuesto en PrefGest…') + '</h3><p>' + (sol.datos && sol.datos.ventanas ? sol.datos.ventanas.length : '?') + ' ventanas · ' + esc(sol.cliente || '') + '</p><p>PrefGest calcula los precios y se genera el PDF. Alrededor de un minuto.</p></div>';
   } else if (sol.estado === 'creado') {
@@ -358,43 +451,23 @@ function render() {
   app.innerHTML = h;
   eventos();
 }
-function cardVentana(v, i) {
-  var baja = v.confianza && v.confianza !== 'alta';
-  return '<div class="vent" data-i="' + i + '"><div class="h"><b>Ventana ' + (i + 1) + (v.estancia ? ' · ' + esc(v.estancia) : '') + '</b><button class="btn s d" data-del="' + i + '">Quitar</button></div>' +
-    '<div class="g3"><div><label>Ancho (cm)</label><input inputmode="decimal" data-v="ancho_cm" value="' + esc(v.ancho_cm || '') + '"></div><div><label>Alto (cm)</label><input inputmode="decimal" data-v="alto_cm" value="' + esc(v.alto_cm || '') + '"></div><div><label>Uds</label><input inputmode="numeric" data-v="uds" value="' + esc(v.uds || 1) + '"></div></div>' +
-    '<div class="g2"><div><label>Tipo</label><select data-v="tipo">' + opciones(Object.keys(TIPOS).map(function (k) { return [k, TIPOS[k]]; }), v.tipo) + '</select></div><div><label>Cajón</label><select data-v="cajon_cm">' + opciones(CAJONES, v.cajon_cm || 0) + '</select></div></div>' +
-    '<div class="g2"><div><label>Persiana</label><select data-v="persiana">' + opciones(Object.keys(PERSIANA).map(function (k) { return [k, PERSIANA[k]]; }), v.persiana || 'ninguna') + '</select></div><div><label>Recogedor</label><select data-v="recogedor_lado">' + opciones(Object.keys(LADO).map(function (k) { return [k, LADO[k]]; }), v.recogedor_lado || 'ninguno') + '</select></div></div>' +
-    (v.tipo === 'otro' || num(v.ancho_tramo1_cm) > 0 ? '<div class="g2"><div><label>Primer tramo L1 (cm)</label><input inputmode="decimal" data-v="ancho_tramo1_cm" value="' + esc(v.ancho_tramo1_cm || '') + '" placeholder="p. ej. 45"></div><div class="chk" style="margin-top:26px"><input type="checkbox" data-v="panel" id="pan' + i + '" ' + (v.panel ? 'checked' : '') + '><label for="pan' + i + '" style="margin:0;color:var(--txt);font-size:14px">Fijo de panel</label></div></div>' : '') +
-    '<div class="g2"><div><label>Color</label><select data-v="color">' + selColor(v.color || '', true) + '</select></div><div><label>Vidrio</label><select data-v="vidrio">' + selVidrio(v.vidrio || '', true) + '</select></div></div>' +
-    '<div class="chk"><input type="checkbox" data-v="tapajuntas" id="tj' + i + '" ' + (v.tapajuntas !== false ? 'checked' : '') + '><label for="tj' + i + '" style="margin:0;color:var(--txt);font-size:14px">Con tapajuntas</label></div>' +
-    (v.notas || baja ? '<div class="nota">' + (baja ? '<span class="baja">Lectura dudosa (' + esc(v.confianza) + ')</span> · ' : '') + esc(v.notas || '') + '</div>' : '') + '</div>';
-}
 function eventos() {
   var app = $('app');
-  var fi = $('foto-in'); if (fi) fi.onchange = function () { anadirFotos(fi.files); fi.value = ''; };
-  app.querySelectorAll('[data-quitar]').forEach(function (el) { el.onclick = function () { S.fotos.splice(Number(el.dataset.quitar), 1); render(); }; });
+  ['foto-cam', 'foto-gal'].forEach(function (id) { var fi = $(id); if (fi) fi.onchange = function () { anadirFotos(fi.files); fi.value = ''; }; });
+  var b;
+  if ((b = $('dibujar'))) b.onclick = empezarDibujo;
+  app.querySelectorAll('[data-quitar]').forEach(function (el) { el.onclick = function () { S.fotos.splice(Number(el.dataset.quitar), 1); if (!S.fotos.length) S.modo = ''; render(); }; });
   app.querySelectorAll('[data-cab]').forEach(function (el) { el.oninput = function () { S.cab[el.dataset.cab] = el.value; }; el.onchange = guardarBorrador; });
   app.querySelectorAll('[data-gen]').forEach(function (el) { el.onchange = function () { S[el.dataset.gen] = el.value; guardarBorrador(); render(); }; });
   var mon = $('montaje'); if (mon) mon.onchange = function () { S.montaje = mon.checked; guardarBorrador(); };
-  app.querySelectorAll('[data-v]').forEach(function (el) {
-    var i = Number(el.closest('.vent').dataset.i), f = el.dataset.v;
-    el.onchange = function () {
-      var v = S.ventanas[i]; if (!v) return;
-      if (el.type === 'checkbox') v[f] = el.checked;
-      else if (['ancho_cm', 'alto_cm', 'cajon_cm', 'ancho_tramo1_cm', 'uds'].indexOf(f) >= 0) v[f] = num(el.value);
-      else v[f] = el.value;
-      if (f === 'persiana' && v.persiana !== 'ninguna' && !num(v.cajon_cm)) v.cajon_cm = (num(v.alto_cm) + 15.5) <= 160 ? 15.5 : 18.5;
-      if (f === 'persiana' && v.persiana === 'ninguna') { v.cajon_cm = 0; v.recogedor_lado = 'ninguno'; }
-      guardarBorrador(); if (f === 'tipo' || f === 'persiana') render();
-    };
-  });
+  app.querySelectorAll('.vent').forEach(function (el) { el.onclick = function (ev) { if (ev.target.closest('button')) return; abrirEditor(Number(el.dataset.i)); }; });
+  app.querySelectorAll('[data-edit]').forEach(function (el) { el.onclick = function () { abrirEditor(Number(el.dataset.edit)); }; });
+  app.querySelectorAll('[data-dup]').forEach(function (el) { el.onclick = function () { var i = Number(el.dataset.dup); var v = Object.assign({}, S.ventanas[i], { notas: '', confianza: 'alta' }); S.ventanas.splice(i + 1, 0, v); guardarBorrador(); render(); abrirEditor(i + 1, 'ancho'); }; });
   app.querySelectorAll('[data-del]').forEach(function (el) { el.onclick = function () { if (confirm('¿Quitar la ventana ' + (Number(el.dataset.del) + 1) + '?')) { S.ventanas.splice(Number(el.dataset.del), 1); guardarBorrador(); render(); } }; });
-  var b;
   if ((b = $('enviar'))) b.onclick = enviarALeer;
-  if ((b = $('amano'))) b.onclick = empezarAMano;
-  if ((b = $('add'))) b.onclick = function () { S.ventanas.push(ventanaNueva()); render(); setTimeout(function () { var v = app.querySelectorAll('.vent'); if (v.length) v[v.length - 1].scrollIntoView({ behavior: 'smooth' }); }, 50); };
+  if ((b = $('add'))) b.onclick = function () { abrirEditor(-1); };
   if ((b = $('crear'))) b.onclick = crearEnPrefGest;
-  if ((b = $('cancelar'))) b.onclick = async function () { if (!confirm('¿Cancelar esta ficha?')) return; try { await sb('DELETE', 'pres_solicitudes?id=eq.' + S.sol.id, null, 'return=minimal'); } catch (e) {} nuevaFicha(); poll(); };
+  if ((b = $('cancelar'))) b.onclick = async function () { if (!confirm('¿Descartar esta ficha?')) return; try { if (S.sol) await sb('DELETE', 'pres_solicitudes?id=eq.' + S.sol.id, null, 'return=minimal'); } catch (e) {} nuevaFicha(); poll(); };
   if ((b = $('reintentar'))) b.onclick = reintentar;
   if ((b = $('editar'))) b.onclick = volverAEditar;
   if ((b = $('nueva'))) b.onclick = nuevaFicha;
@@ -402,6 +475,110 @@ function eventos() {
     var R = S.sol.resultado || {}, txt = 'Presupuesto Jeovent ' + R.numero + ' · ' + fmt(R.importe) + ' €';
     if (navigator.share) navigator.share({ title: txt, text: txt, url: S.sol.pdf_url }).catch(function () {});
     else window.open('https://wa.me/?text=' + encodeURIComponent(txt + ' ' + S.sol.pdf_url), '_blank');
+  };
+}
+
+/* ===== editor de ventana: croquis + teclado numérico ===== */
+// i = índice en S.ventanas, -1 = nueva. campo = cota que se empieza a teclear ('ancho' por defecto en las nuevas)
+var CAMPO_PROP = { ancho: 'ancho_cm', alto: 'alto_cm', l1: 'ancho_tramo1_cm' };
+function abrirEditor(i, campo) {
+  var v = i >= 0 ? Object.assign({}, S.ventanas[i]) : ventanaNueva();
+  S.ed = { i: i, v: v, campo: campo || (i < 0 || !num(v.ancho_cm) ? 'ancho' : ''), fresco: true };
+  $('ed').classList.add('on'); document.body.style.overflow = 'hidden';
+  renderEditor();
+}
+function cerrarEditor() { S.ed = null; $('ed').classList.remove('on'); $('ed').innerHTML = ''; document.body.style.overflow = ''; S.pendiente = false; render(); }
+function guardarEditor() {
+  var e = S.ed, v = e.v;
+  ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm'].forEach(function (p) { v[p] = num(v[p]); });
+  v.uds = Math.max(1, Math.round(num(v.uds) || 1));
+  if (v.persiana === 'ninguna') { v.cajon_cm = 0; v.recogedor_lado = 'ninguno'; }
+  else if (!num(v.cajon_cm)) v.cajon_cm = cajonAuto(v);
+  if (v.tipo !== 'otro') v.ancho_tramo1_cm = 0;
+  if (e.i >= 0) S.ventanas[e.i] = v; else { S.ventanas.push(v); e.i = S.ventanas.length - 1; }
+  guardarBorrador();
+  return e.i;
+}
+function seg(k, lista, val, data) {
+  return '<div class="seg"><div class="k">' + k + '</div>' + lista.map(function (o) { return '<div class="o' + (String(o[0]) === String(val) ? ' on' : '') + '" data-' + data + '="' + esc(o[0]) + '">' + esc(o[1]) + '</div>'; }).join('') + '</div>';
+}
+function renderEditor() {
+  var e = S.ed; if (!e) return; var v = e.v, n = e.i >= 0 ? e.i + 1 : S.ventanas.length + 1;
+  var conPad = /^(ancho|alto|l1)$/.test(e.campo);
+  var h = '<div class="edtop"><b>Ventana ' + n + '</b><input id="ed-est" placeholder="Estancia (salón, baño…)" value="' + esc(v.estancia || '') + '"><button class="x" id="ed-x">✕</button></div>';
+  h += '<div class="edbody' + (conPad ? '' : ' sinpad') + '">';
+  h += '<div class="tipos">' + Object.keys(TIPOS).map(function (k) { return '<div class="t' + (v.tipo === k ? ' on' : '') + '" data-tipo="' + k + '">' + Croquis.icono(k, 48) + '<small>' + esc(TIPOS[k]) + '</small></div>'; }).join('') + '</div>';
+  h += '<div class="dibujo">' + Croquis.svg(v, { w: 320, h: 290, cotas: true, ids: true, activo: e.campo }) + '<div class="ayuda">' + (conPad ? 'Teclea el ' + (e.campo === 'l1' ? 'tramo L1' : e.campo) + ' en cm · toca la otra cota para cambiar' : 'Toca una cota para teclearla · arriba, el cajón · un lado, el recogedor') + '</div></div>';
+  h += seg('Persiana', Object.keys(PERSIANA).map(function (k) { return [k, PERSIANA[k]]; }), v.persiana || 'ninguna', 'pers');
+  if (v.persiana && v.persiana !== 'ninguna') h += seg('Cajón', CAJONES.map(function (c) { return [c, String(c * 10)]; }), num(v.cajon_cm) || cajonAuto(v), 'cajon');
+  if (v.persiana === 'recogedor') h += seg('Recogedor', [['izquierda', 'Izquierda'], ['derecha', 'Derecha'], ['ninguno', '?']], v.recogedor_lado || 'ninguno', 'lado');
+  h += seg('Tapajuntas', [[1, 'Con tapajuntas'], [0, 'Sin']], v.tapajuntas === false ? 0 : 1, 'tapa');
+  h += '<div class="seg"><div class="k">Unidades</div><div class="o num" data-uds="-1">−</div><div class="o val" style="font-weight:700;font-size:16px">' + (num(v.uds) || 1) + '</div><div class="o num" data-uds="1">+</div><div style="flex:1"></div></div>';
+  if (v.tipo === 'otro') {
+    h += '<div class="seg"><div class="k">Tramo L1</div><div class="o' + (e.campo === 'l1' ? ' on' : '') + '" data-cota2="l1">' + (num(v.ancho_tramo1_cm) ? Croquis.fmtCm(v.ancho_tramo1_cm) + ' cm' : 'teclear…') + '</div>' +
+      '<div class="o' + (v.panel !== false ? ' on' : '') + '" data-panel="1">Panel ciego</div><div class="o' + (v.panel === false ? ' on' : '') + '" data-panel="0">Vidrio</div></div>';
+  }
+  h += '<details class="acab"' + (v.color || v.vidrio || v.notas ? ' open' : '') + '><summary>Acabados distintos en esta ventana · notas</summary><label>Color</label><select id="ed-color">' + selColor(v.color || '', true) + '</select><label>Vidrio</label><select id="ed-vidrio">' + selVidrio(v.vidrio || '', true) + '</select><label>Notas</label><input id="ed-notas" value="' + esc(v.notas || '') + '" placeholder="p. ej. ojo amarres"></details>';
+  h += '</div>';
+  if (conPad) {
+    h += '<div class="pad">' + ['7', '8', '9'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') + '<button class="f" id="pad-sig">' + (e.campo === 'ancho' ? 'Alto ▸' : 'Listo ✓') + '</button>' +
+      ['4', '5', '6'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') +
+      ['1', '2', '3'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') + '<button class="g" id="pad-x" style="grid-row:span 2">⌫</button>' +
+      '<button data-k=",">,</button><button data-k="0">0</button><button data-k="00">00</button></div>';
+  } else {
+    h += '<div class="edfoot"><button class="btn" id="ed-otra">Guardar y otra igual</button><button class="btn p" id="ed-ok">Listo ✓</button></div>';
+  }
+  var ed = $('ed'); var body = ed.querySelector('.edbody'), scroll = body ? body.scrollTop : 0;
+  ed.innerHTML = h;
+  body = ed.querySelector('.edbody'); if (body) body.scrollTop = scroll;
+  eventosEditor();
+}
+function eventosEditor() {
+  var ed = $('ed'), e = S.ed, v = e.v, b;
+  var prop = CAMPO_PROP[e.campo];
+  function normalizar() { ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm'].forEach(function (p) { v[p] = num(v[p]); }); }
+  $('ed-x').onclick = function () { if (e.i < 0 && !num(v.ancho_cm) && !num(v.alto_cm)) { cerrarEditor(); return; } if (confirm('¿Cerrar sin guardar los cambios de esta ventana?')) cerrarEditor(); };
+  $('ed-est').oninput = function () { v.estancia = this.value; };
+  ed.querySelectorAll('[data-tipo]').forEach(function (el) { el.onclick = function () { v.tipo = el.dataset.tipo; if (v.tipo === 'otro' && !num(v.ancho_tramo1_cm)) { e.campo = 'l1'; e.fresco = true; } renderEditor(); }; });
+  ed.querySelectorAll('[data-cota],[data-cota2]').forEach(function (el) { el.onclick = function () { e.campo = el.dataset.cota || el.dataset.cota2; e.fresco = true; renderEditor(); }; });
+  ed.querySelectorAll('[data-zona]').forEach(function (el) { el.onclick = function () {
+    var z = el.dataset.zona;
+    if (z === 'cajon') { v.persiana = (v.persiana === 'ninguna' || !v.persiana) ? 'recogedor' : 'ninguna'; if (v.persiana !== 'ninguna' && !num(v.cajon_cm)) v.cajon_cm = cajonAuto(v); }
+    else { if (v.persiana === 'ninguna' || !v.persiana) { v.persiana = 'recogedor'; if (!num(v.cajon_cm)) v.cajon_cm = cajonAuto(v); } if (v.persiana === 'recogedor') v.recogedor_lado = z; }
+    renderEditor();
+  }; });
+  ed.querySelectorAll('[data-pers]').forEach(function (el) { el.onclick = function () { v.persiana = el.dataset.pers; if (v.persiana !== 'ninguna' && !num(v.cajon_cm)) v.cajon_cm = cajonAuto(v); if (v.persiana !== 'recogedor') v.recogedor_lado = 'ninguno'; renderEditor(); }; });
+  ed.querySelectorAll('[data-cajon]').forEach(function (el) { el.onclick = function () { v.cajon_cm = num(el.dataset.cajon); renderEditor(); }; });
+  ed.querySelectorAll('[data-lado]').forEach(function (el) { el.onclick = function () { v.recogedor_lado = el.dataset.lado; renderEditor(); }; });
+  ed.querySelectorAll('[data-tapa]').forEach(function (el) { el.onclick = function () { v.tapajuntas = el.dataset.tapa === '1'; renderEditor(); }; });
+  ed.querySelectorAll('[data-uds]').forEach(function (el) { el.onclick = function () { v.uds = Math.max(1, (num(v.uds) || 1) + Number(el.dataset.uds)); renderEditor(); }; });
+  ed.querySelectorAll('[data-panel]').forEach(function (el) { el.onclick = function () { v.panel = el.dataset.panel === '1'; renderEditor(); }; });
+  if ((b = $('ed-color'))) b.onchange = function () { v.color = this.value; };
+  if ((b = $('ed-vidrio'))) b.onchange = function () { v.vidrio = this.value; };
+  if ((b = $('ed-notas'))) b.oninput = function () { v.notas = this.value; };
+  // teclado numérico: el valor se guarda como texto mientras se teclea ("119," incluido); num() lo convierte
+  ed.querySelectorAll('[data-k]').forEach(function (el) { el.onclick = function () {
+    var k = el.dataset.k, cur = e.fresco ? '' : String(v[prop] || '').replace('.', ',');
+    e.fresco = false;
+    if (k === ',') { if (cur.indexOf(',') >= 0) return; cur = (cur || '0') + ','; }
+    else { cur = cur + k; if (cur.replace(',', '').length > 5) return; }
+    cur = cur.replace(/^0+(?=\d)/, '');
+    v[prop] = cur;
+    renderEditor();
+  }; });
+  if ((b = $('pad-x'))) b.onclick = function () { var cur = String(v[prop] || '').replace('.', ','); v[prop] = cur.slice(0, -1); e.fresco = false; renderEditor(); };
+  if ((b = $('pad-sig'))) b.onclick = function () {
+    v[prop] = num(v[prop]);
+    if (e.campo === 'ancho') { e.campo = 'alto'; e.fresco = true; } else e.campo = '';
+    renderEditor();
+  };
+  if ((b = $('ed-ok'))) b.onclick = function () { normalizar(); if (!num(v.ancho_cm) || !num(v.alto_cm)) { toast('Faltan el ancho o el alto'); e.campo = !num(v.ancho_cm) ? 'ancho' : 'alto'; e.fresco = true; renderEditor(); return; } guardarEditor(); cerrarEditor(); };
+  if ((b = $('ed-otra'))) b.onclick = function () {
+    normalizar(); if (!num(v.ancho_cm) || !num(v.alto_cm)) { toast('Faltan el ancho o el alto'); return; }
+    var i = guardarEditor();
+    var copia = Object.assign({}, S.ventanas[i], { notas: '', confianza: 'alta', estancia: '' });
+    S.ventanas.splice(i + 1, 0, copia); S.ed = null;
+    abrirEditor(i + 1, 'ancho'); toast('Copiada: cambia las medidas');
   };
 }
 

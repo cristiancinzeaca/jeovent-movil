@@ -2,12 +2,13 @@
    Cache offline pentru pagina lansator + assets statice.
    API-urile Supabase trec mereu prin retea (nu cache).
 */
-const CACHE = 'jeovent-pwa-v2';
+const CACHE = 'jeovent-pwa-v3';
 const PRECACHE = [
   './',
   './app-mobile.html',
   './presupuesto-movil.html',
   './acabados.js',
+  './croquis.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
