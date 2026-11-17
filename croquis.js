@@ -29,6 +29,7 @@
     corredera: 'Corredera',
     balconera: 'Balconera',
     puerta: 'Puerta',
+    osc_fijo_osc: 'Hoja + fijo + hoja',
     otro: 'Fijo de panel + hojas'
   };
 
@@ -139,6 +140,17 @@
       if (v.panel !== false) out += panelRayado(ix, iy, pl, ih); else { out += rect(ix, iy, pl, ih, 'vid'); out += fijoMarca(ix, iy, pl, ih); }
       out += rect(ix + pl - 2, iy, 5, ih, 'mar');   // poste
       out += hojas('2_hojas_1_oscilobatiente', ix + pl + 3, iy, iw - pl - 3, ih);
+    } else if (v.tipo === 'osc_fijo_osc') {
+      // hoja oscilobatiente (bisagras a la izquierda) + fijo central + hoja oscilobatiente (bisagras a la derecha), con dos postes
+      var t1 = n(v.ancho_tramo1_cm), t2 = n(v.ancho_tramo2_cm);
+      var p1 = t1 > 0 && t1 < ancho ? t1 * k : iw * 0.36, p2 = t2 > 0 && t1 + t2 < ancho ? t2 * k : iw * 0.28, p3 = iw - p1 - p2;
+      var gg = 6;
+      out += rect(ix, iy, p1, ih, 'hoja') + rect(ix + gg, iy + gg, Math.max(1, p1 - 2 * gg), Math.max(1, ih - 2 * gg), 'vid') + practicable(ix + gg, iy + gg, p1 - 2 * gg, ih - 2 * gg, 'izq') + oscilo(ix + gg, iy + gg, p1 - 2 * gg, ih - 2 * gg) + manilla(ix + p1 - gg, iy + gg, ih - 2 * gg, 'der');
+      out += rect(ix + p1 - 2, iy, 5, ih, 'mar');
+      out += rect(ix + p1 + 3, iy, Math.max(1, p2 - 6), ih, 'vid') + fijoMarca(ix + p1, iy, p2, ih);
+      out += rect(ix + p1 + p2 - 2, iy, 5, ih, 'mar');
+      var x3 = ix + p1 + p2 + 3, w3 = Math.max(1, p3 - 3);
+      out += rect(x3, iy, w3, ih, 'hoja') + rect(x3 + gg, iy + gg, Math.max(1, w3 - 2 * gg), Math.max(1, ih - 2 * gg), 'vid') + practicable(x3 + gg, iy + gg, w3 - 2 * gg, ih - 2 * gg, 'der') + oscilo(x3 + gg, iy + gg, w3 - 2 * gg, ih - 2 * gg) + manilla(x3 + gg, iy + gg, ih - 2 * gg, 'izq');
     } else out += hojas(v.tipo || '1_hoja_oscilobatiente', ix, iy, iw, ih);
     // recogedor (punto negro en el marco, a media altura)
     if (cajon && pers === 'recogedor' && (lado === 'izquierda' || lado === 'derecha')) {
@@ -161,6 +173,11 @@
       out += line(cx, yMarco, cx, yMarco + ph, 'cot'); out += line(cx - 5, yMarco, cx + 5, yMarco, 'cot'); out += line(cx - 5, yMarco + ph, cx + 5, yMarco + ph, 'cot');
       var th = fmtCm(v.alto_cm), wh = Math.max(44, th.length * 9 + 16);
       out += '<g class="cota' + (activo === 'alto' ? ' act' : '') + '"' + (ids ? ' data-cota="alto"' : '') + '>' + rect(cx + 6, yMarco + ph / 2 - 11, wh, 22, '') + text(cx + 6 + wh / 2, yMarco + ph / 2 + 5, th, 'ct' + (activo === 'alto' ? ' act' : ''), ' text-anchor="middle"') + '</g>';
+      if (v.tipo === 'osc_fijo_osc' && n(v.ancho_tramo1_cm) > 0) {
+        var cl2 = yMarco + ph + 8, a1 = n(v.ancho_tramo1_cm) * k, a2 = n(v.ancho_tramo2_cm) * k;
+        out += line(x0, cl2, x0 + a1, cl2, 'cot') + text(x0 + a1 / 2, cl2 + 12, fmtCm(v.ancho_tramo1_cm), 'ct', ' text-anchor="middle" style="font-size:11px"');
+        if (a2 > 0 && a1 + a2 < pw) { out += line(x0 + a1 + 3, cl2, x0 + a1 + a2, cl2, 'cot') + text(x0 + a1 + a2 / 2, cl2 + 12, fmtCm(v.ancho_tramo2_cm), 'ct', ' text-anchor="middle" style="font-size:11px"'); out += text(x0 + a1 + a2 + (pw - a1 - a2) / 2, cl2 + 12, fmtCm(Math.round((ancho - n(v.ancho_tramo1_cm) - n(v.ancho_tramo2_cm)) * 10) / 10), 'ct', ' text-anchor="middle" style="font-size:11px"'); }
+      }
       if (v.tipo === 'otro' && n(v.ancho_tramo1_cm) > 0) {
         var cl = yMarco + ph + 8; out += line(x0, cl, x0 + n(v.ancho_tramo1_cm) * k, cl, 'cot');
         out += text(x0 + n(v.ancho_tramo1_cm) * k / 2, cl + 12, 'L1 ' + fmtCm(v.ancho_tramo1_cm), 'ct', ' text-anchor="middle" style="font-size:11px"');
@@ -172,7 +189,7 @@
   }
 
   function icono(tipo, w) {
-    var v = { tipo: tipo, ancho_cm: tipo === 'puerta' || tipo === 'balconera' || tipo === '1_hoja_practicable' || tipo === '1_hoja_oscilobatiente' ? 90 : 150, alto_cm: tipo === 'puerta' || tipo === 'balconera' ? 210 : 120, persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: 45, panel: true };
+    var v = { tipo: tipo, ancho_cm: tipo === 'puerta' || tipo === 'balconera' || tipo === '1_hoja_practicable' || tipo === '1_hoja_oscilobatiente' ? 90 : (tipo === 'osc_fijo_osc' ? 190 : 150), alto_cm: tipo === 'puerta' || tipo === 'balconera' ? 210 : 120, persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: tipo === 'osc_fijo_osc' ? 68 : 45, ancho_tramo2_cm: 54, panel: true };
     return svg(v, { w: w || 80, h: Math.round((w || 80) * 0.95), cotas: false });
   }
 

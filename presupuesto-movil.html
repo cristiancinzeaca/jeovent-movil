@@ -284,12 +284,12 @@ function cargarSolicitud(sol, desdePoll) {
 }
 document.addEventListener('focusout', function () { if (S.pendiente && !S.ed) { S.pendiente = false; setTimeout(function () { if (!escribiendo()) render(); }, 150); } });
 
-function ventanaNueva() { return { ancho_cm: 0, alto_cm: 0, cajon_cm: 0, ancho_tramo1_cm: 0, panel: true, tipo: '1_hoja_oscilobatiente', persiana: 'ninguna', recogedor_lado: 'ninguno', tapajuntas: true, color: '', vidrio: '', uds: 1, estancia: '', notas: '', confianza: 'alta' }; }
+function ventanaNueva() { return { ancho_cm: 0, alto_cm: 0, cajon_cm: 0, ancho_tramo1_cm: 0, ancho_tramo2_cm: 0, panel: true, tipo: '1_hoja_oscilobatiente', persiana: 'ninguna', recogedor_lado: 'ninguno', tapajuntas: true, color: '', vidrio: '', uds: 1, estancia: '', notas: '', confianza: 'alta' }; }
 
 function datosParaCrear() {
   var cat = S.cat;
   var ventanas = S.ventanas.map(function (v, i) {
-    return { n: i + 1, ancho_mm: Math.round(num(v.ancho_cm) * 10), alto_mm: Math.round(num(v.alto_cm) * 10), cajon_mm: Math.round(num(v.cajon_cm) * 10), l1_mm: v.tipo === 'otro' ? Math.round(num(v.ancho_tramo1_cm) * 10) : 0, panel: v.tipo === 'otro' && v.panel !== false,
+    return { n: i + 1, ancho_mm: Math.round(num(v.ancho_cm) * 10), alto_mm: Math.round(num(v.alto_cm) * 10), cajon_mm: Math.round(num(v.cajon_cm) * 10), l1_mm: (v.tipo === 'otro' || v.tipo === 'osc_fijo_osc') ? Math.round(num(v.ancho_tramo1_cm) * 10) : 0, l2_mm: v.tipo === 'osc_fijo_osc' ? Math.round(num(v.ancho_tramo2_cm) * 10) : 0, panel: v.tipo === 'otro' && v.panel !== false,
       tipo: v.tipo, persiana: v.persiana || 'ninguna', lado: v.recogedor_lado || 'ninguno', uds: Math.max(1, Math.round(num(v.uds) || 1)), tapajuntas: v.tapajuntas !== false, color: v.color || '',
       vidrio: cat ? Acabados.vidrioVentana(cat, v, S.vidrio) : (v.vidrio === 'mate' ? '' : (v.vidrio || '')) };
   }).filter(function (v) { return v.ancho_mm > 0 && v.alto_mm > 0; });
@@ -487,7 +487,7 @@ function eventos() {
 
 /* ===== editor de ventana: croquis + teclado numérico ===== */
 // i = índice en S.ventanas, -1 = nueva. campo = cota que se empieza a teclear ('ancho' por defecto en las nuevas)
-var CAMPO_PROP = { ancho: 'ancho_cm', alto: 'alto_cm', l1: 'ancho_tramo1_cm' };
+var CAMPO_PROP = { ancho: 'ancho_cm', alto: 'alto_cm', l1: 'ancho_tramo1_cm', l2: 'ancho_tramo2_cm' };
 function abrirEditor(i, campo) {
   var v = i >= 0 ? Object.assign({}, S.ventanas[i]) : ventanaNueva();
   S.ed = { i: i, v: v, campo: campo || (i < 0 || !num(v.ancho_cm) ? 'ancho' : ''), fresco: true };
@@ -497,11 +497,12 @@ function abrirEditor(i, campo) {
 function cerrarEditor() { S.ed = null; $('ed').classList.remove('on'); $('ed').innerHTML = ''; document.body.style.overflow = ''; S.pendiente = false; render(); }
 function guardarEditor() {
   var e = S.ed, v = e.v;
-  ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm'].forEach(function (p) { v[p] = num(v[p]); });
+  ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm', 'ancho_tramo2_cm'].forEach(function (p) { v[p] = num(v[p]); });
   v.uds = Math.max(1, Math.round(num(v.uds) || 1));
   if (v.persiana === 'ninguna') { v.cajon_cm = 0; v.recogedor_lado = 'ninguno'; }
   else if (!num(v.cajon_cm)) v.cajon_cm = cajonAuto(v);
-  if (v.tipo !== 'otro') v.ancho_tramo1_cm = 0;
+  if (v.tipo !== 'otro' && v.tipo !== 'osc_fijo_osc') v.ancho_tramo1_cm = 0;
+  if (v.tipo !== 'osc_fijo_osc') v.ancho_tramo2_cm = 0;
   if (e.i >= 0) S.ventanas[e.i] = v; else { S.ventanas.push(v); e.i = S.ventanas.length - 1; }
   guardarBorrador();
   return e.i;
@@ -511,11 +512,11 @@ function seg(k, lista, val, data) {
 }
 function renderEditor() {
   var e = S.ed; if (!e) return; var v = e.v, n = e.i >= 0 ? e.i + 1 : S.ventanas.length + 1;
-  var conPad = /^(ancho|alto|l1)$/.test(e.campo);
+  var conPad = /^(ancho|alto|l1|l2)$/.test(e.campo);
   var h = '<div class="edtop"><b>Ventana ' + n + '</b><input id="ed-est" placeholder="Estancia (salón, baño…)" value="' + esc(v.estancia || '') + '"><button class="x" id="ed-x">✕</button></div>';
   h += '<div class="edbody' + (conPad ? '' : ' sinpad') + '">';
   h += '<div class="tipos">' + Object.keys(TIPOS).map(function (k) { return '<div class="t' + (v.tipo === k ? ' on' : '') + '" data-tipo="' + k + '">' + Croquis.icono(k, 48) + '<small>' + esc(TIPOS[k]) + '</small></div>'; }).join('') + '</div>';
-  h += '<div class="dibujo">' + Croquis.svg(v, { w: 320, h: 290, cotas: true, ids: true, activo: e.campo }) + '<div class="ayuda">' + (conPad ? 'Teclea el ' + (e.campo === 'l1' ? 'tramo L1' : e.campo) + ' en cm · toca la otra cota para cambiar' : 'Toca una cota para teclearla · arriba, el cajón · un lado, el recogedor') + '</div></div>';
+  h += '<div class="dibujo">' + Croquis.svg(v, { w: 320, h: 290, cotas: true, ids: true, activo: e.campo }) + '<div class="ayuda">' + (conPad ? 'Teclea el ' + (e.campo === 'l1' ? (v.tipo === 'osc_fijo_osc' ? 'ancho de la hoja izquierda' : 'tramo L1') : e.campo === 'l2' ? 'ancho del fijo central' : e.campo) + ' en cm · toca la otra cota para cambiar' : 'Toca una cota para teclearla · arriba, el cajón · un lado, el recogedor') + '</div></div>';
   h += seg('Persiana', Object.keys(PERSIANA).map(function (k) { return [k, PERSIANA[k]]; }), v.persiana || 'ninguna', 'pers');
   if (v.persiana && v.persiana !== 'ninguna') h += seg('Cajón', CAJONES.map(function (c) { return [c, String(c * 10)]; }), num(v.cajon_cm) || cajonAuto(v), 'cajon');
   if (v.persiana === 'recogedor') h += seg('Recogedor', [['izquierda', 'Izquierda'], ['derecha', 'Derecha'], ['ninguno', '?']], v.recogedor_lado || 'ninguno', 'lado');
@@ -525,10 +526,14 @@ function renderEditor() {
     h += '<div class="seg"><div class="k">Tramo L1</div><div class="o' + (e.campo === 'l1' ? ' on' : '') + '" data-cota2="l1">' + (num(v.ancho_tramo1_cm) ? Croquis.fmtCm(v.ancho_tramo1_cm) + ' cm' : 'teclear…') + '</div>' +
       '<div class="o' + (v.panel !== false ? ' on' : '') + '" data-panel="1">Panel ciego</div><div class="o' + (v.panel === false ? ' on' : '') + '" data-panel="0">Vidrio</div></div>';
   }
+  if (v.tipo === 'osc_fijo_osc') {
+    var t3 = num(v.ancho_cm) - num(v.ancho_tramo1_cm) - num(v.ancho_tramo2_cm);
+    h += '<div class="seg"><div class="k">Tramos</div><div class="o' + (e.campo === 'l1' ? ' on' : '') + '" data-cota2="l1">Hoja izq. ' + (num(v.ancho_tramo1_cm) ? Croquis.fmtCm(v.ancho_tramo1_cm) : '…') + '</div><div class="o' + (e.campo === 'l2' ? ' on' : '') + '" data-cota2="l2">Fijo ' + (num(v.ancho_tramo2_cm) ? Croquis.fmtCm(v.ancho_tramo2_cm) : '…') + '</div><div class="o val" style="flex:1">Hoja der. ' + (num(v.ancho_tramo1_cm) && num(v.ancho_tramo2_cm) && t3 > 0 ? Croquis.fmtCm(Math.round(t3 * 10) / 10) : '…') + '</div></div>';
+  }
   h += '<details class="acab"' + (v.color || v.vidrio || v.notas ? ' open' : '') + '><summary>Acabados distintos en esta ventana · notas</summary><label>Color</label><select id="ed-color">' + selColor(v.color || '', true) + '</select><label>Vidrio</label><select id="ed-vidrio">' + selVidrio(v.vidrio || '', true) + '</select><label>Notas</label><input id="ed-notas" value="' + esc(v.notas || '') + '" placeholder="p. ej. ojo amarres"></details>';
   h += '</div>';
   if (conPad) {
-    h += '<div class="pad">' + ['7', '8', '9'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') + '<button class="f" id="pad-sig">' + (e.campo === 'ancho' ? 'Alto ▸' : 'Listo ✓') + '</button>' +
+    h += '<div class="pad">' + ['7', '8', '9'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') + '<button class="f" id="pad-sig">' + (e.campo === 'ancho' ? 'Alto ▸' : (v.tipo === 'osc_fijo_osc' && ((e.campo === 'alto' && !num(v.ancho_tramo1_cm)) || (e.campo === 'l1' && !num(v.ancho_tramo2_cm))) ? 'Tramo ▸' : 'Listo ✓')) + '</button>' +
       ['4', '5', '6'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') +
       ['1', '2', '3'].map(function (k) { return '<button data-k="' + k + '">' + k + '</button>'; }).join('') + '<button class="g" id="pad-x" style="grid-row:span 2">⌫</button>' +
       '<button data-k=",">,</button><button data-k="0">0</button><button data-k="00">00</button></div>';
@@ -543,10 +548,10 @@ function renderEditor() {
 function eventosEditor() {
   var ed = $('ed'), e = S.ed, v = e.v, b;
   var prop = CAMPO_PROP[e.campo];
-  function normalizar() { ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm'].forEach(function (p) { v[p] = num(v[p]); }); }
+  function normalizar() { ['ancho_cm', 'alto_cm', 'ancho_tramo1_cm', 'ancho_tramo2_cm'].forEach(function (p) { v[p] = num(v[p]); }); }
   $('ed-x').onclick = function () { if (e.i < 0 && !num(v.ancho_cm) && !num(v.alto_cm)) { cerrarEditor(); return; } if (confirm('¿Cerrar sin guardar los cambios de esta ventana?')) cerrarEditor(); };
   $('ed-est').oninput = function () { v.estancia = this.value; };
-  ed.querySelectorAll('[data-tipo]').forEach(function (el) { el.onclick = function () { v.tipo = el.dataset.tipo; if (v.tipo === 'otro' && !num(v.ancho_tramo1_cm)) { e.campo = 'l1'; e.fresco = true; } renderEditor(); }; });
+  ed.querySelectorAll('[data-tipo]').forEach(function (el) { el.onclick = function () { v.tipo = el.dataset.tipo; if ((v.tipo === 'otro' || v.tipo === 'osc_fijo_osc') && !num(v.ancho_tramo1_cm) && num(v.ancho_cm)) { e.campo = 'l1'; e.fresco = true; } renderEditor(); }; });
   ed.querySelectorAll('[data-cota],[data-cota2]').forEach(function (el) { el.onclick = function () { e.campo = el.dataset.cota || el.dataset.cota2; e.fresco = true; renderEditor(); }; });
   ed.querySelectorAll('[data-zona]').forEach(function (el) { el.onclick = function () {
     var z = el.dataset.zona;
@@ -576,7 +581,10 @@ function eventosEditor() {
   if ((b = $('pad-x'))) b.onclick = function () { var cur = String(v[prop] || '').replace('.', ','); v[prop] = cur.slice(0, -1); e.fresco = false; renderEditor(); };
   if ((b = $('pad-sig'))) b.onclick = function () {
     v[prop] = num(v[prop]);
-    if (e.campo === 'ancho') { e.campo = 'alto'; e.fresco = true; } else e.campo = '';
+    if (e.campo === 'ancho') { e.campo = 'alto'; e.fresco = true; }
+    else if (e.campo === 'alto' && v.tipo === 'osc_fijo_osc' && !num(v.ancho_tramo1_cm)) { e.campo = 'l1'; e.fresco = true; }
+    else if (e.campo === 'l1' && v.tipo === 'osc_fijo_osc' && !num(v.ancho_tramo2_cm)) { e.campo = 'l2'; e.fresco = true; }
+    else e.campo = '';
     renderEditor();
   };
   if ((b = $('ed-ok'))) b.onclick = function () { normalizar(); if (!num(v.ancho_cm) || !num(v.alto_cm)) { toast('Faltan el ancho o el alto'); e.campo = !num(v.ancho_cm) ? 'ancho' : 'alto'; e.fresco = true; renderEditor(); return; } guardarEditor(); cerrarEditor(); };

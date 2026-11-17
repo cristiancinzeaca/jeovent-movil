@@ -47,12 +47,16 @@
     const lista = cat.colores;   // ordenada por uso
     const norm = (c) => sinAcentos(c.nombre);
     if (/^(blanco|blanca|bl|b|white|654|654 v blanco)$/.test(t)) { const b = lista.find(c => /^654 - v\. blanco$/i.test(c.nombre)) || lista.find(c => /blanco/.test(norm(c)) && !/ext|int|crema|wx/.test(norm(c))); return b ? b.nombre : null; }
-    const palabras = t.split(' ').filter(p => p && !['color', 'colour', 'folio', 'exterior', 'ext', 'interior', 'int', 'ral', 'liso', 'mate', 'de', 'y'].includes(p));
+    // Bicolores: "Ext. Bronce / Int. Blanco", "bronce ext., int. blanco", "bicolor gris forja ext." -> se busca por la parte EXTERIOR
+    // (en el catálogo se llaman "V. F. EXT. <color>" y llevan el interior blanco). Si el interior no es blanco, lo decide el comercial.
+    let base = t, quiereExt = /\bext/.test(t) || /bicolor/.test(t);
+    const m = t.match(/^([a-z0-9 ]+?)\s+(?:ext|exterior)\b/) || t.match(/(?:^|\s)(?:ext|exterior)\s+([a-z0-9 ]+?)\s*(?:\s(?:int|interior)\b|$)/);
+    if (m && m[1].trim()) { base = m[1].trim(); quiereExt = true; }
+    const palabras = base.split(' ').filter(p => p && !['color', 'colour', 'folio', 'exterior', 'ext', 'interior', 'int', 'ral', 'liso', 'mate', 'de', 'y', 'bicolor'].includes(p));
     if (!palabras.length) return null;
     const cand = lista.filter(c => palabras.every(p => norm(c).includes(p)));
     if (!cand.length) return null;
     const quiere2caras = /2 caras|dos caras|ambas|por dentro y por fuera/.test(t);
-    const quiereExt = /\bext/.test(t) || /bicolor/.test(t);
     const pref = quiere2caras ? cand.filter(c => /2 caras/.test(norm(c))) : quiereExt ? cand.filter(c => /ext/.test(norm(c))) : cand.filter(c => /ext/.test(norm(c)) || !/int/.test(norm(c)));
     return (pref[0] || cand[0]).nombre;
   }
