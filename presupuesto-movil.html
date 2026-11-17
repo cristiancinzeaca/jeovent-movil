@@ -81,6 +81,8 @@
   .barra .btn{width:100%}
   .pc{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 10px}
   .pc.mal{color:var(--err)}
+  .abierta{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#dbeafe;color:#1e3a8a;border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:13px}
+  .abierta .btn{padding:7px 12px;font-size:13px;background:#fff;color:var(--azul)}
   #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:99;max-width:90vw}
   /* ===== editor de ventana (pantalla completa) ===== */
   .ed{position:fixed;inset:0;background:#eef2f7;z-index:20;display:none;flex-direction:column}
@@ -417,6 +419,10 @@ function render() {
   var app = $('app'), barra = $('barra'); barra.style.display = 'none'; barra.innerHTML = '';
   var sol = S.sol, h = '';
   var editando = (sol && sol.estado === 'leida') || (!sol && S.modo === 'dibujo');
+  if (sol || S.modo === 'dibujo') {
+    var tit = sol ? ('Ficha ' + (ESTADO_TXT[sol.estado] || sol.estado) + (sol.cliente ? ' · ' + sol.cliente : '') + ' · ' + fecha(sol.created_at)) : 'Ficha nueva (dibujo)';
+    h += '<div class="abierta"><span>' + esc(tit) + '</span><button class="btn s" id="nueva-top">＋ Nueva ficha</button></div>';
+  }
   if (!sol && S.modo !== 'dibujo') {
     h += cardCabecera(true);
     h += cardInicio();
@@ -471,6 +477,7 @@ function eventos() {
   if ((b = $('reintentar'))) b.onclick = reintentar;
   if ((b = $('editar'))) b.onclick = volverAEditar;
   if ((b = $('nueva'))) b.onclick = nuevaFicha;
+  if ((b = $('nueva-top'))) b.onclick = function () { if (!S.sol && S.ventanas.length && !confirm('El dibujo actual no está guardado. ¿Empezar otra ficha?')) return; nuevaFicha(); poll(); };
   if ((b = $('compartir'))) b.onclick = function () {
     var R = S.sol.resultado || {}, txt = 'Presupuesto Jeovent ' + R.numero + ' · ' + fmt(R.importe) + ' €';
     if (navigator.share) navigator.share({ title: txt, text: txt, url: S.sol.pdf_url }).catch(function () {});
