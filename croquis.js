@@ -29,7 +29,12 @@
     corredera: 'Corredera',
     balconera: 'Balconera',
     puerta: 'Puerta',
+    balconera_exterior: 'Balconera ap. exterior',
+    abatible: 'Abatible',
+    osciloparalela: 'Osciloparalela',
     osc_fijo_osc: 'Hoja + fijo + hoja',
+    '2h_1osc_fijo_arriba': '2 hojas + fijo arriba',
+    '2h_1osc_fijo_abajo': '2 hojas + fijo abajo',
     otro: 'Fijo de panel + hojas'
   };
 
@@ -94,6 +99,14 @@
         hoja(x, w / 2, function (hx, hy, hw, hh) { return practicable(hx, hy, hw, hh, 'izq') + oscilo(hx, hy, hw, hh); });
         hoja(x + w / 2, w / 2, function (hx, hy, hw, hh) { return practicable(hx, hy, hw, hh, 'der') + oscilo(hx, hy, hw, hh) + manilla(hx, hy, hh, 'izq'); });
         break;
+      case 'balconera_exterior':
+        hoja(x, w, function (hx, hy, hw, hh) { return practicable(hx, hy, hw, hh, 'der') + manilla(hx, hy, hh, 'izq') + (hh > 70 ? text(hx + hw / 2, hy + hh - 6, 'ap. ext.', 'uds', ' text-anchor="middle"') : ''); }); break;
+      case 'abatible':
+        hoja(x, w, function (hx, hy, hw, hh) { return oscilo(hx, hy, hw, hh); }); break;
+      case 'osciloparalela':
+        hoja(x, w / 2 + 3, null);
+        hoja(x + w / 2 - 3, w / 2 + 3, function (hx, hy, hw, hh) { return oscilo(hx, hy, hw, hh) + corredera(hx, hy, hw, hh, 'izq') + manilla(hx, hy, hh, 'izq'); });
+        break;
       case 'corredera':
         hoja(x, w / 2 + 3, function (hx, hy, hw, hh) { return corredera(hx, hy, hw, hh, 'der'); });
         hoja(x + w / 2 - 3, w / 2 + 3, function (hx, hy, hw, hh) { return corredera(hx, hy, hw, hh, 'izq'); });
@@ -140,6 +153,15 @@
       if (v.panel !== false) out += panelRayado(ix, iy, pl, ih); else { out += rect(ix, iy, pl, ih, 'vid'); out += fijoMarca(ix, iy, pl, ih); }
       out += rect(ix + pl - 2, iy, 5, ih, 'mar');   // poste
       out += hojas('2_hojas_1_oscilobatiente', ix + pl + 3, iy, iw - pl - 3, ih);
+    } else if (/^2h_1osc_fijo_(arriba|abajo)$/.test(v.tipo)) {
+      // 2 hojas (1 oscilobatiente) con un tramo fijo arriba o abajo, separado por travesaño
+      var fj = n(v.alto_fijo_cm), abajo = /abajo$/.test(v.tipo);
+      var pf = fj > 0 && fj < alto ? fj * k : ih * 0.22;
+      var yF = abajo ? iy + ih - pf : iy;
+      out += rect(ix, yF, iw, pf, 'vid') + fijoMarca(ix, yF, iw, pf);
+      if (cotas && fj > 0) out += text(ix + iw - 4, yF + pf / 2 + 4, fmtCm(fj), 'ct', ' text-anchor="end" style="font-size:11px"');
+      out += rect(ix, (abajo ? yF : yF + pf) - 2, iw, 5, 'mar');
+      out += hojas('2_hojas_1_oscilobatiente', ix, abajo ? iy : iy + pf + 3, iw, Math.max(10, ih - pf - 3));
     } else if (v.tipo === 'osc_fijo_osc') {
       // hoja oscilobatiente (bisagras a la izquierda) + fijo central + hoja oscilobatiente (bisagras a la derecha), con dos postes
       var t1 = n(v.ancho_tramo1_cm), t2 = n(v.ancho_tramo2_cm);
@@ -189,13 +211,15 @@
   }
 
   function icono(tipo, w) {
-    var v = { tipo: tipo, ancho_cm: tipo === 'puerta' || tipo === 'balconera' || tipo === '1_hoja_practicable' || tipo === '1_hoja_oscilobatiente' ? 90 : (tipo === 'osc_fijo_osc' ? 190 : 150), alto_cm: tipo === 'puerta' || tipo === 'balconera' ? 210 : 120, persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: tipo === 'osc_fijo_osc' ? 68 : 45, ancho_tramo2_cm: 54, panel: true };
+    var una = /^(puerta|balconera|balconera_exterior|1_hoja_practicable|1_hoja_oscilobatiente|abatible)$/.test(tipo), alta = /^(puerta|balconera|balconera_exterior)$/.test(tipo), conFijo = /fijo_(arriba|abajo)$/.test(tipo);
+    var v = { tipo: tipo, ancho_cm: una ? 90 : (tipo === 'osc_fijo_osc' ? 190 : 150), alto_cm: alta ? 210 : (conFijo ? 150 : (tipo === 'abatible' ? 70 : 120)), persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: tipo === 'osc_fijo_osc' ? 68 : 45, ancho_tramo2_cm: 54, alto_fijo_cm: 40, panel: true };
     return svg(v, { w: w || 80, h: Math.round((w || 80) * 0.95), cotas: false });
   }
 
   function resumen(v) {
     var t = (TIPOS[v.tipo] || v.tipo || '') + ' · ' + fmtCm(v.ancho_cm) + ' × ' + fmtCm(v.alto_cm) + ' cm';
     if (v.persiana && v.persiana !== 'ninguna') t += ' · cajón ' + fmtCm(v.cajon_cm || 18.5) + (v.persiana === 'motor' ? ' motor' : (v.recogedor_lado && v.recogedor_lado !== 'ninguno' ? ' recogedor ' + v.recogedor_lado : ' recogedor'));
+    if (/fijo_(arriba|abajo)$/.test(v.tipo) && n(v.alto_fijo_cm) > 0) t += ' · fijo ' + fmtCm(v.alto_fijo_cm);
     if (v.tapajuntas === false) t += ' · sin tapajuntas';
     if (n(v.uds) > 1) t += ' · ' + n(v.uds) + ' uds';
     return t;
