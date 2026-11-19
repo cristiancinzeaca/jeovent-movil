@@ -35,8 +35,22 @@
     osc_fijo_osc: 'Hoja + fijo + hoja',
     '2h_1osc_fijo_arriba': '2 hojas + fijo arriba',
     '2h_1osc_fijo_abajo': '2 hojas + fijo abajo',
+    corredera_2h_abajo: 'Corredera arriba + 2 hojas abajo',
+    corredera_fijo_abajo: 'Corredera arriba + fijo abajo',
+    '4_hojas_2_osc': '4 hojas · 2 oscilobatientes',
+    corredera_3_hojas: 'Corredera 3 hojas',
+    corredera_4_hojas: 'Corredera 4 hojas',
+    bandera_derecha: 'Bandera: hoja + fijo arriba dcha.',
+    bandera_izquierda: 'Bandera: fijo arriba izq. + hoja',
     otro: 'Fijo de panel + hojas'
   };
+  // Qué cotas secundarias usa cada tipo (compartido con el PWA y el PC):
+  //   ancho_tramo1_cm = primer tramo (izquierda); ancho_tramo2_cm = fijo central; alto_fijo_cm = tramo separado por travesaño (fijo arriba/abajo, tramo inferior bajo una corredera, fijo de la bandera)
+  function conTramo1(tipo) { return /^(otro|osc_fijo_osc|4_hojas_2_osc|bandera_(derecha|izquierda))$/.test(tipo || ''); }
+  function conTramo2(tipo) { return tipo === 'osc_fijo_osc'; }
+  function conTramoAlto(tipo) { return /^(2h_1osc_fijo_(arriba|abajo)|corredera_(2h|fijo)_abajo|bandera_(derecha|izquierda))$/.test(tipo || ''); }
+  function nombreTramo1(tipo) { return tipo === 'osc_fijo_osc' ? 'ancho de la hoja izquierda' : tipo === '4_hojas_2_osc' ? 'ancho de la mitad izquierda' : /^bandera_/.test(tipo || '') ? 'ancho del primer tramo (izquierda)' : 'tramo L1'; }
+  function nombreTramoAlto(tipo) { return /^corredera_/.test(tipo || '') ? 'alto del tramo inferior (incluido en el alto)' : /^bandera_/.test(tipo || '') ? 'alto del fijo' : 'alto del tramo fijo (incluido en el alto)'; }
 
   function n(v) { var x = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(x) ? 0 : x; }
   function f(x) { return Math.round(x * 10) / 10; }
@@ -133,7 +147,7 @@
     var H = mT + areaH + mB;
     var out = '';
     out += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + f(H) + '" width="100%" class="croquis">';
-    out += '<style>.croquis .mar{fill:#fff;stroke:#0f172a;stroke-width:2}.croquis .tap{fill:none;stroke:#0f172a;stroke-width:1.2}.croquis .hoja{fill:#fff;stroke:#0f172a;stroke-width:1.6}.croquis .vid{fill:#dbeafe;stroke:#334155;stroke-width:1}.croquis .ap{fill:none;stroke:#0f172a;stroke-width:1.3}.croquis .man{fill:#0f172a}.croquis .fj{font:600 15px sans-serif;fill:#0f172a}.croquis .pan{fill:#e2e8f0;stroke:#334155;stroke-width:1}.croquis .ray{stroke:#64748b;stroke-width:.8}.croquis .caj{fill:#f1f5f9;stroke:#0f172a;stroke-width:1.6}.croquis .cot{stroke:#1a4fa0;stroke-width:1}.croquis .ct{font:600 13px sans-serif;fill:#1a4fa0}.croquis .ct.act{fill:#b45309}.croquis .cota.act rect{fill:#fef3c7;stroke:#f59e0b}.croquis .cota rect{fill:#fff;stroke:#cbd5e1;rx:5}.croquis .rec{fill:#0f172a}.croquis .mot{font:700 12px sans-serif;fill:#0f172a}.croquis .zona{fill:transparent}.croquis .uds{font:600 12px sans-serif;fill:#64748b}</style>';
+    out += '<style>.croquis .mar{fill:#fff;stroke:#0f172a;stroke-width:2}.croquis .tap{fill:none;stroke:#0f172a;stroke-width:1.2}.croquis .hoja{fill:#fff;stroke:#0f172a;stroke-width:1.6}.croquis .vid{fill:#dbeafe;stroke:#334155;stroke-width:1}.croquis .ap{fill:none;stroke:#0f172a;stroke-width:1.3}.croquis .man{fill:#0f172a}.croquis .fj{font:600 15px sans-serif;fill:#0f172a}.croquis .pan{fill:#e2e8f0;stroke:#334155;stroke-width:1}.croquis .ray{stroke:#64748b;stroke-width:.8}.croquis .caj{fill:#f1f5f9;stroke:#0f172a;stroke-width:1.6}.croquis .cot{stroke:#1a4fa0;stroke-width:1}.croquis .ct{font:600 13px sans-serif;fill:#1a4fa0}.croquis .ct.act{fill:#b45309}.croquis .cota.act rect{fill:#fef3c7;stroke:#f59e0b}.croquis .cota rect{fill:#fff;stroke:#cbd5e1;rx:5}.croquis .rec{fill:#0f172a}.croquis .mot{font:700 12px sans-serif;fill:#0f172a}.croquis .zona{fill:transparent}.croquis .uds{font:600 12px sans-serif;fill:#64748b}.croquis .pared{fill:#fff;stroke:#fff;stroke-width:3}</style>';
 
     // cajón
     var yMarco = y0 + pc;
@@ -173,6 +187,37 @@
       out += rect(ix + p1 + p2 - 2, iy, 5, ih, 'mar');
       var x3 = ix + p1 + p2 + 3, w3 = Math.max(1, p3 - 3);
       out += rect(x3, iy, w3, ih, 'hoja') + rect(x3 + gg, iy + gg, Math.max(1, w3 - 2 * gg), Math.max(1, ih - 2 * gg), 'vid') + practicable(x3 + gg, iy + gg, w3 - 2 * gg, ih - 2 * gg, 'der') + oscilo(x3 + gg, iy + gg, w3 - 2 * gg, ih - 2 * gg) + manilla(x3 + gg, iy + gg, ih - 2 * gg, 'izq');
+    } else if (/^corredera_(2h|fijo)_abajo$/.test(v.tipo)) {
+      // corredera de 2 hojas arriba + (2 hojas con 1 oscilobatiente | fijo) abajo, separados por travesaño; alto_fijo_cm = alto del tramo inferior
+      var ab = n(v.alto_fijo_cm), pAb = ab > 0 && ab < alto ? ab * k : ih / 2, yAb = iy + ih - pAb;
+      out += hojas('corredera', ix, iy, iw, Math.max(10, ih - pAb - 3));
+      out += rect(ix, yAb - 2, iw, 5, 'mar');
+      if (v.tipo === 'corredera_2h_abajo') out += hojas('2_hojas_1_oscilobatiente', ix, yAb + 3, iw, Math.max(10, pAb - 3));
+      else { out += rect(ix, yAb + 3, iw, Math.max(1, pAb - 3), 'vid'); out += fijoMarca(ix, yAb + 3, iw, pAb - 3); }
+      if (cotas && ab > 0) out += text(ix + iw - 4, yAb + pAb / 2 + 4, fmtCm(ab), 'ct', ' text-anchor="end" style="font-size:11px"');
+    } else if (v.tipo === '4_hojas_2_osc') {
+      // dos ventanas de 2 hojas (1 oscilobatiente) unidas por un poste central; ancho_tramo1_cm = mitad izquierda
+      var mit = n(v.ancho_tramo1_cm), pm = mit > 0 && mit < ancho ? mit * k : iw / 2;
+      out += hojas('2_hojas_1_oscilobatiente', ix, iy, Math.max(10, pm - 3), ih);
+      out += rect(ix + pm - 2, iy, 5, ih, 'mar');
+      out += hojas('2_hojas_1_oscilobatiente', ix + pm + 3, iy, Math.max(10, iw - pm - 3), ih);
+    } else if (/^corredera_(3|4)_hojas$/.test(v.tipo)) {
+      // corredera de 3 ("→ (←) ←") o 4 hojas ("→ ← → ←")
+      var nh = v.tipo === 'corredera_3_hojas' ? 3 : 4, hw = iw / nh, dirs = nh === 3 ? ['der', 'izq', 'izq'] : ['der', 'izq', 'der', 'izq'], gh = 6;
+      for (var hi = 0; hi < nh; hi++) { var hx = ix + hi * hw; out += rect(hx, iy, hw, ih, 'hoja') + rect(hx + gh, iy + gh, Math.max(1, hw - 2 * gh), Math.max(1, ih - 2 * gh), 'vid') + corredera(hx + gh, iy + gh, hw - 2 * gh, ih - 2 * gh, dirs[hi]); }
+    } else if (/^bandera_(derecha|izquierda)$/.test(v.tipo)) {
+      // marco en "L" (bandera): hoja oscilobatiente alta + fijo pequeño arriba a un lado; debajo del fijo hay pared.
+      // ancho_tramo1_cm = primer tramo (izquierda): la hoja en bandera_derecha, el fijo en bandera_izquierda; alto_fijo_cm = alto del fijo
+      var der = v.tipo === 'bandera_derecha', t1b = n(v.ancho_tramo1_cm), fjb = n(v.alto_fijo_cm);
+      var wH = t1b > 0 && t1b < ancho ? (der ? t1b : ancho - t1b) * k : iw * 0.62, wF = iw - wH, hF = fjb > 0 && fjb < alto ? fjb * k : ih / 2;
+      var xH = der ? ix : ix + wF, xF = der ? ix + wH : ix, xP = der ? ix + wH - 2 : ix + wF - 2, yFb = iy + hF;
+      out += hojas('1_hoja_oscilobatiente', xH + (der ? 0 : 3), iy, Math.max(10, wH - 3), ih);
+      out += rect(xF + (der ? 3 : 0), iy, Math.max(1, wF - 3), hF, 'vid') + fijoMarca(xF, iy, wF, hF);
+      // pared bajo el fijo (tapa el marco exterior) y el marco en "L"
+      out += rect(der ? xP + 5 : x0 - 7, yFb + 3, der ? (x0 + pw + 7) - (xP + 5) : xP - (x0 - 7), (yMarco + ph + 7) - (yFb + 3), 'pared');
+      out += rect(xP, iy, 5, ih + g, 'mar');
+      out += rect(der ? xP : x0, yFb, der ? x0 + pw - xP : xP + 5 - x0, g, 'mar');
+      if (cotas && fjb > 0) out += text(xF + wF / 2, yFb + 14, fmtCm(fjb), 'ct', ' text-anchor="middle" style="font-size:11px"');
     } else out += hojas(v.tipo || '1_hoja_oscilobatiente', ix, iy, iw, ih);
     // recogedor (punto negro en el marco, a media altura)
     if (cajon && pers === 'recogedor' && (lado === 'izquierda' || lado === 'derecha')) {
@@ -200,7 +245,7 @@
         out += line(x0, cl2, x0 + a1, cl2, 'cot') + text(x0 + a1 / 2, cl2 + 12, fmtCm(v.ancho_tramo1_cm), 'ct', ' text-anchor="middle" style="font-size:11px"');
         if (a2 > 0 && a1 + a2 < pw) { out += line(x0 + a1 + 3, cl2, x0 + a1 + a2, cl2, 'cot') + text(x0 + a1 + a2 / 2, cl2 + 12, fmtCm(v.ancho_tramo2_cm), 'ct', ' text-anchor="middle" style="font-size:11px"'); out += text(x0 + a1 + a2 + (pw - a1 - a2) / 2, cl2 + 12, fmtCm(Math.round((ancho - n(v.ancho_tramo1_cm) - n(v.ancho_tramo2_cm)) * 10) / 10), 'ct', ' text-anchor="middle" style="font-size:11px"'); }
       }
-      if (v.tipo === 'otro' && n(v.ancho_tramo1_cm) > 0) {
+      if (conTramo1(v.tipo) && v.tipo !== 'osc_fijo_osc' && n(v.ancho_tramo1_cm) > 0) {
         var cl = yMarco + ph + 8; out += line(x0, cl, x0 + n(v.ancho_tramo1_cm) * k, cl, 'cot');
         out += text(x0 + n(v.ancho_tramo1_cm) * k / 2, cl + 12, 'L1 ' + fmtCm(v.ancho_tramo1_cm), 'ct', ' text-anchor="middle" style="font-size:11px"');
       }
@@ -211,19 +256,22 @@
   }
 
   function icono(tipo, w) {
-    var una = /^(puerta|balconera|balconera_exterior|1_hoja_practicable|1_hoja_oscilobatiente|abatible)$/.test(tipo), alta = /^(puerta|balconera|balconera_exterior)$/.test(tipo), conFijo = /fijo_(arriba|abajo)$/.test(tipo);
-    var v = { tipo: tipo, ancho_cm: una ? 90 : (tipo === 'osc_fijo_osc' ? 190 : 150), alto_cm: alta ? 210 : (conFijo ? 150 : (tipo === 'abatible' ? 70 : 120)), persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: tipo === 'osc_fijo_osc' ? 68 : 45, ancho_tramo2_cm: 54, alto_fijo_cm: 40, panel: true };
+    var una = /^(puerta|balconera|balconera_exterior|1_hoja_practicable|1_hoja_oscilobatiente|abatible)$/.test(tipo), alta = /^(puerta|balconera|balconera_exterior)$/.test(tipo), conFijo = conTramoAlto(tipo);
+    var ancho = una ? 90 : tipo === 'osc_fijo_osc' ? 190 : /^(4_hojas_2_osc|corredera_4_hojas)$/.test(tipo) ? 200 : tipo === 'corredera_3_hojas' ? 180 : /^bandera_/.test(tipo) ? 100 : /^corredera_(2h|fijo)_abajo$/.test(tipo) ? 110 : 150;
+    var alto = alta ? 210 : /^corredera_(2h|fijo)_abajo$/.test(tipo) ? 200 : conFijo ? 150 : tipo === 'abatible' ? 70 : 120;
+    var v = { tipo: tipo, ancho_cm: ancho, alto_cm: alto, persiana: 'ninguna', tapajuntas: false, ancho_tramo1_cm: tipo === 'osc_fijo_osc' ? 68 : tipo === 'bandera_derecha' ? 62 : tipo === 'bandera_izquierda' ? 38 : tipo === '4_hojas_2_osc' ? 100 : 45, ancho_tramo2_cm: 54, alto_fijo_cm: /^bandera_/.test(tipo) ? 70 : /^corredera_/.test(tipo) ? 100 : 40, panel: true };
     return svg(v, { w: w || 80, h: Math.round((w || 80) * 0.95), cotas: false });
   }
 
   function resumen(v) {
     var t = (TIPOS[v.tipo] || v.tipo || '') + ' · ' + fmtCm(v.ancho_cm) + ' × ' + fmtCm(v.alto_cm) + ' cm';
     if (v.persiana && v.persiana !== 'ninguna') t += ' · cajón ' + fmtCm(v.cajon_cm || 18.5) + (v.persiana === 'motor' ? ' motor' : (v.recogedor_lado && v.recogedor_lado !== 'ninguno' ? ' recogedor ' + v.recogedor_lado : ' recogedor'));
-    if (/fijo_(arriba|abajo)$/.test(v.tipo) && n(v.alto_fijo_cm) > 0) t += ' · fijo ' + fmtCm(v.alto_fijo_cm);
+    if (conTramoAlto(v.tipo) && n(v.alto_fijo_cm) > 0) t += (/^corredera_/.test(v.tipo) ? ' · abajo ' : ' · fijo ') + fmtCm(v.alto_fijo_cm);
+    if (conTramo1(v.tipo) && v.tipo !== 'otro' && n(v.ancho_tramo1_cm) > 0) t += ' · tramo 1: ' + fmtCm(v.ancho_tramo1_cm);
     if (v.tapajuntas === false) t += ' · sin tapajuntas';
     if (n(v.uds) > 1) t += ' · ' + n(v.uds) + ' uds';
     return t;
   }
 
-  return { svg: svg, icono: icono, resumen: resumen, TIPOS: TIPOS, fmtCm: fmtCm };
+  return { svg: svg, icono: icono, resumen: resumen, TIPOS: TIPOS, fmtCm: fmtCm, conTramo1: conTramo1, conTramo2: conTramo2, conTramoAlto: conTramoAlto, nombreTramo1: nombreTramo1, nombreTramoAlto: nombreTramoAlto };
 }));
